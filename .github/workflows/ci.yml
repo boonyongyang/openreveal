@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      APP_BASE_URL: http://localhost:5173
+      API_BASE_URL: http://localhost:4000
+      DATABASE_URL: file:./data/ci.sqlite
+      SESSION_SECRET: ci-openreveal-secret-with-at-least-32-chars
+      PERFORMER_PASSPHRASE: openreveal-dev
+      SESSION_TTL_MINUTES: "30"
+      PORT: "4000"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.12"
+
+      - name: Enable pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.10.0 --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run workspace checks
+        run: pnpm check
+
+      - name: Run browser flows
+        run: pnpm test:e2e
