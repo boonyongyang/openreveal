@@ -27,6 +27,11 @@ This is the recommended build order after the first deployment-readiness pass. K
    - same-Wi-Fi timing notes
    - mobile-data or throttled-network notes
    - lock/resume notes
+4. Expand Playwright reconnect coverage:
+   - receiver reload
+   - receiver joins after reveal sent
+   - duplicate receiver rejection
+   - same-device replacement
 
 ## Good Next Product Work
 

@@ -168,7 +168,7 @@ The feature set is ready for deployment only when:
 The current Playwright suite remains the fast automated gate. Expand coverage in this order:
 
 1. Keep `console-flow.pw.ts` as the demo-mode baseline.
-2. Add `two-page-session.pw.ts` with one performer page and one audience receiver page.
+2. Use `two-page-session.pw.ts` for one performer page and one audience receiver page.
 3. Cover receiver join, foreground state, hidden prepared payload, send, delivered acknowledgement, reset, and end-session lockout.
 4. Add reconnect scenarios: receiver reload, receiver joins after reveal sent, duplicate receiver rejection, and same-device replacement.
 

@@ -5,7 +5,7 @@ Use this as the final gate before publishing an OpenReveal instance. Follow [tes
 ## Automated Checks
 
 - [x] `pnpm check` (passed 2026-05-17)
-- [x] `pnpm test:e2e` (8 passed, 2026-05-17)
+- [x] `pnpm test:e2e` (9 passed, 2026-05-19)
 - [x] `pnpm test:latency` (20 samples, p95 7ms, max 8ms, 2026-05-17)
 - [x] `pnpm audit --audit-level moderate` (no known vulnerabilities, 2026-05-17)
 - [x] Production-mode smoke with `WEB_DIST_DIR`, `/api/health`, and `/console` static fallback (passed 2026-05-17)
