@@ -18,6 +18,7 @@ Start here:
 - [Mobile QA checklist](mobile-qa.md): real-device checks for iPhone Safari and Android Chrome.
 - [Latency report](latency-report.md): repeatable local prepared-foreground reveal latency measurement and latest p95 result.
 - [Owner input checklist](owner-inputs.md): domain, hosting, mobile QA, and product decisions needed from the project owner.
+- [End-to-end testing plan](../docs/testing-plan.md): automated, manual performer, audience-phone, mobile reliability, and production-smoke test procedure.
 - [Deployment readiness checklist](../docs/deployment-readiness.md): final automated, owner, and device gates before a public deploy.
 - [Build suggestions](../docs/build-suggestions.md): recommended post-deployment product, operations, and scale work.
 - [Safety and legal requirements](safety-and-legal.md): consent-first boundaries, privacy, branding, licensing, and prohibited behavior.

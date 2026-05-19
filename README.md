@@ -39,6 +39,7 @@ make docker-build
 The full command reference is in [COMMANDS.md](COMMANDS.md). Equivalent pnpm scripts are available through `pnpm dev`, `pnpm lint`, `pnpm test`, `pnpm test:e2e`, `pnpm typecheck`, `pnpm build`, and `pnpm check`.
 
 For production self-hosting, see [docs/production-deployment.md](docs/production-deployment.md).
+For deployment testing, see [docs/testing-plan.md](docs/testing-plan.md).
 
 ## Safety Boundary
 
@@ -60,6 +61,7 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening issues or pull requests. 
 - [docs/architecture.md](docs/architecture.md)
 - [docs/effect-authoring.md](docs/effect-authoring.md)
 - [docs/preset-format.md](docs/preset-format.md)
+- [docs/testing-plan.md](docs/testing-plan.md)
 - [docs/deployment-readiness.md](docs/deployment-readiness.md)
 - [docs/build-suggestions.md](docs/build-suggestions.md)
 - [requirements/product-requirements.md](requirements/product-requirements.md)

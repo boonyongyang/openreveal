@@ -1,6 +1,6 @@
 # Deployment Readiness Checklist
 
-Use this as the final gate before publishing an OpenReveal instance.
+Use this as the final gate before publishing an OpenReveal instance. Follow [testing-plan.md](testing-plan.md) for the full performer, audience-phone, Playwright, mobile QA, and production-smoke procedure.
 
 ## Automated Checks
 

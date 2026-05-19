@@ -71,6 +71,8 @@ pnpm test:e2e
 pnpm audit
 ```
 
+For the full end-to-end deployment testing procedure, including performer-console and audience-phone checks, see [docs/testing-plan.md](docs/testing-plan.md).
+
 For local reveal latency checks:
 
 ```sh
