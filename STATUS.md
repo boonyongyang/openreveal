@@ -57,7 +57,7 @@
 - Owner input checklist is drafted in `requirements/owner-inputs.md`.
 - Mobile QA checklist is drafted in `requirements/mobile-qa.md`.
 - Deployment readiness checklist is drafted in `docs/deployment-readiness.md`.
-- Playwright browser flows cover login/session creation, location reveal, celebrity reveal, custom text reveal, console readiness surfaces, ended-session lockout, and a true performer-page plus receiver-page session flow.
+- Playwright browser flows cover login/session creation, location reveal, celebrity reveal, custom text reveal, console readiness surfaces, ended-session lockout, a true performer-page plus receiver-page session flow, receiver reload restoration, receiver replacement after leave, and duplicate receiver rejection.
 - Receiver retry delay unit coverage is in place for capped reconnect backoff.
 
 ## Verified
@@ -82,7 +82,7 @@
 Latest release-readiness pass on 2026-05-17:
 
 - `pnpm check`: passed.
-- `pnpm test:e2e`: passed, 9 browser flows on 2026-05-19.
+- `pnpm test:e2e`: passed, 12 browser flows on 2026-05-21.
 - `pnpm test:latency`: passed, 20 samples, p95 7ms, max 8ms.
 - `pnpm audit --audit-level moderate`: passed with no known vulnerabilities.
 - Production-mode smoke: passed for `/api/health` and `/console` built SPA fallback.

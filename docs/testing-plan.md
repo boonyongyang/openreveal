@@ -170,6 +170,7 @@ The current Playwright suite remains the fast automated gate. Expand coverage in
 1. Keep `console-flow.pw.ts` as the demo-mode baseline.
 2. Use `two-page-session.pw.ts` for one performer page and one audience receiver page.
 3. Cover receiver join, foreground state, hidden prepared payload, send, delivered acknowledgement, reset, and end-session lockout.
-4. Add reconnect scenarios: receiver reload, receiver joins after reveal sent, duplicate receiver rejection, and same-device replacement.
+4. Use `reconnect-flow.pw.ts` for receiver reload, receiver joins after reveal sent, and duplicate receiver rejection.
+5. Add same-device replacement coverage if the browser layer needs more than the existing API/WebSocket test coverage.
 
 Playwright is required for the automated release gate, but it does not replace physical phone QA for Safari/Chrome lifecycle, camera QR scanning, phone lock, native Maps handoff, or real mobile network behavior.

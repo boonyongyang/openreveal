@@ -93,6 +93,7 @@ Goal: close the final public-deployment gates without adding product scope.
 - [x] Add deployment readiness checklist.
 - [x] Run local automated release checks: `pnpm check`, `pnpm test:e2e`, `pnpm test:latency`, and `pnpm audit --audit-level moderate`.
 - [x] Add Playwright two-page performer/receiver session coverage.
+- [x] Add Playwright reconnect and duplicate receiver coverage.
 - [x] Run production-mode API/static-serving smoke with `WEB_DIST_DIR`.
 - [ ] Run `make docker-build` after Docker daemon is running, if Docker deployment is the chosen path.
 - [ ] Fill `requirements/owner-inputs.md`.
