@@ -45,17 +45,34 @@ Last updated: 2026-06-17
   git diff --check
   ```
 
+## Landed 2026-06-17
+
+Baseline committed and a four-phase security hardening pass shipped on `main`
+(not pushed). All green: `pnpm check`, `test:e2e` (20), `test:latency`
+(p95 12ms), `audit --audit-level moderate` (1 low only).
+
+- `a7017ab` Baseline + audit-regression fix (vite/esbuild bumps).
+- `efd4915` WebSocket abuse hardening: per-IP socket cap, per-socket message
+  rate limit, ping/pong liveness reaper, `trustProxy`.
+- `f2e55ad` Login brute-force limit + constant-time compare; Google Places
+  response cache + optional daily budget.
+- `7e681c2` Background cleanup scheduler for expired data + HSTS on https.
+- `691c9fc` Deploy/abuse-control documentation.
+
+New env knobs (all have safe defaults): `AUTH_RATE_LIMIT_MAX`,
+`CLEANUP_INTERVAL_MINUTES`, `GOOGLE_PLACES_DAILY_BUDGET`.
+
 ## What To Do Next
 
-1. Re-run the full verification suite above and confirm green.
-2. Commit the uncommitted baseline (modified docs + untracked Places/scripts/PWA features)
-   as one coherent commit. Doc edits already match the implemented effect schemas.
-3. Run physical-device QA and record results in `requirements/mobile-qa.md`:
+1. Run physical-device QA and record results in `requirements/mobile-qa.md`:
    iPhone Safari and Android Chrome — same-Wi-Fi join, foreground/background,
    lock/unlock, receiver reload, short network interruption, reconnect after reveal.
-4. Unblock deployment (owner): choose a billed GCP project ID and region, fill
-   `requirements/owner-inputs.md`, set production env from `.env.example`, deploy,
-   then run `pnpm smoke:deploy <hosted-url>`.
+2. Unblock deployment (owner): choose a billed GCP project ID and region, fill
+   `requirements/owner-inputs.md`, set production env from `.env.example`, deploy
+   with `--max-instances 1`, then run `pnpm smoke:deploy <hosted-url>`.
+3. Consider pushing `main` / tagging a release before the public deploy.
+4. Post-v1 only: moving rate-limit + WS hub state to a shared store is the
+   prerequisite for running more than one instance.
 
 ## Suggested First Prompt For Next Session
 
