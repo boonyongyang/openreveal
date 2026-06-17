@@ -84,6 +84,7 @@ V1 sets baseline browser safety headers on both frontend and API responses:
 - `X-Frame-Options: DENY`.
 - `Referrer-Policy: no-referrer`.
 - `X-Content-Type-Options: nosniff`.
+- `Strict-Transport-Security` (2 years, `includeSubDomains`) on https deployments only, so local http development is not pinned to https.
 
 Production hosting must preserve equivalent headers when the built frontend is served outside Vite preview.
 
@@ -378,6 +379,10 @@ Render requirements:
 - Expire session codes. Default TTL is configurable via `SESSION_TTL_MINUTES`; absolute upper bound is 24 hours.
 - Rate limit session creation and reveal actions.
 - Rate limit receiver session-status lookup with a bounded mobile-friendly limit. Current v1 default is 60 attempts per IP per minute so reconnect and QA flows do not self-throttle.
+- Rate limit performer login separately and tightly (`AUTH_RATE_LIMIT_MAX`, default 10 per IP per minute) and compare the passphrase in constant time.
+- Defend the anonymous WebSocket surface: cap concurrent sockets per IP, rate-limit inbound messages per socket so a flooding receiver cannot amplify into broadcasts or reveal-ack writes, and reap unresponsive sockets via ping/pong. `trustProxy` is enabled so all per-IP limits key on the real client behind the proxy.
+- Bound optional Google Places proxy cost with response caching and an optional `GOOGLE_PLACES_DAILY_BUDGET` daily ceiling.
+- Prune expired sessions and aged audit rows on a background schedule (`CLEANUP_INTERVAL_MINUTES`).
 - Require performer authorization for session mutation. V1 uses a single env-configured admin passphrase that mints a signed HttpOnly cookie sent with same-origin HTTP and WebSocket requests. Multi-user accounts are post-v1.
 - Prevent receiver clients from controlling performer-only actions.
 - Validate all payloads on the server.

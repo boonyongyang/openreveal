@@ -103,6 +103,11 @@ Public deployments should include:
 - Frontend dev/preview responses set CSP, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, and `X-Content-Type-Options: nosniff`.
 - API responses set CSP, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, and `X-Content-Type-Options: nosniff`.
 - Global API rate limiting is enabled; receiver-status lookup has a bounded mobile-friendly limit for reconnect and QA flows.
+- Performer login has a dedicated tighter per-IP rate limit (`AUTH_RATE_LIMIT_MAX`, default 10/min) and a constant-time passphrase comparison to blunt brute-force against the single shared passphrase.
+- The anonymous WebSocket surface is defended with a per-IP concurrent-connection cap, a per-socket message-rate limiter that drops flooding receivers before they amplify into broadcasts or reveal-ack writes, and a ping/pong liveness reaper for zombie sockets.
+- The optional Google Places proxy is cost-bounded with response caching and an optional `GOOGLE_PLACES_DAILY_BUDGET` daily call ceiling.
+- A background scheduler prunes expired sessions and aged audit rows (`CLEANUP_INTERVAL_MINUTES`) so a long-running instance does not grow without bound.
+- `Strict-Transport-Security` is sent on https deployments.
 - State-changing API requests with untrusted browser `Origin` or `Referer` headers are rejected.
 - `/report` provides hosted-instance abuse-report guidance and can link to a configured `VITE_ABUSE_REPORT_URL`.
 - Playwright covers the privacy page, report page, and anti-framing headers.

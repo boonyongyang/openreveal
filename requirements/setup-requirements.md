@@ -32,8 +32,11 @@ SESSION_TTL_MINUTES=30
 PERFORMER_PASSPHRASE=replace-with-local-passphrase
 PORT=4000
 API_RATE_LIMIT_MAX=100
+AUTH_RATE_LIMIT_MAX=10
+CLEANUP_INTERVAL_MINUTES=30
 GOOGLE_PLACES_API_KEY=
 GOOGLE_PLACES_ENABLED=false
+GOOGLE_PLACES_DAILY_BUDGET=0
 VITE_ABUSE_REPORT_URL=
 WEB_DIST_DIR=
 ```
@@ -42,7 +45,10 @@ Notes:
 
 - `PERFORMER_PASSPHRASE` is required. It mints a signed performer token; without it, only the spectator receiver page is reachable.
 - `API_RATE_LIMIT_MAX` controls the global API rate limit per minute. Keep the local/production default conservative; Playwright raises it only for automated test runs.
+- `AUTH_RATE_LIMIT_MAX` controls the tighter per-IP limit on `/api/auth/login` (default 10/min) that blunts passphrase brute-force. Playwright raises it for automated runs.
+- `CLEANUP_INTERVAL_MINUTES` sets how often expired sessions and aged rows are pruned (default 30). Set to `0` to disable the background scheduler.
 - `GOOGLE_PLACES_API_KEY` is optional. When set with `GOOGLE_PLACES_ENABLED=true`, the performer location form enables Place search and autocompletes places through the backend proxy.
+- `GOOGLE_PLACES_DAILY_BUDGET` is an optional hard daily ceiling on upstream Google Places calls (default `0` = unlimited). Cached lookups do not count toward it. Set a value when Places is enabled so a leaked passphrase cannot run an unbounded bill.
 - Without a Places key, location reveal stays in manual mode and still creates official Google Maps URLs without an API key.
 - `VITE_ABUSE_REPORT_URL` is optional. Hosted public instances should set it to a report form, issue tracker, or monitored contact page so `/report` has an outbound report destination.
 - `WEB_DIST_DIR` is optional locally and required in production. It points the API server at the built Vite app so one Node process can serve `/console`, `/r/:sessionCode`, `/privacy`, `/report`, `/api/*`, and `/ws`. Prefer an absolute path because filtered pnpm package commands run from `apps/api`.
