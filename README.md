@@ -8,6 +8,25 @@ OpenReveal is an open-source, consent-based spectator-phone mentalism PWA. A per
 
 The current build implements the live session foundation plus location reveal, text-only celebrity reveal with auditable preset metadata, and a Phase 6 custom text reveal. The performer console can create a session, open demo mode, arm any built-in effect, send it to the spectator receiver page, receive delivery acknowledgements, and reset the session.
 
+## How it works
+
+1. **Create** — the performer opens the private console and starts a session, which produces a short code and a QR.
+2. **Connect** — the spectator opens the site on their own phone and enters the code (or scans the QR). The console shows the phone is live.
+3. **Reveal** — the performer arms a reveal and sends it; it appears instantly on the spectator's phone over a live WebSocket, with a delivery acknowledgement back to the console.
+
+Nothing is shown on the spectator phone until the performer sends it, and the
+performer only ever controls pages served by this project — see the
+[Safety Boundary](#safety-boundary).
+
+## Features
+
+- **Live two-device sessions** over WebSocket, with reconnect and a liveness reaper.
+- **Built-in reveals** — location (Google Maps link, with a manual fallback when no Places key is set), celebrity (text-only, auditable preset metadata), and custom text.
+- **Private performer console** — session create, demo mode, arm / send / reset / end, and receiver state at a glance.
+- **Consent-first by design** — spectators opt in by opening a URL and entering a code; no spectator data is collected or stored centrally.
+- **Hardened** — per-IP and per-route rate limiting, constant-time passphrase check, anonymous-WebSocket abuse controls, CSP/HSTS/anti-framing headers, and an Origin/Referer CSRF guard. Exercised in CI on every push (see [SECURITY.md](SECURITY.md)).
+- **Self-hostable** — single-host Cloud Run friendly; no hosted instance required.
+
 ## Stack
 
 - Node 22.12+
