@@ -99,3 +99,41 @@ export async function cleanupExpiredData(options: CleanupExpiredDataOptions = {}
 
   return result;
 }
+
+export interface CleanupSchedulerOptions {
+  intervalMs: number;
+  retentionHours?: number;
+  onError?: (error: unknown) => void;
+  runImmediately?: boolean;
+}
+
+/**
+ * Periodically prune expired sessions and aged rows so a long-running instance
+ * does not grow SQLite without bound. Returns a stop function. A non-positive
+ * interval disables scheduling entirely. Runs are non-overlapping; the timer is
+ * unref'd so it never keeps the process alive on its own.
+ */
+export function startCleanupScheduler(options: CleanupSchedulerOptions): () => void {
+  if (options.intervalMs <= 0) {
+    return () => {};
+  }
+
+  let running = false;
+  const tick = async () => {
+    if (running) return;
+    running = true;
+    try {
+      await cleanupExpiredData({ retentionHours: options.retentionHours });
+    } catch (error) {
+      options.onError?.(error);
+    } finally {
+      running = false;
+    }
+  };
+
+  const timer = setInterval(() => void tick(), options.intervalMs);
+  timer.unref?.();
+  if (options.runImmediately) void tick();
+
+  return () => clearInterval(timer);
+}

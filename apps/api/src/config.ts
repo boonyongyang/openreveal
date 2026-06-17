@@ -59,6 +59,8 @@ export const config = {
   authRateLimitMax: intEnv("AUTH_RATE_LIMIT_MAX", 10),
   sessionSecret: devFallback("SESSION_SECRET", "openreveal-dev-secret-change-me"),
   sessionTtlMinutes: intEnv("SESSION_TTL_MINUTES", DEFAULT_SESSION_TTL_MINUTES),
+  // Background prune cadence for expired sessions/events. 0 disables the timer.
+  cleanupIntervalMinutes: intEnv("CLEANUP_INTERVAL_MINUTES", 30),
   googlePlacesApiKey: process.env.GOOGLE_PLACES_API_KEY,
   googlePlacesEnabled: boolEnv("GOOGLE_PLACES_ENABLED", Boolean(process.env.GOOGLE_PLACES_API_KEY)),
   // Hard daily ceiling on upstream Google Places calls. 0 disables the cap.

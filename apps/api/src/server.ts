@@ -21,6 +21,7 @@ import { createPerformerToken, PERFORMER_COOKIE, safeEqual, verifyPerformerToken
 import { config, validateRuntimeConfig } from "./config.js";
 import { db, migrate } from "./db.js";
 import { registerBuiltInServerEffects, serverEffects } from "./effects/index.js";
+import { startCleanupScheduler } from "./maintenance.js";
 import { autocompletePlaces, getPlaceDetails, placesConfigured } from "./places.js";
 import { RealtimeHub } from "./realtime.js";
 import { createSessionCode } from "./session-codes.js";
@@ -34,11 +35,18 @@ import {
 
 const hub = new RealtimeHub();
 
+// Only advertise HSTS when the deployment is actually https; sending it over
+// plain http (local/dev) would wrongly pin browsers to https for the host.
+const hstsHeaders = config.appBaseUrl.startsWith("https://")
+  ? { "Strict-Transport-Security": "max-age=63072000; includeSubDomains" }
+  : {};
+
 const apiSecurityHeaders = {
   "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
   "Referrer-Policy": "no-referrer",
   "X-Content-Type-Options": "nosniff",
-  "X-Frame-Options": "DENY"
+  "X-Frame-Options": "DENY",
+  ...hstsHeaders
 };
 
 const webSecurityHeaders = {
@@ -54,7 +62,8 @@ const webSecurityHeaders = {
   ].join("; "),
   "Referrer-Policy": "no-referrer",
   "X-Content-Type-Options": "nosniff",
-  "X-Frame-Options": "DENY"
+  "X-Frame-Options": "DENY",
+  ...hstsHeaders
 };
 
 const stateChangingMethods = new Set(["DELETE", "PATCH", "POST", "PUT"]);
@@ -286,8 +295,20 @@ export async function buildServer() {
 
   const livenessReaper = new LivenessReaper();
   livenessReaper.start();
+
+  // Background pruning of expired sessions/events. Skipped under test so unit
+  // cases drive cleanupExpiredData directly and stay deterministic.
+  const stopCleanup = process.env.NODE_ENV === "test"
+    ? () => {}
+    : startCleanupScheduler({
+        intervalMs: config.cleanupIntervalMinutes * 60_000,
+        runImmediately: true,
+        onError: (error) => app.log.error({ error }, "scheduled cleanup failed")
+      });
+
   app.addHook("onClose", async () => {
     livenessReaper.stop();
+    stopCleanup();
   });
 
   await app.register(cookie, {

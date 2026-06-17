@@ -150,3 +150,22 @@ describe("cleanupExpiredData", () => {
     expect(ttlEvents.some((event) => event.eventType === "session_expired")).toBe(true);
   });
 });
+
+describe("startCleanupScheduler", () => {
+  it("does not schedule when the interval is non-positive", async () => {
+    const { startCleanupScheduler } = await import("../src/maintenance.js");
+    const stop = startCleanupScheduler({ intervalMs: 0 });
+    expect(typeof stop).toBe("function");
+    // No-op stop must be safe to call.
+    expect(() => stop()).not.toThrow();
+  });
+
+  it("returns a stop function that clears the timer", async () => {
+    const { startCleanupScheduler } = await import("../src/maintenance.js");
+    const { migrate } = await import("../src/db.js");
+    await migrate();
+    const stop = startCleanupScheduler({ intervalMs: 60_000 });
+    expect(typeof stop).toBe("function");
+    stop();
+  });
+});
