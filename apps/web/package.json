@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@openreveal/shared": "workspace:*",
-    "@vitejs/plugin-react": "^5.0.0",
+    "@vitejs/plugin-react": "^6.0.2",
     "vite": "^7.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
