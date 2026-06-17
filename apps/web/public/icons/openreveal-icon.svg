@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title>OpenReveal icon</title>
+  <rect width="512" height="512" rx="96" fill="#191713"/>
+  <circle cx="256" cy="256" r="156" fill="none" stroke="#f1cb73" stroke-width="34"/>
+  <path d="M168 264c42-64 134-64 176 0-42 64-134 64-176 0Z" fill="#fffaf1"/>
+  <circle cx="256" cy="264" r="38" fill="#191713"/>
+  <circle cx="270" cy="248" r="12" fill="#f1cb73"/>
+</svg>

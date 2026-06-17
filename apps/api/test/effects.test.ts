@@ -34,7 +34,9 @@ describe("server effects", () => {
       kind: "celebrity",
       name: "Michelle Yeoh",
       subtitle: "Actor",
-      sourceUrl: undefined
+      sourceUrl: undefined,
+      searchUrl: "https://www.google.com/search?q=Michelle%20Yeoh",
+      autoOpenSearch: true
     });
   });
 
@@ -44,16 +46,12 @@ describe("server effects", () => {
     expect(effect).toBeDefined();
 
     const payload = effect!.validate({
-      title: "Prediction",
-      body: "The word you named was horizon.",
-      footer: "OpenReveal"
+      body: "Impossible"
     });
 
     expect(payload).toEqual({
       kind: "custom_text",
-      title: "Prediction",
-      body: "The word you named was horizon.",
-      footer: "OpenReveal"
+      body: "Impossible"
     });
   });
 

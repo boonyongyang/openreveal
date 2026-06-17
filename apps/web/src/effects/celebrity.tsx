@@ -58,6 +58,14 @@ function CelebrityForm({
           placeholder="Optional https:// source"
         />
       </label>
+      <label className="checkbox-row">
+        <input
+          type="checkbox"
+          checked={draft.autoOpenSearch !== false}
+          onChange={(event) => onChange({ ...draft, autoOpenSearch: event.target.checked })}
+        />
+        Open Google Search automatically when sent
+      </label>
     </div>
   );
 }
@@ -74,7 +82,11 @@ function CelebrityReveal({ payload }: { payload: CelebrityPayload | { kind: stri
         <a href={celebrity.sourceUrl} target="_blank" rel="noreferrer">
           Read more
         </a>
-      ) : null}
+      ) : (
+        <a href={celebrity.searchUrl} target="_blank" rel="noreferrer">
+          Search
+        </a>
+      )}
     </article>
   );
 }

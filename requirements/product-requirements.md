@@ -19,7 +19,7 @@ The system should feel simple in performance and transparent in implementation. 
 Needs:
 
 - Create a session quickly.
-- Share a QR code or short URL.
+- Share a short site/code instruction or QR code.
 - See whether the spectator phone is connected and foregrounded.
 - Choose or type a reveal.
 - Send, reset, or change the reveal discreetly.
@@ -61,7 +61,7 @@ Everything else is deferred to a later phase below. Scope creep into the future 
 
 User stories:
 
-- As a performer, I can create a session in one click and get a short URL plus QR code immediately.
+- As a performer, I can create a session in one click and get a short code, site join instruction, and QR code immediately.
 - As a performer, I can see the spectator's connection state in real time.
 - As a performer, I can reset (clear current reveal) or end (terminate session) at any time.
 - As a spectator, I open the URL once and never need to refresh.
@@ -87,31 +87,32 @@ Edge cases v1 must handle:
 
 Acceptance:
 
-- Performer can create a session and copy the URL or scan the QR in under 5 seconds from console open.
-- Spectator joining the URL is reflected in performer console within 1 second.
+- Performer can create a session and copy the code, copy the URL, or scan the QR in under 5 seconds from console open.
+- Spectator joining by site root, `/j`, QR, or direct receiver URL is reflected in performer console within 1 second.
 
 ### F2. Location reveal
 
 User stories:
 
-- As a performer, I type a location name, arm it, and send the reveal at the right moment.
+- As a performer, I type a location name or select a Google Places result, arm it, and send the reveal at the right moment.
 - As a spectator, when the reveal lands I see a result for that location on the same page I had open.
-- As a spectator, I can tap "Open in Maps" to open Google Maps via an official URL.
+- As a spectator, I can tap "Open in Maps" or, when enabled, be redirected to Google Maps via an official URL.
 
 Behavior detail:
 
-- Performer input: free text. V1 has no autocomplete, geocoding, or Places API integration.
+- Performer input: free text by default, with optional backend-proxied Google Places autocomplete when `GOOGLE_PLACES_API_KEY` and `GOOGLE_PLACES_ENABLED=true` are configured.
 - Optional fields the performer can fill manually: region/country, latitude, longitude.
-- Reveal payload schema: `{ kind: "location", name, region?, country?, lat?, lng?, mapsUrl }`.
-- `mapsUrl` is computed server-side using Google Maps' official query URL (`https://www.google.com/maps/search/?api=1&query=<encoded>`). No API key required.
+- Reveal payload schema: `{ kind: "location", name, region?, country?, formattedAddress?, placeId?, lat?, lng?, autoOpenMaps?, mapsUrl }`.
+- `mapsUrl` is computed server-side using Google Maps' official query URL (`https://www.google.com/maps/search/?api=1&query=<encoded>`). Places-selected locations add `query_place_id` for a precise marker.
 - Spectator render: a result card on the neutral search-style page showing name, optional region/country subtitle, and an "Open in Maps" link. No embedded map tiles in v1.
+- If `autoOpenMaps` is true, the receiver acknowledges delivery and immediately replaces the receiver page with the official Google Maps URL. This avoids adding OpenReveal as the immediate back-button destination, but browsers do not allow a web app to erase the spectator's full tab history. Reset/end cannot update that phone until the spectator returns to the receiver page.
 - Reset removes the result card and returns the spectator to the neutral page.
 
 Acceptance:
 
 - Performer can arm and send a location reveal end-to-end.
 - Spectator sees the result within the prepared foreground/local 250ms p95 latency target; real mobile 4G is best-effort under one second.
-- "Open in Maps" opens Google Maps app or web with the correct query.
+- "Open in Maps" or auto-open Maps opens Google Maps app or web with the correct query or place marker.
 - Reset returns spectator to neutral page in under 200ms.
 
 ### F3. Celebrity reveal
@@ -126,8 +127,9 @@ Behavior detail:
 - Built-in preset list: ~30 widely-known names shipped as JSON. Maintainer-editable in repo, not user-editable in v1.
 - Performer can also type a custom name not in the preset.
 - Optional fields: subtitle/category (e.g. "Actor", "Musician"), source URL.
-- Reveal payload schema: `{ kind: "celebrity", name, subtitle?, sourceUrl? }`.
-- Spectator render: a result card with name, optional subtitle, optional "Read more" link to the source URL.
+- Reveal payload schema: `{ kind: "celebrity", name, subtitle?, sourceUrl?, searchUrl, autoOpenSearch? }`.
+- Spectator render: a result card with name, optional subtitle, optional "Read more" link to the source URL, and a "Search" link fallback.
+- If `autoOpenSearch` is enabled, the receiver acknowledges delivery and immediately replaces the receiver page with the official Google Search URL. This avoids adding OpenReveal as the immediate back-button destination, but browsers do not allow a web app to erase the spectator's full tab history.
 - No images in v1 (licensing risk; see safety-and-legal.md).
 
 Acceptance:
@@ -140,14 +142,14 @@ Acceptance:
 
 User stories:
 
-- As a performer, I type a short title and message, then arm and send it as a reveal.
-- As a spectator, when the reveal lands I see the text on the same original receiver page.
+- As a performer, I type one short reveal text, then arm and send it quickly.
+- As a spectator, when the reveal lands I see the text centered on a dedicated reveal page.
 
 Behavior detail:
 
-- Performer input: optional title, required message body, optional footer.
-- Reveal payload schema: `{ kind: "custom_text", title?, body, footer? }`.
-- Spectator render: a text result card that preserves readable line breaks and does not render performer-provided HTML or Markdown.
+- Performer input: one required reveal text field.
+- Reveal payload schema: `{ kind: "custom_text", body }`.
+- Spectator render: centered full-screen text that preserves readable line breaks and does not render performer-provided HTML or Markdown.
 - No third-party API, external asset, or image dependency.
 
 Acceptance:
@@ -158,13 +160,18 @@ Acceptance:
 
 ### F4. Performer console
 
+The console has two in-page modes:
+
+- **Quick Session**: default performance mode. It keeps grouped session code, site/code copy actions, QR backup, receiver status, effect choice, and Arm/Send/Reset/End controls visible with minimal diagnostics.
+- **Advanced**: rehearsal/debug mode. It keeps direct receiver URL, Demo mode, full session details, receiver history, import/export presets, latency, and activity log visible.
+
 Layout sections (single-page, no routing inside the console):
 
-- **Session header**: session code, receiver URL with copy button, QR code, expiry countdown, end-session button.
+- **Session header**: grouped session code, root/`/j` join instruction, QR code, expiry countdown, end-session button.
 - **Connection panel**: spectator state (disconnected / connecting / foregrounded / backgrounded), last-seen timestamp, prepared-ack indicator, last reveal-ack indicator.
 - **Effect tabs**: Location, Celebrity, and Custom text. Each tab has its own input form. Switching tabs disarms any pending reveal to prevent cross-effect mistakes.
 - **Reveal control bar**: Arm, Send, Reset buttons with explicit inline disabled/readiness reasons.
-- **Demo mode toggle**: opens a sidebar pane that runs a spectator instance against the same session.
+- **Demo mode toggle**: Advanced-only control that opens a sidebar pane running a spectator instance against the same session.
 
 Reveal-control state machine:
 
@@ -198,7 +205,7 @@ Acceptance:
 
 States:
 
-- **Waiting**: neutral search-style page. No remote-control hints. No spinner.
+- **Waiting**: neutral receiver page. No remote-control hints, fake portal chrome, footer links, or spinner.
 - **Armed**: visually identical to waiting. The reveal payload may already be cached client-side via `reveal_prepared` but is not yet rendered.
 - **Revealed**: the result appears as a search result on the existing page (in-place transition, not a full takeover).
 - **Reset**: result removed; back to the waiting visual.
@@ -208,9 +215,9 @@ States:
 Visual contract:
 
 - Waiting and armed must render identical DOM.
-- The pre-reveal page is a generic, finished-looking search-style landing page using this project's own name, color, and typography.
+- The pre-reveal page is a generic, finished-looking waiting surface using this project's own color and typography.
 - The page must not impersonate Google, Apple, Inject, or any other third-party product. No third-party logos, no copied layouts, no spoofed URL bars. See safety-and-legal.md "Maps And Search Requirements".
-- The reveal transition feels like a normal in-page interaction (e.g. a result appearing on the same search-style page).
+- The reveal transition feels like a normal in-page interaction.
 
 Early-pickup behavior:
 

@@ -23,15 +23,15 @@ OPENREVEAL_LATENCY_SAMPLES=50 pnpm test:latency
 
 ## Current Result
 
-Last run: 2026-05-17, local desktop Chromium through Playwright.
+Last run: 2026-05-31, local desktop Chromium through Playwright.
 
 ```json
 {
   "metric": "prepared_foreground_local_render_ack",
   "samples": 20,
-  "p95Ms": 7,
+  "p95Ms": 8,
   "maxMs": 8,
-  "valuesMs": [4, 6, 5, 5, 7, 5, 6, 5, 7, 7, 6, 6, 7, 6, 8, 5, 1, 7, 6, 7]
+  "valuesMs": [5, 5, 7, 5, 5, 1, 5, 7, 7, 7, 7, 7, 8, 7, 6, 8, 7, 6, 7, 7]
 }
 ```
 

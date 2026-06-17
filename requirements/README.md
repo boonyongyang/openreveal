@@ -6,6 +6,7 @@ Start here:
 
 - [Starter guide](../STARTER-GUIDE.md): first run, console walkthrough, and using the location/celebrity reveals.
 - [Command reference](../COMMANDS.md): exact local commands, URLs, environment defaults, and verification flow.
+- [Local testing setup](../docs/local-testing-setup.md): desktop rehearsal and same-Wi-Fi audience-phone setup before deployment.
 - [Contributor guide](../CONTRIBUTING.md): local workflow, PR expectations, effect boundaries, and safety review.
 - [Phased task list](../PHASED-TASKS.md): remaining considerations and implementation phases.
 - [Architecture guide](../docs/architecture.md): performer, receiver, API, WebSocket, database, and effect-registry flow.
@@ -20,6 +21,7 @@ Start here:
 - [Owner input checklist](owner-inputs.md): domain, hosting, mobile QA, and product decisions needed from the project owner.
 - [End-to-end testing plan](../docs/testing-plan.md): automated, manual performer, audience-phone, mobile reliability, and production-smoke test procedure.
 - [Deployment readiness checklist](../docs/deployment-readiness.md): final automated, owner, and device gates before a public deploy.
+- [Cloud Run deployment guide](../docs/cloud-run-deployment.md): first hosted deployment path after a billed GCP project exists.
 - [Build suggestions](../docs/build-suggestions.md): recommended post-deployment product, operations, and scale work.
 - [Safety and legal requirements](safety-and-legal.md): consent-first boundaries, privacy, branding, licensing, and prohibited behavior.
 - [Production deployment guide](../docs/production-deployment.md): single-node deployment, Docker, SQLite data path, cleanup, and release checks.
@@ -31,7 +33,7 @@ Start here:
 - License is AGPL-3.0.
 - Launch with location and celebrity reveals.
 - Use original spectator-facing pages.
-- Spectator pre-reveal view is a neutral original "search-style" landing page with this project's own branding — not a Google clone, not a third-party impersonation.
+- Spectator pre-reveal view is neutral and original, without fake portal links, copied page chrome, or third-party impersonation.
 - Reveal payloads are pre-fetched on `reveal_prepared` so `reveal_sent` is a local state flip; prepared foreground/local p95 target is 250ms, while real mobile 4G is best-effort under one second.
 - V1 backend is single-process, SQLite-backed. Multi-instance and Postgres are post-v1.
 - V1 auth is a single env-configured performer passphrase that mints a signed token.

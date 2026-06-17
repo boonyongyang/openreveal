@@ -8,6 +8,7 @@ This is the recommended build order after the first deployment-readiness pass. K
 - Run `requirements/mobile-qa.md` on iPhone Safari and Android Chrome.
 - Set production values from `.env.example`.
 - Run `make docker-build` if Docker is the chosen deployment path.
+- Run `pnpm smoke:deploy https://your-openreveal-url` after the hosted URL exists.
 - Push the baseline commit or create a release tag from a clean repository.
 
 ## Recommended Immediately After First Deployment
@@ -17,17 +18,12 @@ This is the recommended build order after the first deployment-readiness pass. K
    - cleanup job schedule
    - reverse-proxy WebSocket example
    - log-retention expectations
-2. Add a deployment smoke script:
-   - check `/api/health`
-   - check `/privacy`, `/report`, `/console`
-   - verify CSP and anti-framing headers
-   - verify WebSocket upgrade against `/ws`
-3. Add mobile QA result snapshots:
+2. Add mobile QA result snapshots:
    - device/browser versions
    - same-Wi-Fi timing notes
    - mobile-data or throttled-network notes
    - lock/resume notes
-4. Expand browser-level receiver replacement coverage if needed:
+3. Expand browser-level receiver replacement coverage if needed:
    - same-device replacement beyond the existing API/WebSocket coverage
    - mobile-specific reload behavior discovered during physical QA
 
@@ -52,7 +48,7 @@ This is the recommended build order after the first deployment-readiness pass. K
 
 ## Defer Until The Base Deployment Is Proven
 
-- Google Places autocomplete, because it adds API keys, billing, domain restrictions, and new failure states.
+- Embedded Google Maps UI, because v1 uses official Maps URLs and does not clone or embed third-party map surfaces.
 - Image reveals, because they require upload/storage rules, asset licensing metadata, file validation, moderation, and takedown handling.
 - Multi-instance scaling, because v1 WebSocket fanout is in memory.
 - Account systems, because v1 auth is intentionally a single passphrase.

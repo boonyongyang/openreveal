@@ -11,12 +11,17 @@ import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import QRCode from "qrcode";
 
 import type { ConsoleSessionState, EffectKind, PrepareRevealRequest, RevealPayload } from "@openreveal/shared";
-import { LoginRequestSchema, PrepareRevealRequestSchema } from "@openreveal/shared";
+import {
+  LoginRequestSchema,
+  PlacesAutocompleteRequestSchema,
+  PrepareRevealRequestSchema
+} from "@openreveal/shared";
 
 import { createPerformerToken, PERFORMER_COOKIE, verifyPerformerToken } from "./auth.js";
 import { config, validateRuntimeConfig } from "./config.js";
 import { db, migrate } from "./db.js";
 import { registerBuiltInServerEffects, serverEffects } from "./effects/index.js";
+import { autocompletePlaces, getPlaceDetails, placesConfigured } from "./places.js";
 import { RealtimeHub } from "./realtime.js";
 import { createSessionCode } from "./session-codes.js";
 import { revealPayloads, sessionEvents, sessions } from "./schema.js";
@@ -273,7 +278,7 @@ export async function buildServer() {
     secret: config.sessionSecret
   });
   await app.register(rateLimit, {
-    max: 100,
+    max: config.rateLimitMax,
     timeWindow: "1 minute"
   });
   await app.register(websocket);
@@ -329,6 +334,53 @@ export async function buildServer() {
 
   app.get("/api/auth/session", async (request, reply) => {
     await reply.send({ authenticated: isPerformer(request) });
+  });
+
+  app.get("/api/capabilities", async (_request, reply) => {
+    await reply.send({
+      places: {
+        enabled: placesConfigured()
+      }
+    });
+  });
+
+  app.post("/api/places/autocomplete", {
+    schema: {
+      body: PlacesAutocompleteRequestSchema
+    },
+    config: {
+      rateLimit: {
+        max: 40,
+        timeWindow: "1 minute"
+      }
+    }
+  }, async (request, reply) => {
+    const body = request.body as { input: string; sessionToken: string };
+    try {
+      const predictions = await autocompletePlaces(body.input.trim(), body.sessionToken.trim());
+      await reply.send({ ok: true, predictions });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "places_failed";
+      await reply.status(message === "places_unavailable" ? 503 : 502).send({ error: message });
+    }
+  });
+
+  app.get("/api/places/:placeId", {
+    config: {
+      rateLimit: {
+        max: 60,
+        timeWindow: "1 minute"
+      }
+    }
+  }, async (request, reply) => {
+    const { placeId } = request.params as { placeId: string };
+    try {
+      const place = await getPlaceDetails(placeId);
+      await reply.send({ ok: true, place });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "place_details_failed";
+      await reply.status(message === "places_unavailable" ? 503 : 502).send({ error: message });
+    }
   });
 
   app.post("/api/sessions", async (_request, reply) => {

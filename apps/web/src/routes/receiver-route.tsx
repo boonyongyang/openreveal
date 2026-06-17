@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import type { RevealPayload, WsEnvelope } from "@openreveal/shared";
+import type { CelebrityPayload, LocationPayload, RevealPayload, WsEnvelope } from "@openreveal/shared";
 
 import { getReceiverStatus } from "../lib/api.js";
+import { createBrowserId } from "../lib/id.js";
 import { websocketUrl } from "../lib/status.js";
 import { registerBuiltInWebEffects, webEffects } from "../effects/index.js";
 
@@ -28,7 +29,6 @@ export function ReceiverRoute() {
 
 export function SpectatorReceiver({ embedded = false, sessionCode }: SpectatorReceiverProps) {
   const [status, setStatus] = useState<ReceiverStatus>("checking");
-  const [lastSignal, setLastSignal] = useState("Standing by");
   const [cachedReveal, setCachedReveal] = useState<{
     revealId: string;
     payload: RevealPayload;
@@ -67,7 +67,6 @@ export function SpectatorReceiver({ embedded = false, sessionCode }: SpectatorRe
 
       socket.addEventListener("open", () => {
         setStatus("live");
-        setLastSignal("Receiver connected");
         retryAttempt = 0;
         clearHeartbeat();
         sendHeartbeat(socket);
@@ -80,6 +79,10 @@ export function SpectatorReceiver({ embedded = false, sessionCode }: SpectatorRe
           const data = envelope.data as { status: "live" | "expired" | "in_use" };
           terminalState = data.status === "live" ? undefined : data.status;
           setStatus(data.status);
+          if (data.status !== "live") {
+            setCachedReveal(null);
+            setActiveReveal(null);
+          }
         }
         if (envelope.type === "reveal_prepared") {
           const data = envelope.data as {
@@ -107,6 +110,10 @@ export function SpectatorReceiver({ embedded = false, sessionCode }: SpectatorRe
                   latencyMs: Math.max(0, Date.now() - envelope.ts)
                 }
               });
+              const handoffUrl = externalHandoffUrl(current.payload);
+              if (!embedded && handoffUrl) {
+                window.location.replace(handoffUrl);
+              }
             }
             return current;
           });
@@ -114,11 +121,12 @@ export function SpectatorReceiver({ embedded = false, sessionCode }: SpectatorRe
         if (envelope.type === "session_reset") {
           setCachedReveal(null);
           setActiveReveal(null);
-          setLastSignal("Standing by");
         }
         if (envelope.type === "session_expired") {
           terminalState = "expired";
           setStatus("expired");
+          setCachedReveal(null);
+          setActiveReveal(null);
         }
       });
 
@@ -160,7 +168,6 @@ export function SpectatorReceiver({ embedded = false, sessionCode }: SpectatorRe
     function scheduleReconnect() {
       if (cancelled || reconnectTimer) return;
       setStatus("reconnecting");
-      setLastSignal("Reconnecting");
       const delayMs = receiverRetryDelayMs(retryAttempt);
       retryAttempt += 1;
       reconnectTimer = window.setTimeout(() => {
@@ -180,26 +187,72 @@ export function SpectatorReceiver({ embedded = false, sessionCode }: SpectatorRe
   }
 
   const ActiveReveal = activeReveal ? webEffects.get(activeReveal.kind)?.SpectatorReveal : undefined;
+  const receiverMode = activeReveal?.kind === "custom_text" ? "text" : "search";
 
   return (
-    <main className={embedded ? "receiver-shell receiver-shell--embedded" : "receiver-shell"}>
+    <main
+      className={[
+        "receiver-shell",
+        embedded ? "receiver-shell--embedded" : "",
+        `receiver-shell--${receiverMode}`
+      ].filter(Boolean).join(" ")}
+    >
       <section className="receiver-surface" aria-live="polite">
-        <div className="receiver-brand">OpenReveal</div>
-        <div className="search-line">
-          <span />
-          <p>{statusText(status)}</p>
-        </div>
+        {receiverMode === "search" ? (
+          <>
+            <div className="search-line">
+              {statusText(status) ? <p>{statusText(status)}</p> : null}
+            </div>
+            <ReceiverSignals
+              activeReveal={Boolean(activeReveal)}
+              cachedReveal={Boolean(cachedReveal)}
+              status={status}
+            />
+          </>
+        ) : null}
         <div className="result-space">
           {ActiveReveal && activeReveal ? <ActiveReveal payload={activeReveal as never} /> : null}
-          {!activeReveal && status === "checking" ? <p>Loading page</p> : null}
-          {!activeReveal && status === "live" ? <p>{lastSignal}</p> : null}
-          {status === "reconnecting" ? <p>Restoring connection</p> : null}
           {status === "expired" ? <p>This page is no longer active</p> : null}
           {status === "in_use" ? <p>This session is already open elsewhere</p> : null}
         </div>
       </section>
     </main>
   );
+}
+
+function ReceiverSignals({
+  activeReveal,
+  cachedReveal,
+  status
+}: {
+  activeReveal: boolean;
+  cachedReveal: boolean;
+  status: ReceiverStatus;
+}) {
+  return (
+    <div
+      className="receiver-signals"
+      data-active={activeReveal ? "true" : "false"}
+      data-prepared={cachedReveal ? "true" : "false"}
+      data-state={status}
+      title={`state:${status} prepared:${cachedReveal ? "yes" : "no"} active:${activeReveal ? "yes" : "no"}`}
+      aria-hidden="true"
+    >
+      <span className={status === "live" ? "is-on" : ""} />
+      <span className={cachedReveal ? "is-on" : ""} />
+      <span className={activeReveal ? "is-on" : ""} />
+    </div>
+  );
+}
+
+function externalHandoffUrl(payload: RevealPayload) {
+  if (payload.kind === "location" && payload.autoOpenMaps === true) {
+    return (payload as LocationPayload).mapsUrl;
+  }
+  if (payload.kind === "celebrity" && payload.autoOpenSearch !== false) {
+    return (payload as CelebrityPayload).searchUrl;
+  }
+  return undefined;
 }
 
 function sendMessage(socket: WebSocket, message: unknown) {
@@ -210,11 +263,11 @@ function sendMessage(socket: WebSocket, message: unknown) {
 function statusText(status: ReceiverStatus) {
   switch (status) {
     case "checking":
-      return "Preparing";
+      return "";
     case "live":
-      return "Search anything";
+      return "";
     case "reconnecting":
-      return "Search anything";
+      return "";
     case "expired":
       return "Page inactive";
     case "in_use":
@@ -231,7 +284,7 @@ function getReceiverDeviceId(sessionCode: string) {
   const key = `openreveal:receiver:${sessionCode}`;
   const existing = window.localStorage.getItem(key);
   if (existing) return existing;
-  const next = crypto.randomUUID();
+  const next = createBrowserId();
   window.localStorage.setItem(key, next);
   return next;
 }

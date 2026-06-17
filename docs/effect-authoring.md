@@ -6,7 +6,7 @@ This guide explains how to add reveal effects without weakening the session, rea
 
 - `location`: manual text fields plus server-generated official Google Maps URL.
 - `celebrity`: text-only name, optional subtitle, optional source URL, and bundled factual-name-only preset metadata.
-- `custom_text`: performer-provided title, message body, and optional footer.
+- `custom_text`: one performer-provided reveal text field.
 
 Phase 6 proved the split contract with `custom_text`, local preset import/export, and auditable celebrity preset metadata. Continue adding future effects through the split contract below.
 

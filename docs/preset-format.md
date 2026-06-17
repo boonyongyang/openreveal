@@ -10,9 +10,7 @@ OpenReveal local presets are JSON files exported from the performer console. The
   "kind": "custom_text",
   "label": "Imported prediction",
   "input": {
-    "title": "Imported prediction",
-    "body": "Imported from a JSON preset.",
-    "footer": "Preset file"
+    "body": "Imported from a JSON preset."
   }
 }
 ```

@@ -2,6 +2,8 @@
 
 This guide covers the supported v1 production shape: one Node process serving the API, WebSocket endpoint, and built web app.
 
+For the recommended first hosted test on Google Cloud Run, see [cloud-run-deployment.md](cloud-run-deployment.md).
+
 ## Supported V1 Shape
 
 - One Node 22.12+ process.
@@ -146,6 +148,12 @@ pnpm check
 pnpm test:e2e
 pnpm test:latency
 pnpm audit
+```
+
+After deploying, smoke test the hosted URL:
+
+```sh
+pnpm smoke:deploy https://openreveal.example
 ```
 
 Physical-device QA remains separate:

@@ -2,6 +2,8 @@
 
 This guide walks through running OpenReveal locally and rehearsing the current built-in effects.
 
+For a focused checklist that covers desktop rehearsal plus a same-Wi-Fi audience phone, see [docs/local-testing-setup.md](docs/local-testing-setup.md).
+
 ## 1. Prepare The Repo
 
 Install Node.js 22.12+ and pnpm 10+, then run:
@@ -45,9 +47,11 @@ Log in with the value of `PERFORMER_PASSPHRASE`.
 In the performer console:
 
 1. Click `Create session`.
-2. Confirm the session code, receiver URL, and QR code appear.
-3. Use `Demo mode` for local rehearsal, or open the receiver URL on a second phone/browser.
+2. Confirm the grouped session code and QR code appear in Quick Session.
+3. Ask the spectator to open the site root or `/j` and enter the 8-character session code. Use `Advanced` for Demo mode, direct receiver URL, logs, and diagnostics.
 4. Wait until the connection panel shows `Foregrounded`.
+
+The console opens in `Quick session` mode by default. Use this mode for a fast trick setup: create the session, read the code, choose one reveal, then `Arm` and `Send`. Switch to `Advanced` when you need direct receiver URL, Demo mode, preset import/export, receiver history, latency details, or the full activity log.
 
 The receiver URL has this shape:
 
@@ -57,15 +61,17 @@ http://localhost:5173/r/<SESSION_CODE>
 
 For phone testing on the same Wi-Fi network, replace `localhost` with your computer's LAN IP address and set matching `APP_BASE_URL` / `API_BASE_URL` values before starting the app.
 
+The exact LAN setup and acceptance checks live in [docs/local-testing-setup.md](docs/local-testing-setup.md).
+
 ## 4. Run A Location Reveal
 
 1. Select the `Location` tab.
-2. Fill `Location name`.
-3. Optionally fill `Region`, `Country`, `Latitude`, and `Longitude`.
+2. Fill `Location name`, or use `Place search` if `GOOGLE_PLACES_API_KEY` is configured and the console shows Places as connected.
+3. Optionally fill or adjust `Region`, `Country`, `Latitude`, and `Longitude`.
 4. Click `Arm`.
 5. Wait for the console to show `Ready`.
 6. Click `Send`.
-7. Confirm the receiver page shows the location result.
+7. Confirm the receiver page shows the location result, or opens Google Maps if `Open Maps automatically when sent` is enabled.
 8. Use `Reset` to return the receiver page to its neutral waiting state.
 
 The API computes `mapsUrl` on the server using:
@@ -75,6 +81,15 @@ https://www.google.com/maps/search/?api=1&query=<encoded-location>
 ```
 
 No Google API key is needed for this v1 flow.
+
+Optional Places autocomplete needs a Google Places API key:
+
+```sh
+GOOGLE_PLACES_API_KEY=<your-key>
+GOOGLE_PLACES_ENABLED=true
+```
+
+When a Places result is selected, the API adds `query_place_id` to the official Maps URL so Google Maps can target the selected marker.
 
 ## 5. Run A Celebrity Reveal
 
@@ -100,7 +115,7 @@ pnpm test:e2e
 
 `pnpm check` covers lint, TypeScript, unit/API tests, and build.
 
-`pnpm test:e2e` covers the browser flows for login/session creation, location reveal, and celebrity reveal in demo mode.
+`pnpm test:e2e` covers the browser flows for login/session creation, location reveal, Places prefill, Maps auto-open, celebrity reveal, Google Search auto-open, centered custom text reveal, reconnect, and duplicate receiver behavior.
 
 ## 7. Current Safety Rules
 

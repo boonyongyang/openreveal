@@ -47,6 +47,7 @@ Goal: prove the effect survives real phone behavior, not just desktop automation
 Goal: make rehearsal and performance controls predictable under pressure.
 
 - [x] Add explicit disabled-reason text near `Arm` and `Send`, not only button titles.
+- [x] Add default Quick Session mode with Advanced mode for diagnostics and preset management.
 - [x] Show active reveal kind/name in the control panel after arming.
 - [x] Add expiry countdown instead of only expiry clock time.
 - [x] Add visible receiver background/foreground history.
@@ -82,7 +83,7 @@ Goal: add new routines only after the core session/realtime system is hardened.
 - [x] Add custom text reveal using the same split effect contract.
 - [x] Add local preset import/export.
 - [x] Add source/license metadata for celebrity presets.
-- [x] Evaluate optional Places autocomplete. Decision: defer until after first public deployment because v1 works with official Maps URLs and no API key.
+- [x] Add optional Places autocomplete behind `GOOGLE_PLACES_API_KEY`; manual location entry remains the no-key fallback.
 - [x] Evaluate image reveals. Decision: defer until asset licensing, upload/storage, moderation, and takedown rules are implemented.
 - [x] Keep native mobile apps, account systems, Postgres, Redis, and multi-instance fanout out of scope until v1 is public-deployable.
 
@@ -91,11 +92,14 @@ Goal: add new routines only after the core session/realtime system is hardened.
 Goal: close the final public-deployment gates without adding product scope.
 
 - [x] Add deployment readiness checklist.
+- [x] Add local desktop and same-Wi-Fi phone setup guide.
 - [x] Run local automated release checks: `pnpm check`, `pnpm test:e2e`, `pnpm test:latency`, and `pnpm audit --audit-level moderate`.
 - [x] Add Playwright two-page performer/receiver session coverage.
 - [x] Add Playwright reconnect and duplicate receiver coverage.
 - [x] Run production-mode API/static-serving smoke with `WEB_DIST_DIR`.
-- [ ] Run `make docker-build` after Docker daemon is running, if Docker deployment is the chosen path.
+- [x] Run `make docker-build` after Docker daemon is running, if Docker deployment is the chosen path.
+- [x] Add hosted-URL smoke script for `/api/health`, frontend fallback, security headers, and `/ws`.
+- [x] Add Cloud Run preflight command and source-deploy ignore file.
 - [ ] Fill `requirements/owner-inputs.md`.
 - [ ] Run `requirements/mobile-qa.md` on iPhone Safari.
 - [ ] Run `requirements/mobile-qa.md` on Android Chrome.

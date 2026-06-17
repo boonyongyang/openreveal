@@ -6,8 +6,11 @@ export const LocationPayloadSchema = Type.Object({
   name: Type.String({ minLength: 1, maxLength: 200 }),
   region: Type.Optional(Type.String({ maxLength: 200 })),
   country: Type.Optional(Type.String({ maxLength: 200 })),
+  formattedAddress: Type.Optional(Type.String({ maxLength: 500 })),
+  placeId: Type.Optional(Type.String({ maxLength: 300 })),
   lat: Type.Optional(Type.Number({ minimum: -90, maximum: 90 })),
   lng: Type.Optional(Type.Number({ minimum: -180, maximum: 180 })),
+  autoOpenMaps: Type.Optional(Type.Boolean()),
   mapsUrl: Type.String({ format: "uri", maxLength: 1000 })
 });
 
@@ -15,14 +18,14 @@ export const CelebrityPayloadSchema = Type.Object({
   kind: Type.Literal("celebrity"),
   name: Type.String({ minLength: 1, maxLength: 200 }),
   subtitle: Type.Optional(Type.String({ maxLength: 200 })),
-  sourceUrl: Type.Optional(Type.String({ format: "uri", maxLength: 1000 }))
+  sourceUrl: Type.Optional(Type.String({ format: "uri", maxLength: 1000 })),
+  searchUrl: Type.String({ format: "uri", maxLength: 1000 }),
+  autoOpenSearch: Type.Optional(Type.Boolean())
 });
 
 export const CustomTextPayloadSchema = Type.Object({
   kind: Type.Literal("custom_text"),
-  title: Type.Optional(Type.String({ maxLength: 120 })),
-  body: Type.String({ minLength: 1, maxLength: 600 }),
-  footer: Type.Optional(Type.String({ maxLength: 160 }))
+  body: Type.String({ minLength: 1, maxLength: 600 })
 });
 
 export const EffectKindSchema = Type.Union([
@@ -69,7 +72,8 @@ export const effectDefinitions = {
     sample: {
       kind: "celebrity",
       name: "Michelle Yeoh",
-      subtitle: "Actor"
+      subtitle: "Actor",
+      searchUrl: "https://www.google.com/search?q=Michelle%20Yeoh"
     }
   },
   custom_text: {
@@ -78,9 +82,7 @@ export const effectDefinitions = {
     payloadSchema: CustomTextPayloadSchema,
     sample: {
       kind: "custom_text",
-      title: "Tonight's word",
-      body: "The thought you held onto was: impossible.",
-      footer: "OpenReveal"
+      body: "Impossible"
     }
   }
 } satisfies Record<EffectKind, EffectDefinition>;

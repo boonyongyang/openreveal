@@ -1,6 +1,6 @@
 # OpenReveal
 
-OpenReveal is an open-source, consent-based spectator-phone mentalism PWA. A performer creates a live session, shares a receiver URL or QR code with a spectator, and controls an original reveal page from a private console.
+OpenReveal is an open-source, consent-based spectator-phone mentalism PWA. A performer creates a live session, asks a spectator to open the site and enter a short code, and controls an original reveal page from a private console.
 
 The current build implements the live session foundation plus location reveal, text-only celebrity reveal with auditable preset metadata, and a Phase 6 custom text reveal. The performer console can create a session, open demo mode, arm any built-in effect, send it to the spectator receiver page, receive delivery acknowledgements, and reset the session.
 
@@ -22,9 +22,9 @@ pnpm install
 pnpm dev
 ```
 
-Open the performer console at [http://localhost:5173/console](http://localhost:5173/console). The passphrase is the value of `PERFORMER_PASSPHRASE` in `.env`.
+Open the performer console at [http://localhost:5173/console](http://localhost:5173/console). Spectators use [http://localhost:5173/](http://localhost:5173/) or `/j` to enter the session code. The passphrase is the value of `PERFORMER_PASSPHRASE` in `.env`.
 
-For a full walkthrough, see [STARTER-GUIDE.md](STARTER-GUIDE.md).
+For a full walkthrough, see [STARTER-GUIDE.md](STARTER-GUIDE.md). For the focused desktop and same-Wi-Fi phone workflow, see [docs/local-testing-setup.md](docs/local-testing-setup.md).
 
 ## Commands
 
@@ -59,6 +59,8 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening issues or pull requests. 
 - [PHASED-TASKS.md](PHASED-TASKS.md)
 - [plan.md](plan.md)
 - [docs/architecture.md](docs/architecture.md)
+- [docs/cloud-run-deployment.md](docs/cloud-run-deployment.md)
+- [docs/local-testing-setup.md](docs/local-testing-setup.md)
 - [docs/effect-authoring.md](docs/effect-authoring.md)
 - [docs/preset-format.md](docs/preset-format.md)
 - [docs/testing-plan.md](docs/testing-plan.md)

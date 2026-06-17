@@ -14,6 +14,8 @@ Open the performer console at http://localhost:5173/console.
 
 Set `PERFORMER_PASSPHRASE` in `.env`, then use that value on the console login screen.
 
+For the complete local desktop plus same-Wi-Fi phone setup path, see [docs/local-testing-setup.md](docs/local-testing-setup.md).
+
 ## Common Commands
 
 | Command | Purpose | When to run |
@@ -30,6 +32,10 @@ Set `PERFORMER_PASSPHRASE` in `.env`, then use that value on the console login s
 | `make check` | Run lint, typecheck, unit/API tests, and build. | Main pre-commit verification. |
 | `make audit` | Run a pnpm dependency vulnerability audit. | Before release and after dependency updates. |
 | `make docker-build` | Build the reference production Docker image. | Before testing container deployment. |
+| `make record-showcase` | Record a local performer/audience QA MP4. | When you need a demo or review artifact. |
+| `make record-location-celebrity` | Record a focused location/celebrity performer/audience QA MP4. | When you want to review those two effects without custom text. |
+| `make cloudrun-preflight PROJECT_ID=...` | Check Cloud Run auth, project, billing, and required services. | Before trying a Cloud Run deploy. |
+| `make smoke-deploy BASE_URL=https://...` | Smoke test a deployed OpenReveal URL. | After Cloud Run, Firebase Hosting, or custom-domain deploys. |
 | `make maintenance-cleanup` | Expire stale live sessions and prune old expired data. | Local/staging maintenance, or before checking retention behavior. |
 
 Equivalent pnpm commands:
@@ -46,6 +52,10 @@ pnpm build
 pnpm check
 pnpm audit
 pnpm maintenance:cleanup
+pnpm record:showcase
+pnpm record:location-celebrity
+pnpm cloudrun:preflight your-gcp-project-id
+pnpm smoke:deploy https://your-openreveal-url
 ```
 
 ## Recommended Verification
@@ -63,15 +73,26 @@ pnpm check
 pnpm test:e2e
 ```
 
+Playwright uses `http://localhost:5173` and `http://localhost:4000` by default even if `.env` is temporarily pointed at a LAN IP or tunnel for phone testing. To run against a different test URL intentionally, set:
+
+```sh
+PLAYWRIGHT_BASE_URL=http://localhost:5173 PLAYWRIGHT_API_BASE_URL=http://localhost:4000 pnpm test:e2e
+```
+
 For release-readiness checks:
 
 ```sh
 pnpm check
 pnpm test:e2e
 pnpm audit
+pnpm smoke:deploy https://your-openreveal-url
 ```
 
 For the full end-to-end deployment testing procedure, including performer-console and audience-phone checks, see [docs/testing-plan.md](docs/testing-plan.md).
+
+For local-only setup and phone rehearsal before deployment, see [docs/local-testing-setup.md](docs/local-testing-setup.md).
+
+For the recommended first hosted Cloud Run path, see [docs/cloud-run-deployment.md](docs/cloud-run-deployment.md).
 
 For local reveal latency checks:
 
@@ -85,6 +106,22 @@ The latency runner uses desktop Chromium, demo mode, and a foreground receiver. 
 OPENREVEAL_LATENCY_SAMPLES=50 pnpm test:latency
 ```
 
+For a recorded local QA showcase:
+
+```sh
+pnpm record:showcase
+```
+
+The recording command starts the local app, drives one performer browser and one audience-phone browser, and writes video plus a short QA summary to `test-results/showcase/`. If `ffmpeg` is installed, it also writes MP4 files, including `test-results/showcase/openreveal-showcase-combined.mp4`.
+
+For a focused location/celebrity QA recording:
+
+```sh
+pnpm record:location-celebrity
+```
+
+This writes video plus a short QA summary to `test-results/location-celebrity/`. If `ffmpeg` is installed, the primary file is `test-results/location-celebrity/openreveal-location-celebrity-combined.mp4`.
+
 For frontend-only visual changes, also open:
 
 ```sh
@@ -95,6 +132,7 @@ http://localhost:5173/console
 
 | URL | Purpose |
 | --- | --- |
+| `http://localhost:5173/` | Home page with spectator session-code join form. |
 | `http://localhost:5173/console` | Performer console. |
 | `http://localhost:5173/r/<SESSION_CODE>` | Spectator receiver page for a live session. |
 | `http://localhost:4000/api/health` | Backend health check. |

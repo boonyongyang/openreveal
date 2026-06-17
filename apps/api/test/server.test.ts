@@ -13,6 +13,8 @@ beforeEach(() => {
 
 afterEach(() => {
   delete process.env.DATABASE_URL;
+  delete process.env.GOOGLE_PLACES_API_KEY;
+  delete process.env.GOOGLE_PLACES_ENABLED;
   delete process.env.PERFORMER_PASSPHRASE;
   delete process.env.SESSION_SECRET;
 });
@@ -76,6 +78,36 @@ describe("OpenReveal API", () => {
     });
 
     expect(response.statusCode).toBe(401);
+    await app.close();
+  });
+
+  it("requires performer auth before returning app capabilities", async () => {
+    const { buildServer } = await import("../src/server.js");
+    const app = await buildServer();
+
+    const unauthenticated = await app.inject({
+      method: "GET",
+      url: "/api/capabilities"
+    });
+    expect(unauthenticated.statusCode).toBe(401);
+
+    const login = await app.inject({
+      method: "POST",
+      url: "/api/auth/login",
+      payload: { passphrase: "test-passphrase" }
+    });
+    const cookie = login.cookies[0];
+    const capabilities = await app.inject({
+      method: "GET",
+      url: "/api/capabilities",
+      cookies: { or_performer: cookie?.value ?? "" }
+    });
+
+    expect(capabilities.statusCode).toBe(200);
+    expect(capabilities.json<{ places: { enabled: boolean } }>()).toEqual({
+      places: { enabled: false }
+    });
+
     await app.close();
   });
 
@@ -159,6 +191,78 @@ describe("OpenReveal API", () => {
 
     expect(sent.statusCode).toBe(200);
     expect(sent.json<{ revealId: string }>().revealId).toBe(preparedBody.revealId);
+
+    await app.close();
+  });
+
+  it("adds query_place_id to Maps URLs for selected Places locations", async () => {
+    const { buildServer } = await import("../src/server.js");
+    const app = await buildServer();
+
+    const login = await app.inject({
+      method: "POST",
+      url: "/api/auth/login",
+      payload: { passphrase: "test-passphrase" }
+    });
+    const cookie = login.cookies[0];
+    const created = await app.inject({
+      method: "POST",
+      url: "/api/sessions",
+      cookies: { or_performer: cookie?.value ?? "" }
+    });
+    const { sessionCode } = created.json<{ sessionCode: string }>();
+
+    const prepared = await app.inject({
+      method: "POST",
+      url: `/api/sessions/${sessionCode}/reveal/prepare`,
+      cookies: { or_performer: cookie?.value ?? "" },
+      payload: {
+        kind: "location",
+        input: {
+          name: "Petronas Twin Towers",
+          formattedAddress: "Petronas Twin Towers, Kuala Lumpur, Malaysia",
+          placeId: "ChIJH3w7GaJIzDERbvi8A3p1Y2I",
+          autoOpenMaps: true
+        }
+      }
+    });
+
+    expect(prepared.statusCode).toBe(200);
+    const body = prepared.json<{
+      payload: { autoOpenMaps: boolean; mapsUrl: string; placeId: string };
+    }>();
+    expect(body.payload.autoOpenMaps).toBe(true);
+    expect(body.payload.placeId).toBe("ChIJH3w7GaJIzDERbvi8A3p1Y2I");
+    expect(body.payload.mapsUrl).toContain("query_place_id=ChIJH3w7GaJIzDERbvi8A3p1Y2I");
+
+    await app.close();
+  });
+
+  it("requires performer auth and configured key for Places autocomplete", async () => {
+    const { buildServer } = await import("../src/server.js");
+    const app = await buildServer();
+
+    const unauthenticated = await app.inject({
+      method: "POST",
+      url: "/api/places/autocomplete",
+      payload: { input: "Kuala Lumpur", sessionToken: "places-session-token" }
+    });
+    expect(unauthenticated.statusCode).toBe(401);
+
+    const login = await app.inject({
+      method: "POST",
+      url: "/api/auth/login",
+      payload: { passphrase: "test-passphrase" }
+    });
+    const cookie = login.cookies[0];
+    const unavailable = await app.inject({
+      method: "POST",
+      url: "/api/places/autocomplete",
+      cookies: { or_performer: cookie?.value ?? "" },
+      payload: { input: "Kuala Lumpur", sessionToken: "places-session-token" }
+    });
+    expect(unavailable.statusCode).toBe(503);
+    expect(unavailable.json<{ error: string }>().error).toBe("places_unavailable");
 
     await app.close();
   });

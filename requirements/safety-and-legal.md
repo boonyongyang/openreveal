@@ -43,7 +43,7 @@ Allowed:
 - Link to Google Maps using official URL formats.
 - Use Google Maps Platform APIs if terms are followed and keys are configured correctly.
 - Render original map/search-inspired layouts that are clearly this project's own UI.
-- Ship a neutral, original "search-style" landing page as the spectator's pre-reveal view. It may use generic patterns (centered search box, results list) but must carry this project's own name, color, and typography so a reasonable observer can tell it is not Google, Bing, or any other branded service.
+- Ship a neutral, original spectator pre-reveal view. It may use generic waiting/search-inspired patterns, but it must avoid fake portal links, footer navigation, copied page chrome, or anything a reasonable observer could mistake for Google, Bing, or any other branded service.
 
 Not allowed:
 

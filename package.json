@@ -16,6 +16,10 @@
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "audit": "pnpm audit --audit-level moderate",
     "maintenance:cleanup": "pnpm --filter @openreveal/api maintenance:cleanup",
+    "record:location-celebrity": "node scripts/record-location-celebrity.mjs",
+    "record:showcase": "node scripts/record-showcase.mjs",
+    "cloudrun:preflight": "node scripts/cloud-run-preflight.mjs",
+    "smoke:deploy": "node scripts/deployment-smoke.mjs",
     "lint": "pnpm -r --if-present lint",
     "test": "pnpm -r --workspace-concurrency=1 --if-present test",
     "test:e2e": "playwright test",
@@ -26,5 +30,10 @@
     "@playwright/test": "^1.56.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild": ">=0.28.1"
+    }
   }
 }

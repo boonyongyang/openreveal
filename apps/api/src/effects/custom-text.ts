@@ -10,9 +10,7 @@ export function registerCustomTextEffect() {
       const record = asRecord(input);
       return {
         kind: "custom_text",
-        title: cleanText(record.title, "title", false, 120),
-        body: cleanText(record.body, "body", true, 600)!,
-        footer: cleanText(record.footer, "footer", false, 160)
+        body: cleanText(record.body, "body", true, 600)!
       };
     }
   });

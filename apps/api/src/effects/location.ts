@@ -4,11 +4,15 @@ import { registerServerEffect } from "./contracts.js";
 import { asRecord, cleanNumber, cleanText } from "./validation.js";
 
 function buildMapsUrl(payload: Omit<LocationPayload, "mapsUrl">) {
+  const textQuery = payload.formattedAddress ?? [payload.name, payload.region, payload.country].filter(Boolean).join(", ");
   const coordinateQuery =
     payload.lat != null && payload.lng != null ? `${payload.lat},${payload.lng}` : undefined;
-  const textQuery = [payload.name, payload.region, payload.country].filter(Boolean).join(", ");
-  const query = coordinateQuery ?? textQuery;
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  const query = payload.placeId ? textQuery : coordinateQuery ?? textQuery;
+  const params = [`api=1`, `query=${encodeURIComponent(query)}`];
+  if (payload.placeId) {
+    params.push(`query_place_id=${encodeURIComponent(payload.placeId)}`);
+  }
+  return `https://www.google.com/maps/search/?${params.join("&")}`;
 }
 
 export function registerLocationEffect() {
@@ -21,8 +25,11 @@ export function registerLocationEffect() {
         name: cleanText(record.name, "name", true)!,
         region: cleanText(record.region, "region"),
         country: cleanText(record.country, "country"),
+        formattedAddress: cleanText(record.formattedAddress, "formattedAddress", false, 500),
+        placeId: cleanText(record.placeId, "placeId", false, 300),
         lat: cleanNumber(record.lat, "lat", -90, 90),
-        lng: cleanNumber(record.lng, "lng", -180, 180)
+        lng: cleanNumber(record.lng, "lng", -180, 180),
+        autoOpenMaps: record.autoOpenMaps === true
       };
 
       return {

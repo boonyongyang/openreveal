@@ -1,4 +1,5 @@
-import { APP_NAME } from "@openreveal/shared";
+import { useState, type FormEvent } from "react";
+import { APP_NAME, SESSION_CODE_ALPHABET, SESSION_CODE_LENGTH } from "@openreveal/shared";
 
 import { ConsoleRoute } from "./routes/console-route.js";
 import { PrivacyRoute } from "./routes/privacy-route.js";
@@ -11,7 +12,13 @@ export function App() {
   if (path.startsWith("/privacy")) return <PrivacyRoute />;
   if (path.startsWith("/report")) return <ReportRoute />;
   if (path.startsWith("/r/")) return <ReceiverRoute />;
+  if (path.startsWith("/j")) return <JoinPage />;
+  if (path.startsWith("/about")) return <AboutPage />;
 
+  return <JoinPage />;
+}
+
+function AboutPage() {
   return (
     <main className="landing">
       <section className="landing__copy">
@@ -39,5 +46,72 @@ export function App() {
         <p>Session link armed. Receiver standing by.</p>
       </section>
     </main>
+  );
+}
+
+function JoinPage() {
+  const [joinCode, setJoinCode] = useState("");
+  const [joinError, setJoinError] = useState("");
+
+  function normalizeJoinCode(value: string) {
+    return normalizeSessionCode(value);
+  }
+
+  function submitJoinCode(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const code = normalizeJoinCode(joinCode);
+
+    if (!isValidSessionCode(code)) {
+      setJoinError(`Enter the ${SESSION_CODE_LENGTH}-character session code.`);
+      return;
+    }
+
+    window.location.replace(`/r/${code}`);
+  }
+
+  return (
+    <main className="join-shell">
+      <section className="join-card">
+        <p className="eyebrow">Receiver</p>
+        <h1>Enter code</h1>
+        <form className="join-form" onSubmit={submitJoinCode}>
+          <label htmlFor="receiver-session-code">Session code</label>
+          <div className="join-form__row">
+            <input
+              autoCapitalize="characters"
+              autoComplete="off"
+              autoFocus
+              id="receiver-session-code"
+              inputMode="text"
+              maxLength={SESSION_CODE_LENGTH}
+              onChange={(event) => {
+                setJoinCode(normalizeJoinCode(event.target.value));
+                setJoinError("");
+              }}
+              placeholder="ABCDEFGH"
+              value={joinCode}
+            />
+            <button className="button button--primary" type="submit">
+              Join
+            </button>
+          </div>
+          {joinError ? <p className="join-form__error">{joinError}</p> : null}
+        </form>
+      </section>
+    </main>
+  );
+}
+
+function normalizeSessionCode(value: string) {
+  return value
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "")
+    .slice(0, SESSION_CODE_LENGTH);
+}
+
+function isValidSessionCode(code: string) {
+  return (
+    code.length === SESSION_CODE_LENGTH &&
+    [...code].every((character) => SESSION_CODE_ALPHABET.includes(character))
   );
 }

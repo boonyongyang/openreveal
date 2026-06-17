@@ -1,6 +1,9 @@
 import type {
+  AppCapabilitiesResponse,
   ConsoleSessionState,
   EffectKind,
+  PlaceDetailsResponse,
+  PlacesAutocompleteResponse,
   RevealActionResponse,
   SessionCreateResponse
 } from "@openreveal/shared";
@@ -84,4 +87,19 @@ export function getReceiverStatus(sessionCode: string, deviceId?: string) {
   return request<{ status: "live" | "expired" | "in_use" }>(
     `/api/receiver/${sessionCode}${suffix}`
   );
+}
+
+export function getCapabilities() {
+  return request<AppCapabilitiesResponse>("/api/capabilities");
+}
+
+export function autocompletePlaces(input: string, sessionToken: string) {
+  return request<PlacesAutocompleteResponse>("/api/places/autocomplete", {
+    method: "POST",
+    body: JSON.stringify({ input, sessionToken })
+  });
+}
+
+export function getPlaceDetails(placeId: string) {
+  return request<PlaceDetailsResponse>(`/api/places/${encodeURIComponent(placeId)}`);
 }

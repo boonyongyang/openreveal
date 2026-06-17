@@ -2,15 +2,17 @@ import { expect, type Page, test } from "@playwright/test";
 
 const SAMPLE_COUNT = Number(process.env.OPENREVEAL_LATENCY_SAMPLES ?? "20");
 const P95_TARGET_MS = 250;
+const performerPassphrase = process.env.PERFORMER_PASSPHRASE ?? "openreveal-dev";
 
 test("prepared foreground reveal render acknowledgement p95 stays under target", async ({ page }) => {
   test.setTimeout(Math.max(120_000, SAMPLE_COUNT * 10_000));
 
   await page.goto("/console");
   await waitForApi(page);
-  await page.getByLabel("Passphrase").fill("openreveal-dev");
+  await page.getByLabel("Passphrase").fill(performerPassphrase);
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByRole("button", { name: "Create session" }).click();
+  await page.getByRole("button", { name: "Advanced" }).click();
   await page.getByRole("button", { name: "Demo mode" }).click();
   await expect(page.getByRole("heading", { name: "Foregrounded" })).toBeVisible();
 

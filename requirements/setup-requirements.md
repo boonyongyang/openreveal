@@ -31,6 +31,9 @@ SESSION_SECRET=replace-with-local-secret
 SESSION_TTL_MINUTES=30
 PERFORMER_PASSPHRASE=replace-with-local-passphrase
 PORT=4000
+API_RATE_LIMIT_MAX=100
+GOOGLE_PLACES_API_KEY=
+GOOGLE_PLACES_ENABLED=false
 VITE_ABUSE_REPORT_URL=
 WEB_DIST_DIR=
 ```
@@ -38,7 +41,9 @@ WEB_DIST_DIR=
 Notes:
 
 - `PERFORMER_PASSPHRASE` is required. It mints a signed performer token; without it, only the spectator receiver page is reachable.
-- `GOOGLE_MAPS_API_KEY` should not be required for v1 if the app only creates official Google Maps URLs.
+- `API_RATE_LIMIT_MAX` controls the global API rate limit per minute. Keep the local/production default conservative; Playwright raises it only for automated test runs.
+- `GOOGLE_PLACES_API_KEY` is optional. When set with `GOOGLE_PLACES_ENABLED=true`, the performer location form enables Place search and autocompletes places through the backend proxy.
+- Without a Places key, location reveal stays in manual mode and still creates official Google Maps URLs without an API key.
 - `VITE_ABUSE_REPORT_URL` is optional. Hosted public instances should set it to a report form, issue tracker, or monitored contact page so `/report` has an outbound report destination.
 - `WEB_DIST_DIR` is optional locally and required in production. It points the API server at the built Vite app so one Node process can serve `/console`, `/r/:sessionCode`, `/privacy`, `/report`, `/api/*`, and `/ws`. Prefer an absolute path because filtered pnpm package commands run from `apps/api`.
 - Web Push keys should be optional until push alerts are implemented.
@@ -50,9 +55,10 @@ Notes:
 
 None beyond hosting and a database if self-hosted. Location reveal can work with manual input and official Google Maps URLs.
 
-### Optional later
+### Optional integrations
 
-- Google Maps Platform for Places autocomplete, Maps JavaScript, or Static Maps.
+- Google Maps Platform Places API for performer autocomplete. Requires billing, Places API enabled, and `GOOGLE_PLACES_API_KEY`.
+- Maps JavaScript or Static Maps are still out of scope for v1 because the spectator side uses official Maps URLs instead of embedded Google UI.
 - Web Push service through standard browser push APIs.
 - Image storage for uploaded effect assets.
 - Email service for account recovery if full authentication is added.

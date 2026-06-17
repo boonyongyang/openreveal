@@ -5,8 +5,9 @@ These are the remaining decisions or real-world checks that require project-owne
 ## Required Before Public Deployment
 
 - [ ] Final public domain, for example `openreveal.example`.
-- [ ] Hosting target: VPS, home lab, Render/Fly/Railway-style Node host, or Docker host.
-- [ ] HTTPS/reverse-proxy choice.
+- [ ] Hosting target. Current recommendation: dedicated Google Cloud Run project with `max instances = 1`.
+- [ ] GCP project ID with billing enabled. Do not use `spacebuns-kotlin`; `boonyongyang` currently lacks billing.
+- [ ] HTTPS/reverse-proxy choice. Cloud Run direct URL is enough for first smoke; Firebase Hosting/custom domain can be added later.
 - [ ] Production abuse-report destination for `VITE_ABUSE_REPORT_URL`.
 - [ ] Production performer passphrase storage approach.
 - [ ] Production SQLite storage and backup location.
@@ -27,7 +28,7 @@ These are the remaining decisions or real-world checks that require project-owne
 
 - [ ] Whether preset import/export should be local JSON only or include a hosted preset library later.
 - [x] Celebrity preset metadata is manually curated, factual-name-only, and image-free for v1.
-- [x] Places autocomplete is deferred until after first public deployment; v1 keeps official Maps URLs without an API key.
+- [ ] Optional Places autocomplete API key. Leave unset to keep manual location mode.
 - [x] Image reveals remain out of scope until licensing, upload/storage, moderation, and takedown rules are finished.
 
 ## Current Recommendation

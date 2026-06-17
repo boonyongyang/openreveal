@@ -1,6 +1,24 @@
-import "dotenv/config";
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import dotenv from "dotenv";
 
 import { DEFAULT_SESSION_TTL_MINUTES } from "@openreveal/shared";
+
+const envPaths = [
+  resolve(process.cwd(), ".env"),
+  resolve(process.cwd(), "../../.env"),
+  fileURLToPath(new URL("../../../.env", import.meta.url))
+];
+
+if (process.env.NODE_ENV !== "test") {
+  for (const envPath of [...new Set(envPaths)]) {
+    if (existsSync(envPath)) {
+      dotenv.config({ path: envPath, override: false });
+    }
+  }
+}
 
 const isTest = process.env.NODE_ENV === "test";
 const isProduction = process.env.NODE_ENV === "production";
@@ -10,6 +28,12 @@ function intEnv(name: string, fallback: number) {
   if (!raw) return fallback;
   const parsed = Number.parseInt(raw, 10);
   return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function boolEnv(name: string, fallback: boolean) {
+  const raw = process.env[name];
+  if (!raw) return fallback;
+  return raw === "true" || raw === "1";
 }
 
 function devFallback(name: string, fallback: string) {
@@ -31,8 +55,11 @@ export const config = {
   databaseUrl: devFallback("DATABASE_URL", isTest ? "file:./data/test.sqlite" : "file:./data/dev.sqlite"),
   performerPassphrase: devFallback("PERFORMER_PASSPHRASE", "openreveal-dev"),
   port: intEnv("PORT", 4000),
+  rateLimitMax: intEnv("API_RATE_LIMIT_MAX", 100),
   sessionSecret: devFallback("SESSION_SECRET", "openreveal-dev-secret-change-me"),
   sessionTtlMinutes: intEnv("SESSION_TTL_MINUTES", DEFAULT_SESSION_TTL_MINUTES),
+  googlePlacesApiKey: process.env.GOOGLE_PLACES_API_KEY,
+  googlePlacesEnabled: boolEnv("GOOGLE_PLACES_ENABLED", Boolean(process.env.GOOGLE_PLACES_API_KEY)),
   webDistDir: process.env.WEB_DIST_DIR
 };
 

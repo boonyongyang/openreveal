@@ -32,7 +32,7 @@ Required behavior:
 Required behavior:
 
 - Create sessions.
-- Show receiver URL and QR code.
+- Show grouped session code and QR code in Quick Session; show direct receiver URL in Advanced.
 - Show live receiver status.
 - Select active effect.
 - Prepare reveal payload.
@@ -61,6 +61,7 @@ All endpoints are JSON. Performer endpoints require the signed HttpOnly same-ori
 | --- | --- | --- | --- |
 | `POST` | `/api/auth/login` | none | Exchange `PERFORMER_PASSPHRASE` for a signed token. |
 | `POST` | `/api/auth/logout` | performer | Clear the token cookie. |
+| `GET` | `/api/capabilities` | performer | Return key-gated console capabilities such as `{ places: { enabled } }`. |
 | `POST` | `/api/sessions` | performer | Create session. Returns `{ sessionCode, receiverUrl, qrSvg, expiresAt }`. |
 | `GET` | `/api/sessions/:code` | performer | Fetch full session state for the console. |
 | `POST` | `/api/sessions/:code/reveal/prepare` | performer | Validate and stage a reveal payload; emits `reveal_prepared`. |
@@ -250,8 +251,11 @@ type LocationPayload = {
   name: string;
   region?: string;
   country?: string;
+  formattedAddress?: string;
+  placeId?: string;
   lat?: number;
   lng?: number;
+  autoOpenMaps?: boolean;
   mapsUrl: string; // computed by enrich()
 };
 
@@ -260,17 +264,17 @@ type CelebrityPayload = {
   name: string;
   subtitle?: string;
   sourceUrl?: string;
+  searchUrl: string; // computed by enrich()
+  autoOpenSearch?: boolean;
 };
 
 type CustomTextPayload = {
   kind: "custom_text";
-  title?: string;
   body: string;
-  footer?: string;
 };
 ```
 
-All string fields are validated for length, stripped of control characters, and HTML-escaped at render time. Most short text fields are capped at 200 chars; custom text caps title at 120 chars, body at 600 chars, and footer at 160 chars. URL fields must parse to `https:` URLs only.
+All string fields are validated for length, stripped of control characters, and HTML-escaped at render time. Most short text fields are capped at 200 chars; custom text uses one visible body field capped at 600 chars. URL fields must parse to `https:` URLs only.
 
 ## Data Requirements
 
@@ -309,20 +313,25 @@ The `SessionEvent` table is the only persisted record of session activity. Its p
 
 ## Location Requirements
 
-V1 can start with text-based location input. Places autocomplete can be added later.
+Location input supports manual text by default and optional backend-proxied Google Places autocomplete when a server-side API key is configured. The performer UI reads `/api/capabilities` first and keeps Place search disabled in manual mode when Places is not available.
 
 Required fields:
 
 - Display name.
 - Optional region/country.
+- Optional formatted address.
+- Optional Google Places `placeId`.
 - Optional latitude/longitude.
+- Optional auto-open Maps flag.
 - Optional Google Maps URL.
 
 Google Maps handoff:
 
 - Use official Google Maps URL patterns.
 - Do not embed or imitate Google Maps unless using approved Google Maps Platform APIs and complying with their terms.
-- If using Google Places or Maps JavaScript APIs later, require an API key with domain restrictions.
+- Places autocomplete is performer-console only, proxied through authenticated backend endpoints, and must not expose the server API key to the browser.
+- Places-selected Maps URLs should include `query_place_id` so Google Maps can target the exact place marker.
+- Auto-open Maps may navigate the receiver away from OpenReveal after `Send`; the in-page `Open in Maps` link remains as fallback.
 
 ## Celebrity Requirements
 
@@ -353,13 +362,12 @@ Phase 6 ships custom text as the first post-v1 effect.
 
 Required fields:
 
-- Message body.
-- Optional title.
-- Optional footer.
+- One reveal text body.
 
 Render requirements:
 
 - Preserve readable line breaks.
+- Render as centered full-screen reveal text instead of the neutral search-style surface.
 - Do not render Markdown or HTML supplied by the performer.
 - Do not call third-party APIs or load external assets.
 
@@ -411,7 +419,7 @@ Required test categories:
 
 Minimum manual QA scenarios:
 
-- Create session and open receiver URL.
+- Create session and join from site root, `/j`, QR, or direct receiver URL.
 - Send location reveal.
 - Open official Google Maps link from reveal page.
 - Reset session.

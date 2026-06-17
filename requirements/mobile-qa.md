@@ -13,6 +13,17 @@ Run the v1 spectator flow on:
 
 Desktop Chrome remains the automated Playwright baseline, but it does not replace real mobile QA.
 
+## Current Emulator Evidence
+
+2026-06-06 Android emulator smoke passed on Pixel 9 Pro API 35 / Android 15 Chrome 138.0.7204.157 using `adb reverse` to the local dev stack. Covered performer login, Quick Session session creation, QR and receiver setup visibility, receiver join in another Android Chrome tab, custom text arm/send, delivered state, receiver rendering, reset, and ended-session state. Observed foreground custom-text reveal latency was `0 ms`.
+
+Screenshots:
+
+- `test-results/android-emulator-performer-ended.png`
+- `test-results/android-emulator-receiver-ended.png`
+
+This is useful confidence for Android Chrome layout and WebSocket behavior, but physical Android QA is still required before public deployment.
+
 ## Network Setup
 
 For same-Wi-Fi phone testing:
@@ -32,12 +43,12 @@ pnpm dev
 ```
 
 4. Open `http://<LAN_IP>:5173/console` on the performer machine.
-5. Scan the generated QR code or open the receiver URL on the phone.
+5. Open the site root or `/j` on the phone and enter the session code, or scan the generated QR code.
 
 ## Session Flow Checks
 
 - [ ] Console login succeeds with `PERFORMER_PASSPHRASE`.
-- [ ] Session creation returns a receiver URL and QR code.
+- [ ] Session creation shows a grouped session code and QR code in Quick Session.
 - [ ] Phone opens `/r/<SESSION_CODE>` without installing anything.
 - [ ] Console changes to `Foregrounded` within one second of the phone joining.
 - [ ] Phone shows the neutral waiting page before any reveal.
@@ -68,10 +79,10 @@ pnpm dev
 
 ## Custom Text Reveal Checks
 
-- [ ] Arm a custom text reveal with title, message, and footer.
+- [ ] Arm a custom text reveal with one reveal text value.
 - [ ] Console reaches `Ready`.
 - [ ] Tap `Send`.
-- [ ] Phone shows the title and message in-place.
+- [ ] Phone shows the reveal text in-place.
 - [ ] Multiline text preserves readable line breaks.
 - [ ] Console reaches `Delivered`.
 - [ ] Console shows last reveal latency.

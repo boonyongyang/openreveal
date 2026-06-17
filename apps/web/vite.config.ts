@@ -20,6 +20,7 @@ const securityHeaders = {
 export default defineConfig({
   plugins: [react()],
   server: {
+    allowedHosts: [".trycloudflare.com"],
     headers: securityHeaders,
     proxy: {
       "/api": "http://localhost:4000",
