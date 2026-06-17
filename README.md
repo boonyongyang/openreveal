@@ -29,7 +29,14 @@ For a full walkthrough, see [STARTER-GUIDE.md](STARTER-GUIDE.md). For the focuse
 ## Demo
 
 The performer drives a private console; the spectator sees only a clean reveal on
-their own phone.
+their own phone. Left = performer console, right = the spectator's phone, in sync:
+
+![OpenReveal in action: the performer arms a reveal in the console and it appears live on the spectator's phone](docs/screenshots/openreveal-demo.gif)
+
+> There is no hosted public demo — OpenReveal is meant to be run locally or
+> self-hosted (it keeps the project free to maintain and avoids holding any
+> spectator data centrally). It runs in ~2 minutes locally, see
+> [First Run](#first-run).
 
 **Performer console** (desktop)
 
