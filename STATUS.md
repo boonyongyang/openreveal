@@ -36,6 +36,7 @@
 - The Google Places proxy is cost-hardened: in-memory TTL caches for autocomplete (120s) and place details (1h) avoid re-billing identical lookups, and an optional `GOOGLE_PLACES_DAILY_BUDGET` caps total upstream calls per day.
 - A background cleanup scheduler (`CLEANUP_INTERVAL_MINUTES`, default 30) prunes expired sessions and aged rows so a long-running instance does not grow SQLite without bound; it reuses the same logic as `pnpm maintenance:cleanup` and is skipped under test.
 - `Strict-Transport-Security` is emitted on both API and web responses when the deployment base URL is https.
+- `pnpm smoke:deploy` asserts the HSTS header. `pnpm security:probe <base-url>` is an intrusive abuse probe (WS message-flood limit, per-IP socket cap, login rate limit, HSTS) for local/staging; all six defenses were runtime-verified one-by-one against a live instance on 2026-06-17.
 - Maintenance cleanup command is available through `pnpm maintenance:cleanup` and `make maintenance-cleanup`.
 - Hosted-instance report placeholder is implemented at `/report`.
 - Receivers that join after a reveal was sent are replayed the active reveal from SQLite.

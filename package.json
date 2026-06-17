@@ -20,6 +20,7 @@
     "record:showcase": "node scripts/record-showcase.mjs",
     "cloudrun:preflight": "node scripts/cloud-run-preflight.mjs",
     "smoke:deploy": "node scripts/deployment-smoke.mjs",
+    "security:probe": "node scripts/security-probe.mjs",
     "lint": "pnpm -r --if-present lint",
     "test": "pnpm -r --workspace-concurrency=1 --if-present test",
     "test:e2e": "playwright test",
@@ -29,7 +30,8 @@
   "devDependencies": {
     "@playwright/test": "^1.56.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.0"
+    "vitest": "^4.0.0",
+    "ws": "^8.18.3"
   },
   "pnpm": {
     "overrides": {

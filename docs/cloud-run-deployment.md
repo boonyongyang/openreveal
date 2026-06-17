@@ -75,6 +75,12 @@ values, so set them only to override:
 Per-IP limits depend on `trustProxy`, which is enabled so `request.ip` reads the
 real client from Cloud Run's `X-Forwarded-For` rather than the front-end proxy.
 
+`pnpm smoke:deploy` asserts the HSTS header on https targets. To actively
+exercise the abuse defenses (WS message-flood limit, per-IP socket cap, login
+rate limit), run `pnpm security:probe <base-url>` against a **local or staging**
+instance — it is intrusive (floods sockets and burns the login budget) and is
+not meant for a live production URL.
+
 > **Why a single instance is mandatory, not just a fanout concern:** the rate
 > limiter, the per-IP WebSocket connection cap, the Places cache/budget, and the
 > WebSocket hub are all **in-process**. With more than one instance each replica

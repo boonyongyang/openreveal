@@ -1,4 +1,4 @@
-.PHONY: help install dev lint typecheck test test-e2e test-latency build check audit docker-build record-showcase record-location-celebrity cloudrun-preflight smoke-deploy maintenance-cleanup
+.PHONY: help install dev lint typecheck test test-e2e test-latency build check audit docker-build record-showcase record-location-celebrity cloudrun-preflight smoke-deploy security-probe maintenance-cleanup
 
 help:
 	@printf "OpenReveal commands\n"
@@ -17,6 +17,7 @@ help:
 	@printf "  make record-location-celebrity  Record a focused location/celebrity QA MP4\n"
 	@printf "  make cloudrun-preflight PROJECT_ID=...  Check Cloud Run project readiness\n"
 	@printf "  make smoke-deploy BASE_URL=https://...  Smoke test a deployed instance\n"
+	@printf "  make security-probe BASE_URL=http://localhost:4000  Intrusive abuse probe (local/staging)\n"
 	@printf "  make maintenance-cleanup  Expire and prune old session data\n"
 
 install:
@@ -65,6 +66,9 @@ cloudrun-preflight:
 smoke-deploy:
 	test -n "$(BASE_URL)"
 	pnpm smoke:deploy "$(BASE_URL)"
+
+security-probe:
+	pnpm security:probe "$(BASE_URL)"
 
 maintenance-cleanup:
 	pnpm maintenance:cleanup

@@ -48,6 +48,15 @@ async function checkHttp() {
   const healthBody = JSON.parse(health.body);
   record("/api/health", health.statusCode === 200 && healthBody.ok === true, `status ${health.statusCode}`);
 
+  // HSTS (S6): required on https deployments, must be absent on plain http so a
+  // local http smoke is not pinned. Only asserted against an https target.
+  const hsts = String(health.headers["strict-transport-security"] ?? "");
+  if (base.protocol === "https:") {
+    record("HSTS header (https)", hsts.includes("max-age="), hsts || "missing");
+  } else {
+    record("HSTS absent (http)", hsts === "", hsts ? `unexpected: ${hsts}` : "absent");
+  }
+
   for (const path of ["/console", "/privacy", "/report", "/not-a-real-route"]) {
     const response = await request(path, "HEAD");
     const csp = String(response.headers["content-security-policy"] ?? "");
