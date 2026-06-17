@@ -28,8 +28,28 @@ For a full walkthrough, see [STARTER-GUIDE.md](STARTER-GUIDE.md). For the focuse
 
 ## Demo
 
-OpenReveal ships scripts that record a synchronized performer/audience walkthrough
-locally (the resulting MP4s are not committed — they are generated on demand):
+The performer drives a private console; the spectator sees only a clean reveal on
+their own phone.
+
+**Performer console** (desktop)
+
+![Performer console with a live session, QR code, receiver URL, and the effects panel](docs/screenshots/console-session.png)
+
+**Spectator phone** (standby → location, custom text, and celebrity reveals)
+
+| Standby | Location | Custom text | Celebrity |
+| --- | --- | --- | --- |
+| ![Spectator standby screen](docs/screenshots/receiver-standby.png) | ![Location reveal showing Kuala Lumpur, Malaysia](docs/screenshots/reveal-location.png) | ![Custom text reveal](docs/screenshots/reveal-text.png) | ![Celebrity reveal showing Taylor Swift](docs/screenshots/reveal-celebrity.png) |
+
+These stills are committed under `docs/screenshots/` and regenerated from the real
+app flow with:
+
+```sh
+pnpm screenshots                 # capture the committed README stills
+```
+
+For full synchronized performer/audience video walkthroughs (MP4s are generated on
+demand, not committed):
 
 ```sh
 pnpm record:showcase             # full performer + audience QA walkthrough

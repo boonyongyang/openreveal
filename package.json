@@ -18,6 +18,7 @@
     "maintenance:cleanup": "pnpm --filter @openreveal/api maintenance:cleanup",
     "record:location-celebrity": "node scripts/record-location-celebrity.mjs",
     "record:showcase": "node scripts/record-showcase.mjs",
+    "screenshots": "node scripts/capture-screenshots.mjs",
     "cloudrun:preflight": "node scripts/cloud-run-preflight.mjs",
     "smoke:deploy": "node scripts/deployment-smoke.mjs",
     "security:probe": "node scripts/security-probe.mjs",

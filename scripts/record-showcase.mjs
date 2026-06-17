@@ -140,9 +140,10 @@ async function runShowcaseFlow(performerPage, receiverPage) {
   await performerPage.getByLabel("Passphrase").fill(passphrase);
   await performerPage.getByRole("button", { name: "Continue" }).click();
   await expect(performerPage.getByRole("heading", { name: "Performer console" })).toBeVisible();
+  await performerPage.getByRole("button", { name: "Advanced" }).click();
 
   await performerPage.getByRole("button", { name: "Create session" }).click();
-  const receiverUrl = await performerPage.getByLabel("Receiver URL").inputValue();
+  const receiverUrl = await performerPage.getByLabel("Direct receiver URL").inputValue();
   await expect(performerPage.locator(".qr-box svg")).toBeVisible();
 
   await receiverPage.goto(receiverUrl);

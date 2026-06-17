@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/boonyongyang/openreveal/security/advisories/new
+    about: Do NOT open a public issue for security problems. Report privately via a GitHub Security Advisory (see SECURITY.md).
+  - name: Questions, ideas & show-and-tell
+    url: https://github.com/boonyongyang/openreveal/discussions
+    about: Ask how to set up or use OpenReveal, propose effects, or share a routine. (Enable Discussions in repo settings if this 404s.)
