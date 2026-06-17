@@ -1,5 +1,9 @@
 # OpenReveal
 
+[![CI](https://github.com/boonyongyang/openreveal/actions/workflows/ci.yml/badge.svg)](https://github.com/boonyongyang/openreveal/actions/workflows/ci.yml)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D22.12-43853d.svg)](https://nodejs.org)
+
 OpenReveal is an open-source, consent-based spectator-phone mentalism PWA. A performer creates a live session, asks a spectator to open the site and enter a short code, and controls an original reveal page from a private console.
 
 The current build implements the live session foundation plus location reveal, text-only celebrity reveal with auditable preset metadata, and a Phase 6 custom text reveal. The performer console can create a session, open demo mode, arm any built-in effect, send it to the spectator receiver page, receive delivery acknowledgements, and reset the session.
