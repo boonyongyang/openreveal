@@ -1,6 +1,9 @@
 version: 2
 updates:
-  # Keep npm/pnpm dependencies patched so `pnpm audit` stays green over time.
+  # npm/pnpm: take minor + patch automatically so `pnpm audit` stays green,
+  # but ignore major bumps (e.g. TypeScript 6, Vite 8) — those are adopted
+  # deliberately, not on a weekly schedule. Security advisories are delivered
+  # by GitHub's separate security-update path regardless of these rules.
   - package-ecosystem: npm
     directory: "/"
     schedule:
@@ -9,8 +12,13 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: development
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
 
-  # Keep GitHub Actions current (e.g. Node runtime deprecations).
+  # GitHub Actions update infrequently and major tags track runner/runtime
+  # deprecations, so allow majors here.
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
