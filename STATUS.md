@@ -31,6 +31,7 @@
 - Privacy page is implemented at `/privacy`.
 - Frontend and API responses set baseline CSP, anti-framing, referrer, and content-type hardening headers.
 - State-changing API routes reject untrusted browser `Origin`/`Referer` headers.
+- WebSocket abuse hardening is in place: per-IP concurrent-connection cap, per-socket message-rate limiter that drops flooding receivers before they amplify into broadcasts or reveal-ack DB writes, and a ping/pong liveness reaper that terminates zombie sockets. `trustProxy` is enabled so per-IP limits use the real client behind the Cloud Run front end.
 - Maintenance cleanup command is available through `pnpm maintenance:cleanup` and `make maintenance-cleanup`.
 - Hosted-instance report placeholder is implemented at `/report`.
 - Receivers that join after a reveal was sent are replayed the active reveal from SQLite.

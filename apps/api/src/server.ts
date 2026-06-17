@@ -25,6 +25,12 @@ import { autocompletePlaces, getPlaceDetails, placesConfigured } from "./places.
 import { RealtimeHub } from "./realtime.js";
 import { createSessionCode } from "./session-codes.js";
 import { revealPayloads, sessionEvents, sessions } from "./schema.js";
+import {
+  createMessageRateLimiter,
+  LivenessReaper,
+  releaseConnection,
+  tryRegisterConnection
+} from "./ws-guard.js";
 
 const hub = new RealtimeHub();
 
@@ -271,7 +277,17 @@ export async function buildServer() {
   registerBuiltInServerEffects();
 
   const app = Fastify({
-    logger: process.env.NODE_ENV !== "test"
+    logger: process.env.NODE_ENV !== "test",
+    // Cloud Run terminates TLS and forwards the real client in X-Forwarded-For.
+    // Trust it so request.ip (used by the rate limiter and the WS per-IP cap)
+    // reflects the spectator/performer, not the front-end proxy.
+    trustProxy: true
+  });
+
+  const livenessReaper = new LivenessReaper();
+  livenessReaper.start();
+  app.addHook("onClose", async () => {
+    livenessReaper.stop();
   });
 
   await app.register(cookie, {
@@ -595,8 +611,16 @@ export async function buildServer() {
         socket.close(1008, "performer auth required");
         return;
       }
+      if (!tryRegisterConnection(request.ip)) {
+        socket.close(1013, "too many connections");
+        return;
+      }
+      livenessReaper.register(socket);
       hub.joinPerformer(code, socket);
-      socket.on("close", () => hub.leavePerformer(code, socket));
+      socket.on("close", () => {
+        releaseConnection(request.ip);
+        hub.leavePerformer(code, socket);
+      });
       return;
     }
 
@@ -612,6 +636,13 @@ export async function buildServer() {
       return;
     }
 
+    if (!tryRegisterConnection(request.ip)) {
+      socket.close(1013, "too many connections");
+      return;
+    }
+    livenessReaper.register(socket);
+    const allowMessage = createMessageRateLimiter();
+
     const ua = request.headers["user-agent"]?.slice(0, 160) ?? "unknown";
     hub.joinReceiver(code, {
       deviceId,
@@ -624,6 +655,12 @@ export async function buildServer() {
     await logSessionEvent(session.id, "receiver_joined", "receiver", { deviceId });
 
     socket.on("message", (raw) => {
+      if (!allowMessage()) {
+        // Flood from an anonymous receiver: stop processing and drop the socket
+        // before it can amplify into broadcasts or reveal-ack DB writes.
+        socket.close(1008, "message rate limit");
+        return;
+      }
       try {
         const message = JSON.parse(String(raw)) as {
           type?: string;
@@ -658,6 +695,7 @@ export async function buildServer() {
     });
 
     socket.on("close", () => {
+      releaseConnection(request.ip);
       hub.leaveReceiver(code, deviceId, "closed", socket);
       void logSessionEvent(session.id, "receiver_left", "receiver", { deviceId });
     });
