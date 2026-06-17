@@ -4,6 +4,7 @@ import { loadPlaywrightEnv } from "./playwright.env";
 
 loadPlaywrightEnv();
 process.env.API_RATE_LIMIT_MAX = process.env.PLAYWRIGHT_API_RATE_LIMIT_MAX ?? "1000";
+process.env.AUTH_RATE_LIMIT_MAX = process.env.PLAYWRIGHT_AUTH_RATE_LIMIT_MAX ?? "1000";
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:5173";
 const apiBaseURL = process.env.PLAYWRIGHT_API_BASE_URL ?? "http://localhost:4000";

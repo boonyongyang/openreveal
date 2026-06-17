@@ -2,6 +2,18 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 export const PERFORMER_COOKIE = "or_performer";
 
+/**
+ * Length-safe constant-time string comparison. timingSafeEqual throws on
+ * differing buffer lengths and short-circuits would leak length via timing, so
+ * compare fixed-length HMACs of the inputs instead of the raw bytes.
+ */
+export function safeEqual(a: string, b: string): boolean {
+  const key = "openreveal-compare";
+  const left = createHmac("sha256", key).update(a).digest();
+  const right = createHmac("sha256", key).update(b).digest();
+  return timingSafeEqual(left, right);
+}
+
 interface PerformerTokenPayload {
   role: "performer";
   iat: number;

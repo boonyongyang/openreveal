@@ -17,7 +17,7 @@ import {
   PrepareRevealRequestSchema
 } from "@openreveal/shared";
 
-import { createPerformerToken, PERFORMER_COOKIE, verifyPerformerToken } from "./auth.js";
+import { createPerformerToken, PERFORMER_COOKIE, safeEqual, verifyPerformerToken } from "./auth.js";
 import { config, validateRuntimeConfig } from "./config.js";
 import { db, migrate } from "./db.js";
 import { registerBuiltInServerEffects, serverEffects } from "./effects/index.js";
@@ -324,10 +324,18 @@ export async function buildServer() {
   app.post("/api/auth/login", {
     schema: {
       body: LoginRequestSchema
+    },
+    config: {
+      // Single shared passphrase: throttle far below the global limit to blunt
+      // brute-force attempts while still allowing a few honest retries.
+      rateLimit: {
+        max: config.authRateLimitMax,
+        timeWindow: "1 minute"
+      }
     }
   }, async (request, reply) => {
     const body = request.body as { passphrase: string };
-    if (body.passphrase !== config.performerPassphrase) {
+    if (!safeEqual(body.passphrase, config.performerPassphrase)) {
       await reply.status(401).send({ error: "invalid_passphrase" });
       return;
     }

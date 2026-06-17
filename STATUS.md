@@ -32,6 +32,8 @@
 - Frontend and API responses set baseline CSP, anti-framing, referrer, and content-type hardening headers.
 - State-changing API routes reject untrusted browser `Origin`/`Referer` headers.
 - WebSocket abuse hardening is in place: per-IP concurrent-connection cap, per-socket message-rate limiter that drops flooding receivers before they amplify into broadcasts or reveal-ack DB writes, and a ping/pong liveness reaper that terminates zombie sockets. `trustProxy` is enabled so per-IP limits use the real client behind the Cloud Run front end.
+- Performer login is brute-force hardened: a dedicated `AUTH_RATE_LIMIT_MAX` per-IP limit (default 10/min) separate from the general API limit, and a constant-time passphrase comparison.
+- The Google Places proxy is cost-hardened: in-memory TTL caches for autocomplete (120s) and place details (1h) avoid re-billing identical lookups, and an optional `GOOGLE_PLACES_DAILY_BUDGET` caps total upstream calls per day.
 - Maintenance cleanup command is available through `pnpm maintenance:cleanup` and `make maintenance-cleanup`.
 - Hosted-instance report placeholder is implemented at `/report`.
 - Receivers that join after a reveal was sent are replayed the active reveal from SQLite.

@@ -56,10 +56,13 @@ export const config = {
   performerPassphrase: devFallback("PERFORMER_PASSPHRASE", "openreveal-dev"),
   port: intEnv("PORT", 4000),
   rateLimitMax: intEnv("API_RATE_LIMIT_MAX", 100),
+  authRateLimitMax: intEnv("AUTH_RATE_LIMIT_MAX", 10),
   sessionSecret: devFallback("SESSION_SECRET", "openreveal-dev-secret-change-me"),
   sessionTtlMinutes: intEnv("SESSION_TTL_MINUTES", DEFAULT_SESSION_TTL_MINUTES),
   googlePlacesApiKey: process.env.GOOGLE_PLACES_API_KEY,
   googlePlacesEnabled: boolEnv("GOOGLE_PLACES_ENABLED", Boolean(process.env.GOOGLE_PLACES_API_KEY)),
+  // Hard daily ceiling on upstream Google Places calls. 0 disables the cap.
+  googlePlacesDailyBudget: intEnv("GOOGLE_PLACES_DAILY_BUDGET", 0),
   webDistDir: process.env.WEB_DIST_DIR
 };
 
