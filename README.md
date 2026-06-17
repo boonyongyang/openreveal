@@ -26,6 +26,20 @@ Open the performer console at [http://localhost:5173/console](http://localhost:5
 
 For a full walkthrough, see [STARTER-GUIDE.md](STARTER-GUIDE.md). For the focused desktop and same-Wi-Fi phone workflow, see [docs/local-testing-setup.md](docs/local-testing-setup.md).
 
+## Demo
+
+OpenReveal ships scripts that record a synchronized performer/audience walkthrough
+locally (the resulting MP4s are not committed — they are generated on demand):
+
+```sh
+pnpm record:showcase             # full performer + audience QA walkthrough
+pnpm record:location-celebrity   # focused location + celebrity reveals
+```
+
+Outputs are written to `test-results/showcase/` and
+`test-results/location-celebrity/`. See [docs/testing-plan.md](docs/testing-plan.md)
+for what each recording covers.
+
 ## Commands
 
 ```sh
@@ -50,6 +64,8 @@ See [requirements/safety-and-legal.md](requirements/safety-and-legal.md) for the
 ## Contributing
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening issues or pull requests. New effects should follow [docs/effect-authoring.md](docs/effect-authoring.md), and preset/asset work should follow [docs/routine-pack-licensing.md](docs/routine-pack-licensing.md).
+
+By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md). To report a security vulnerability, follow the [Security Policy](SECURITY.md) — do not open a public issue.
 
 ## Planning Docs
 
