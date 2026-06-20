@@ -135,7 +135,10 @@ export function ConsoleRoute() {
   }, [session]);
   const displaySessionCode = session ? formatSessionCode(session.sessionCode) : "";
   // What the performer types on the spectator phone, e.g. "openreveal.web.app/482".
-  const typedUrl = session ? session.receiverUrl.replace(/^https?:\/\//, "") : "";
+  const typedUrl = useMemo(
+    () => (session ? session.receiverUrl.replace(/^https?:\/\//, "") : ""),
+    [session]
+  );
 
   function pushActivity(label: string) {
     setActivity((items) => [

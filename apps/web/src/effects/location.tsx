@@ -28,15 +28,6 @@ function LocationForm({
   const sessionToken = useRef(createBrowserId());
 
   useEffect(() => {
-    // Default the trick to redirecting into Google Maps so the reveal lands on
-    // a real maps page (URL bar shows google.com, back button can't return).
-    if (draft.autoOpenMaps === undefined) {
-      onChange({ ...draft, autoOpenMaps: true });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
     let cancelled = false;
     getCapabilities()
       .then((capabilities) => {

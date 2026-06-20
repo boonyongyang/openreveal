@@ -4,6 +4,7 @@ import type { CelebrityPayload, LocationPayload, RevealPayload, WsEnvelope } fro
 
 import { getReceiverStatus } from "../lib/api.js";
 import { createBrowserId } from "../lib/id.js";
+import { sessionCodeFromPath } from "../lib/session-path.js";
 import { websocketUrl } from "../lib/status.js";
 import { registerBuiltInWebEffects, webEffects } from "../effects/index.js";
 
@@ -19,12 +20,7 @@ interface SpectatorReceiverProps {
 registerBuiltInWebEffects();
 
 export function ReceiverRoute() {
-  const sessionCode = useMemo(() => {
-    // Supports both the QR/legacy form "/r/<code>" and the bare typed form
-    // "/<code>" the performer enters on the spectator phone.
-    const parts = window.location.pathname.split("/").filter(Boolean);
-    return (parts[0] === "r" ? parts[1] : parts[0]) ?? "";
-  }, []);
+  const sessionCode = useMemo(() => sessionCodeFromPath(window.location.pathname) ?? "", []);
 
   return <SpectatorReceiver sessionCode={sessionCode} />;
 }

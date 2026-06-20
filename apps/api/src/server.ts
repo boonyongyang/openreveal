@@ -176,11 +176,18 @@ async function requirePerformer(request: FastifyRequest, reply: FastifyReply) {
   return reply.status(401).send({ error: "performer_auth_required" });
 }
 
+// The bare short URL the performer types on the spectator phone, e.g.
+// "https://openreveal.web.app/482". Kept in one place so the URL shape lives
+// in a single spot.
+function receiverUrlFor(code: string) {
+  return `${config.appBaseUrl}/${code}`;
+}
+
 function buildConsoleState(session: typeof sessions.$inferSelect): ConsoleSessionState {
   const receiver = hub.getReceiver(session.code);
   return {
     sessionCode: session.code,
-    receiverUrl: `${config.appBaseUrl}/${session.code}`,
+    receiverUrl: receiverUrlFor(session.code),
     expiresAt: session.expiresAt,
     status: session.status,
     connectionState: hub.getConnectionState(session.code),
@@ -442,7 +449,7 @@ export async function buildServer() {
 
     const now = new Date();
     const expiresAt = new Date(now.getTime() + config.sessionTtlMinutes * 60_000);
-    const receiverUrl = `${config.appBaseUrl}/${code}`;
+    const receiverUrl = receiverUrlFor(code);
     const qrSvg = await QRCode.toString(receiverUrl, {
       type: "svg",
       margin: 1,

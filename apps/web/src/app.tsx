@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
-import { APP_NAME, SESSION_CODE_ALPHABET, SESSION_CODE_LENGTH } from "@openreveal/shared";
+import { APP_NAME, SESSION_CODE_LENGTH } from "@openreveal/shared";
 
+import { isValidSessionCode, normalizeSessionCode, sessionCodeFromPath } from "./lib/session-path.js";
 import { ConsoleRoute } from "./routes/console-route.js";
 import { PrivacyRoute } from "./routes/privacy-route.js";
 import { ReceiverRoute } from "./routes/receiver-route.js";
@@ -15,7 +16,7 @@ export function App() {
   if (path.startsWith("/j")) return <JoinPage />;
   if (path.startsWith("/about")) return <AboutPage />;
   // Bare short code typed straight onto the spectator phone, e.g. domain/482.
-  if (isSessionCodePath(path)) return <ReceiverRoute />;
+  if (sessionCodeFromPath(path)) return <ReceiverRoute />;
 
   return <JoinPage />;
 }
@@ -55,13 +56,9 @@ function JoinPage() {
   const [joinCode, setJoinCode] = useState("");
   const [joinError, setJoinError] = useState("");
 
-  function normalizeJoinCode(value: string) {
-    return normalizeSessionCode(value);
-  }
-
   function submitJoinCode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const code = normalizeJoinCode(joinCode);
+    const code = normalizeSessionCode(joinCode);
 
     if (!isValidSessionCode(code)) {
       setJoinError(`Enter the ${SESSION_CODE_LENGTH}-character session code.`);
@@ -86,7 +83,7 @@ function JoinPage() {
               inputMode="numeric"
               maxLength={SESSION_CODE_LENGTH}
               onChange={(event) => {
-                setJoinCode(normalizeJoinCode(event.target.value));
+                setJoinCode(normalizeSessionCode(event.target.value));
                 setJoinError("");
               }}
               placeholder={"0".repeat(SESSION_CODE_LENGTH)}
@@ -103,22 +100,3 @@ function JoinPage() {
   );
 }
 
-function normalizeSessionCode(value: string) {
-  return value
-    .replace(/[^0-9]/g, "")
-    .slice(0, SESSION_CODE_LENGTH);
-}
-
-function isValidSessionCode(code: string) {
-  return (
-    code.length === SESSION_CODE_LENGTH &&
-    [...code].every((character) => SESSION_CODE_ALPHABET.includes(character))
-  );
-}
-
-// True for a bare receiver code path like "/482" so it can be typed directly
-// on the spectator phone. Named routes (/console, /j, etc.) and asset files
-// (which contain a ".") never match.
-function isSessionCodePath(path: string) {
-  return isValidSessionCode(path.replace(/^\//, ""));
-}
