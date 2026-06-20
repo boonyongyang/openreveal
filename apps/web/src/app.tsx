@@ -14,6 +14,8 @@ export function App() {
   if (path.startsWith("/r/")) return <ReceiverRoute />;
   if (path.startsWith("/j")) return <JoinPage />;
   if (path.startsWith("/about")) return <AboutPage />;
+  // Bare short code typed straight onto the spectator phone, e.g. domain/482.
+  if (isSessionCodePath(path)) return <ReceiverRoute />;
 
   return <JoinPage />;
 }
@@ -66,7 +68,7 @@ function JoinPage() {
       return;
     }
 
-    window.location.replace(`/r/${code}`);
+    window.location.replace(`/${code}`);
   }
 
   return (
@@ -78,17 +80,16 @@ function JoinPage() {
           <label htmlFor="receiver-session-code">Session code</label>
           <div className="join-form__row">
             <input
-              autoCapitalize="characters"
               autoComplete="off"
               autoFocus
               id="receiver-session-code"
-              inputMode="text"
+              inputMode="numeric"
               maxLength={SESSION_CODE_LENGTH}
               onChange={(event) => {
                 setJoinCode(normalizeJoinCode(event.target.value));
                 setJoinError("");
               }}
-              placeholder="ABCDEFGH"
+              placeholder={"0".repeat(SESSION_CODE_LENGTH)}
               value={joinCode}
             />
             <button className="button button--primary" type="submit">
@@ -104,8 +105,7 @@ function JoinPage() {
 
 function normalizeSessionCode(value: string) {
   return value
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, "")
+    .replace(/[^0-9]/g, "")
     .slice(0, SESSION_CODE_LENGTH);
 }
 
@@ -114,4 +114,11 @@ function isValidSessionCode(code: string) {
     code.length === SESSION_CODE_LENGTH &&
     [...code].every((character) => SESSION_CODE_ALPHABET.includes(character))
   );
+}
+
+// True for a bare receiver code path like "/482" so it can be typed directly
+// on the spectator phone. Named routes (/console, /j, etc.) and asset files
+// (which contain a ".") never match.
+function isSessionCodePath(path: string) {
+  return isValidSessionCode(path.replace(/^\//, ""));
 }

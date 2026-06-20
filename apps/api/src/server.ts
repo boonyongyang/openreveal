@@ -180,7 +180,7 @@ function buildConsoleState(session: typeof sessions.$inferSelect): ConsoleSessio
   const receiver = hub.getReceiver(session.code);
   return {
     sessionCode: session.code,
-    receiverUrl: `${config.appBaseUrl}/r/${session.code}`,
+    receiverUrl: `${config.appBaseUrl}/${session.code}`,
     expiresAt: session.expiresAt,
     status: session.status,
     connectionState: hub.getConnectionState(session.code),
@@ -429,8 +429,12 @@ export async function buildServer() {
   });
 
   app.post("/api/sessions", async (_request, reply) => {
+    // One live session at a time (MVP): retire any prior live session so its
+    // short code is freed and only the newest code works.
+    await db.update(sessions).set({ status: "expired" }).where(eq(sessions.status, "live"));
+
     let code = createSessionCode();
-    for (let attempt = 0; attempt < 5; attempt += 1) {
+    for (let attempt = 0; attempt < 10; attempt += 1) {
       const existing = await findSession(code);
       if (!existing) break;
       code = createSessionCode();
@@ -438,7 +442,7 @@ export async function buildServer() {
 
     const now = new Date();
     const expiresAt = new Date(now.getTime() + config.sessionTtlMinutes * 60_000);
-    const receiverUrl = `${config.appBaseUrl}/r/${code}`;
+    const receiverUrl = `${config.appBaseUrl}/${code}`;
     const qrSvg = await QRCode.toString(receiverUrl, {
       type: "svg",
       margin: 1,

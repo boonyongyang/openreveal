@@ -20,8 +20,10 @@ registerBuiltInWebEffects();
 
 export function ReceiverRoute() {
   const sessionCode = useMemo(() => {
-    const [, , code] = window.location.pathname.split("/");
-    return code ?? "";
+    // Supports both the QR/legacy form "/r/<code>" and the bare typed form
+    // "/<code>" the performer enters on the spectator phone.
+    const parts = window.location.pathname.split("/").filter(Boolean);
+    return (parts[0] === "r" ? parts[1] : parts[0]) ?? "";
   }, []);
 
   return <SpectatorReceiver sessionCode={sessionCode} />;

@@ -28,6 +28,15 @@ function LocationForm({
   const sessionToken = useRef(createBrowserId());
 
   useEffect(() => {
+    // Default the trick to redirecting into Google Maps so the reveal lands on
+    // a real maps page (URL bar shows google.com, back button can't return).
+    if (draft.autoOpenMaps === undefined) {
+      onChange({ ...draft, autoOpenMaps: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     getCapabilities()
       .then((capabilities) => {
@@ -179,7 +188,7 @@ function LocationForm({
       <label className="checkbox-row">
         <input
           type="checkbox"
-          checked={draft.autoOpenMaps === true}
+          checked={draft.autoOpenMaps !== false}
           onChange={(event) => onChange({ ...draft, autoOpenMaps: event.target.checked })}
         />
         Open Maps automatically when sent

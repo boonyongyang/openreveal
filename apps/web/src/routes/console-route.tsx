@@ -134,6 +134,8 @@ export function ConsoleRoute() {
     return new URL("/", session.receiverUrl).toString();
   }, [session]);
   const displaySessionCode = session ? formatSessionCode(session.sessionCode) : "";
+  // What the performer types on the spectator phone, e.g. "openreveal.web.app/482".
+  const typedUrl = session ? session.receiverUrl.replace(/^https?:\/\//, "") : "";
 
   function pushActivity(label: string) {
     setActivity((items) => [
@@ -632,7 +634,7 @@ export function ConsoleRoute() {
                 <div className="qr-box" dangerouslySetInnerHTML={{ __html: qrSvg }} />
                 <div className="quick-session__copy">
                   <p className="quick-session__instruction">
-                    Ask spectator to open <strong>{joinPageUrl}</strong> and enter this code:
+                    Open <strong>{typedUrl}</strong> in the phone browser (or share this code):
                   </p>
                   <div className="quick-session__code" aria-label="Session code">
                     {displaySessionCode}
@@ -716,7 +718,7 @@ export function ConsoleRoute() {
               <div className="session-details">
                 <label>
                   Phone setup
-                  <input readOnly value={`Open ${joinPageUrl} and enter ${session.sessionCode}`} />
+                  <input readOnly value={`Open ${typedUrl} in the phone browser`} />
                 </label>
                 <label>
                   Direct receiver URL
