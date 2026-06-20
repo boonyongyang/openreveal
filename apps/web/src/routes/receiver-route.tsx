@@ -33,7 +33,22 @@ export function SpectatorReceiver({ embedded = false, sessionCode }: SpectatorRe
   } | null>(null);
   const [activeReveal, setActiveReveal] = useState<RevealPayload | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
+  const handoffUrlRef = useRef<string | null>(null);
   const deviceId = useMemo(() => getReceiverDeviceId(sessionCode), [sessionCode]);
+
+  // Back-trap: once a reveal has handed off to an external page (Maps/Search),
+  // pressing Back on the spectator phone restores this page from bfcache and
+  // would briefly expose the app. If that happens, bounce straight back to the
+  // reveal target so the controlled page/URL is never seen.
+  useEffect(() => {
+    if (embedded) return;
+    function bounce() {
+      const url = handoffUrlRef.current ?? safeSessionGet(handoffStorageKey(sessionCode));
+      if (url) window.location.replace(url);
+    }
+    window.addEventListener("pageshow", bounce);
+    return () => window.removeEventListener("pageshow", bounce);
+  }, [embedded, sessionCode]);
 
   useEffect(() => {
     let heartbeat: number | undefined;
@@ -110,6 +125,8 @@ export function SpectatorReceiver({ embedded = false, sessionCode }: SpectatorRe
               });
               const handoffUrl = externalHandoffUrl(current.payload);
               if (!embedded && handoffUrl) {
+                handoffUrlRef.current = handoffUrl;
+                safeSessionSet(handoffStorageKey(sessionCode), handoffUrl);
                 window.location.replace(handoffUrl);
               }
             }
@@ -117,10 +134,12 @@ export function SpectatorReceiver({ embedded = false, sessionCode }: SpectatorRe
           });
         }
         if (envelope.type === "session_reset") {
+          clearHandoff(sessionCode, handoffUrlRef);
           setCachedReveal(null);
           setActiveReveal(null);
         }
         if (envelope.type === "session_expired") {
+          clearHandoff(sessionCode, handoffUrlRef);
           terminalState = "expired";
           setStatus("expired");
           setCachedReveal(null);
@@ -267,6 +286,36 @@ function externalHandoffUrl(payload: RevealPayload) {
     return (payload as CelebrityPayload).searchUrl;
   }
   return undefined;
+}
+
+function handoffStorageKey(sessionCode: string) {
+  return `openreveal:handoff:${sessionCode}`;
+}
+
+function safeSessionGet(key: string): string | null {
+  try {
+    return window.sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSessionSet(key: string, value: string) {
+  try {
+    window.sessionStorage.setItem(key, value);
+  } catch {
+    // sessionStorage may be unavailable (private mode / quota); the in-memory
+    // ref still covers the common back-button case.
+  }
+}
+
+function clearHandoff(sessionCode: string, ref: { current: string | null }) {
+  ref.current = null;
+  try {
+    window.sessionStorage.removeItem(handoffStorageKey(sessionCode));
+  } catch {
+    // ignore
+  }
 }
 
 function sendMessage(socket: WebSocket, message: unknown) {
