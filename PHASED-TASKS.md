@@ -104,4 +104,6 @@ Goal: close the final public-deployment gates without adding product scope.
 - [ ] Run `requirements/mobile-qa.md` on iPhone Safari.
 - [ ] Run `requirements/mobile-qa.md` on Android Chrome.
 - [ ] Set production environment variables from `.env.example`.
-- [x] Create a baseline git commit before deploying from a public repository.
+- [x] Push the baseline to the private GitHub repository and verify CI on `main`.
+- [ ] Decide whether to make the GitHub repository public for the open-source release.
+- [ ] Create a version tag and GitHub Release after the release gates are closed.

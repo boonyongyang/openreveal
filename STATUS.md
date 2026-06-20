@@ -115,14 +115,27 @@
 - Playwright now defaults to local `http://localhost:5173`/`http://localhost:4000` test URLs even when `.env` is temporarily pointed at a LAN IP or tunnel for phone testing.
 - Codex in-app browser navigation to `localhost:5173` and `127.0.0.1:5173` was blocked by the browser client during the latest sanity pass; Playwright successfully exercised the same local app.
 
-Latest automated verification pass on 2026-05-31:
+Latest automated verification pass on 2026-06-20:
 
+- `pnpm install --frozen-lockfile`: passed with pnpm 10.10.0.
 - `pnpm check`: passed.
-- `pnpm test:e2e`: passed, 19 browser flows.
-- `pnpm test:latency`: passed, 20 samples, p95 8ms, max 8ms.
+- `pnpm test:e2e`: passed, 20 browser flows.
 - `pnpm audit --audit-level moderate`: passed with no known vulnerabilities.
+- Local verification used Node 26.3.0; `.nvmrc` now pins the Node 22.12 CI baseline for reproducible setup.
+
+Still-current supporting evidence from 2026-05-31:
+
+- `pnpm test:latency`: passed, 20 samples, p95 8ms, max 8ms.
 - `pnpm record:showcase`: passed and generated combined/performer/audience MP4 artifacts in `test-results/showcase/`.
 - `pnpm record:location-celebrity`: passed and generated combined/performer/audience MP4 artifacts in `test-results/location-celebrity/`.
+
+Latest GitHub repository check on 2026-06-20:
+
+- The setup/readiness update is prepared for review from the `bbae7b9` `main` baseline; merge it before treating the new evidence as the public baseline.
+- The latest GitHub Actions `CI` run on `main` passed on 2026-06-17.
+- The repository is currently private, despite the intended open-source positioning.
+- No version tag or GitHub Release exists yet.
+- `LICENSE` now uses the canonical full AGPL-3.0 text; GitHub will re-detect it after this change reaches `main`.
 
 Latest container and LAN verification:
 
@@ -155,11 +168,15 @@ Project implementation is ready for local testing and hosted smoke testing. Publ
    - [ ] Run `requirements/mobile-qa.md` on iPhone Safari
    - [ ] Run `requirements/mobile-qa.md` on Android Chrome
    - [ ] Record notes and blockers in `requirements/mobile-qa.md`
-3. Push the baseline commit or create a release tag before deploying from a public repository.
+3. Close the GitHub release boundary:
+   - [ ] Decide whether the repository should become public
+   - [ ] Make it public only after confirming no secrets or private artifacts are tracked
+   - [ ] Create the first version tag and GitHub Release after the deployment and device gates pass
 
 ## Final Readiness Summary
 
 - Ready now: local desktop testing, LAN/tunnel rehearsal, automated browser coverage, Docker production smoke, Cloud Run preflight checks, and generated QA video/screenshots.
+- GitHub status: ready for private collaboration with green CI; not yet a public open-source release because the repository is private and has no tag or GitHub Release.
 - Waiting on owner input: billed Google Cloud project or alternative host, production secrets, optional Google Places API key, abuse report URL, and data retention/backup decision.
 - Waiting on real devices: iPhone Safari and Android Chrome runs from `requirements/mobile-qa.md`.
 - Intentional boundary: the receiver standby page remains an original search-style surface. It should not be changed into an exact Google clone or use Google trademarks/assets unless the project is using an approved Google integration surface and complies with their terms.

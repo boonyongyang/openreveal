@@ -6,11 +6,14 @@ For a focused checklist that covers desktop rehearsal plus a same-Wi-Fi audience
 
 ## 1. Prepare The Repo
 
-Install Node.js 22.12+ and pnpm 10+, then run:
+Install Node.js 22.12+ and pnpm 10.10.0. The repository includes an `.nvmrc`
+matching the Node version used by CI. Then run:
 
 ```sh
+nvm use # when using nvm
+npm install --global pnpm@10.10.0 # only when pnpm 10 is not already installed
 cp .env.example .env
-pnpm install
+pnpm install --frozen-lockfile
 ```
 
 Open `.env` and set a local passphrase:
