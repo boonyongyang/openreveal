@@ -39,9 +39,14 @@ performer only ever controls pages served by this project — see the
 
 ## First Run
 
+Use Node 22.12 or newer and pnpm 10.10.0. If you use `nvm`, the repository's
+`.nvmrc` selects the CI baseline:
+
 ```sh
+nvm use
+npm install --global pnpm@10.10.0 # only when pnpm 10 is not already installed
 cp .env.example .env
-pnpm install
+pnpm install --frozen-lockfile
 pnpm dev
 ```
 

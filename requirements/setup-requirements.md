@@ -5,7 +5,7 @@
 Expected tools:
 
 - Node.js 22.12 or newer.
-- pnpm 10 or newer.
+- pnpm 10.10.0 (pinned by `packageManager`; newer pnpm 10 releases may also work).
 - Git once the workspace is initialized as a repository.
 - SQLite for v1 local development.
 - A modern desktop browser.
@@ -116,6 +116,10 @@ pnpm check
 pnpm audit
 pnpm maintenance:cleanup
 ```
+
+For a reproducible first install, use `nvm use` with the committed `.nvmrc` and
+run `pnpm install --frozen-lockfile`. Install pnpm with
+`npm install --global pnpm@10.10.0` only if pnpm 10 is not already available.
 
 For a performer walkthrough, see [../STARTER-GUIDE.md](../STARTER-GUIDE.md). For the complete command reference, see [../COMMANDS.md](../COMMANDS.md).
 
