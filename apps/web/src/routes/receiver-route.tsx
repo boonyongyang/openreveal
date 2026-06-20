@@ -260,7 +260,7 @@ function ReceiverSignals({
 }
 
 function externalHandoffUrl(payload: RevealPayload) {
-  if (payload.kind === "location" && payload.autoOpenMaps === true) {
+  if (payload.kind === "location" && payload.autoOpenMaps !== false) {
     return (payload as LocationPayload).mapsUrl;
   }
   if (payload.kind === "celebrity" && payload.autoOpenSearch !== false) {

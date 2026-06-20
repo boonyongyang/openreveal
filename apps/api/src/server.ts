@@ -6,7 +6,7 @@ import path from "node:path";
 import cookie from "@fastify/cookie";
 import rateLimit from "@fastify/rate-limit";
 import websocket from "@fastify/websocket";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import QRCode from "qrcode";
 
@@ -25,7 +25,7 @@ import { startCleanupScheduler } from "./maintenance.js";
 import { autocompletePlaces, getPlaceDetails, placesConfigured } from "./places.js";
 import { RealtimeHub } from "./realtime.js";
 import { createSessionCode } from "./session-codes.js";
-import { revealPayloads, sessionEvents, sessions } from "./schema.js";
+import { receiverDevices, revealPayloads, sessionEvents, sessions } from "./schema.js";
 import {
   createMessageRateLimiter,
   LivenessReaper,
@@ -165,6 +165,30 @@ async function expireSession(
 
   await logSessionEvent(session.id, "session_expired", actor, { reason });
   hub.expire(session.code, reason);
+}
+
+// One live session at a time (MVP). Before creating a new session, properly
+// expire any existing one (so a still-connected spectator is notified and its
+// socket closed via hub.expire) and then DELETE the rows. Deleting frees the
+// short code immediately: with only 1000 numeric codes, leaving retired rows
+// around would eventually fill the namespace and break code allocation.
+async function retirePriorSessions() {
+  const prior = await db.select().from(sessions);
+  if (prior.length === 0) return;
+
+  for (const session of prior) {
+    if (session.status === "live") {
+      await expireSession(session, "ended_by_performer", "performer");
+    } else {
+      hub.expire(session.code, "ended_by_performer");
+    }
+  }
+
+  const ids = prior.map((session) => session.id);
+  await db.delete(revealPayloads).where(inArray(revealPayloads.sessionId, ids));
+  await db.delete(receiverDevices).where(inArray(receiverDevices.sessionId, ids));
+  await db.delete(sessionEvents).where(inArray(sessionEvents.sessionId, ids));
+  await db.delete(sessions).where(inArray(sessions.id, ids));
 }
 
 function isPerformer(request: FastifyRequest) {
@@ -436,9 +460,7 @@ export async function buildServer() {
   });
 
   app.post("/api/sessions", async (_request, reply) => {
-    // One live session at a time (MVP): retire any prior live session so its
-    // short code is freed and only the newest code works.
-    await db.update(sessions).set({ status: "expired" }).where(eq(sessions.status, "live"));
+    await retirePriorSessions();
 
     let code = createSessionCode();
     for (let attempt = 0; attempt < 10; attempt += 1) {
