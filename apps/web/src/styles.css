@@ -1103,11 +1103,20 @@ textarea {
   box-shadow: none;
 }
 
+.search-line__icon {
+  flex-shrink: 0;
+  color: #bdc1c6;
+}
+
 .search-line p {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.search-line__placeholder {
+  color: #bdc1c6;
 }
 
 .search-line p,

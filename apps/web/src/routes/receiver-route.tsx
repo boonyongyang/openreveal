@@ -201,7 +201,23 @@ export function SpectatorReceiver({ embedded = false, sessionCode }: SpectatorRe
         {receiverMode === "search" ? (
           <>
             <div className="search-line">
-              {statusText(status) ? <p>{statusText(status)}</p> : null}
+              <svg
+                className="search-line__icon"
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                aria-hidden="true"
+              >
+                <path
+                  fill="currentColor"
+                  d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0A4.5 4.5 0 1 1 14 9.5 4.49 4.49 0 0 1 9.5 14Z"
+                />
+              </svg>
+              {statusText(status) ? (
+                <p>{statusText(status)}</p>
+              ) : (
+                <p className="search-line__placeholder">Search</p>
+              )}
             </div>
             <ReceiverSignals
               activeReveal={Boolean(activeReveal)}
