@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
-import { APP_NAME, SESSION_CODE_ALPHABET, SESSION_CODE_LENGTH } from "@openreveal/shared";
+import { APP_NAME, SESSION_CODE_LENGTH } from "@openreveal/shared";
 
+import { isValidSessionCode, normalizeSessionCode, sessionCodeFromPath } from "./lib/session-path.js";
 import { ConsoleRoute } from "./routes/console-route.js";
 import { PrivacyRoute } from "./routes/privacy-route.js";
 import { ReceiverRoute } from "./routes/receiver-route.js";
@@ -14,6 +15,8 @@ export function App() {
   if (path.startsWith("/r/")) return <ReceiverRoute />;
   if (path.startsWith("/j")) return <JoinPage />;
   if (path.startsWith("/about")) return <AboutPage />;
+  // Bare short code typed straight onto the spectator phone, e.g. domain/482.
+  if (sessionCodeFromPath(path)) return <ReceiverRoute />;
 
   return <JoinPage />;
 }
@@ -53,20 +56,16 @@ function JoinPage() {
   const [joinCode, setJoinCode] = useState("");
   const [joinError, setJoinError] = useState("");
 
-  function normalizeJoinCode(value: string) {
-    return normalizeSessionCode(value);
-  }
-
   function submitJoinCode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const code = normalizeJoinCode(joinCode);
+    const code = normalizeSessionCode(joinCode);
 
     if (!isValidSessionCode(code)) {
       setJoinError(`Enter the ${SESSION_CODE_LENGTH}-character session code.`);
       return;
     }
 
-    window.location.replace(`/r/${code}`);
+    window.location.replace(`/${code}`);
   }
 
   return (
@@ -78,17 +77,16 @@ function JoinPage() {
           <label htmlFor="receiver-session-code">Session code</label>
           <div className="join-form__row">
             <input
-              autoCapitalize="characters"
               autoComplete="off"
               autoFocus
               id="receiver-session-code"
-              inputMode="text"
+              inputMode="numeric"
               maxLength={SESSION_CODE_LENGTH}
               onChange={(event) => {
-                setJoinCode(normalizeJoinCode(event.target.value));
+                setJoinCode(normalizeSessionCode(event.target.value));
                 setJoinError("");
               }}
-              placeholder="ABCDEFGH"
+              placeholder={"0".repeat(SESSION_CODE_LENGTH)}
               value={joinCode}
             />
             <button className="button button--primary" type="submit">
@@ -102,16 +100,3 @@ function JoinPage() {
   );
 }
 
-function normalizeSessionCode(value: string) {
-  return value
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, "")
-    .slice(0, SESSION_CODE_LENGTH);
-}
-
-function isValidSessionCode(code: string) {
-  return (
-    code.length === SESSION_CODE_LENGTH &&
-    [...code].every((character) => SESSION_CODE_ALPHABET.includes(character))
-  );
-}

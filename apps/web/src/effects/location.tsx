@@ -179,7 +179,7 @@ function LocationForm({
       <label className="checkbox-row">
         <input
           type="checkbox"
-          checked={draft.autoOpenMaps === true}
+          checked={draft.autoOpenMaps !== false}
           onChange={(event) => onChange({ ...draft, autoOpenMaps: event.target.checked })}
         />
         Open Maps automatically when sent

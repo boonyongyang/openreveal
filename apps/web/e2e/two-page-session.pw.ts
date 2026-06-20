@@ -28,9 +28,12 @@ test("spectator can join from root or /j with a session code", async ({ browser,
       await receiverPage.getByLabel("Session code").fill(sessionCode.toLowerCase());
       await receiverPage.getByRole("button", { name: "Join" }).click();
 
-      await expect(receiverPage).toHaveURL(new RegExp(`/r/${sessionCode}$`));
+      await expect(receiverPage).toHaveURL(new RegExp(`/${sessionCode}$`));
       await expect(receiverPage.locator(".search-line")).toBeVisible();
-      await expect(page.getByRole("heading", { name: "Foregrounded" })).toBeVisible();
+      // Switching sessions + WS reconnect can exceed the default 5s under load.
+      await expect(page.getByRole("heading", { name: "Foregrounded" })).toBeVisible({
+        timeout: 10000
+      });
       await receiverPage.goBack({ waitUntil: "domcontentloaded", timeout: 1000 }).catch(() => null);
       await expect(receiverPage).not.toHaveURL(joinPath === "/" ? /\/$/ : /\/j$/);
     } finally {
@@ -53,7 +56,7 @@ test("performer controls a real receiver page end to end", async ({ browser, pag
     await page.getByRole("button", { name: "Create session" }).click();
     await page.getByRole("button", { name: "Advanced" }).click();
     const receiverUrl = await page.getByLabel("Direct receiver URL").inputValue();
-    expect(receiverUrl).toMatch(/\/r\/[A-Z2-9]+$/);
+    expect(receiverUrl).toMatch(/\/\d{3}$/);
 
     await receiverPage.goto(receiverUrl);
     await expect(receiverPage.locator(".search-line")).toBeVisible();
@@ -61,6 +64,8 @@ test("performer controls a real receiver page end to end", async ({ browser, pag
 
     await page.getByLabel("Location name").fill("Kuala Lumpur");
     await page.getByLabel("Country").fill("Malaysia");
+    // Keep the in-app reveal (default now redirects to Google Maps on send).
+    await page.getByLabel("Open Maps automatically when sent").uncheck();
     await page.getByRole("button", { name: "Arm" }).click();
     await expect(page.locator(".status-pill--prepared")).toHaveText("Ready");
     await expect(page.getByTestId("armed-summary")).toContainText("Location: Kuala Lumpur, Malaysia");

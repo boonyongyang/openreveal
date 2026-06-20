@@ -4,6 +4,7 @@ import type { CelebrityPayload, LocationPayload, RevealPayload, WsEnvelope } fro
 
 import { getReceiverStatus } from "../lib/api.js";
 import { createBrowserId } from "../lib/id.js";
+import { sessionCodeFromPath } from "../lib/session-path.js";
 import { websocketUrl } from "../lib/status.js";
 import { registerBuiltInWebEffects, webEffects } from "../effects/index.js";
 
@@ -19,10 +20,7 @@ interface SpectatorReceiverProps {
 registerBuiltInWebEffects();
 
 export function ReceiverRoute() {
-  const sessionCode = useMemo(() => {
-    const [, , code] = window.location.pathname.split("/");
-    return code ?? "";
-  }, []);
+  const sessionCode = useMemo(() => sessionCodeFromPath(window.location.pathname) ?? "", []);
 
   return <SpectatorReceiver sessionCode={sessionCode} />;
 }
@@ -201,7 +199,23 @@ export function SpectatorReceiver({ embedded = false, sessionCode }: SpectatorRe
         {receiverMode === "search" ? (
           <>
             <div className="search-line">
-              {statusText(status) ? <p>{statusText(status)}</p> : null}
+              <svg
+                className="search-line__icon"
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                aria-hidden="true"
+              >
+                <path
+                  fill="currentColor"
+                  d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0A4.5 4.5 0 1 1 14 9.5 4.49 4.49 0 0 1 9.5 14Z"
+                />
+              </svg>
+              {statusText(status) ? (
+                <p>{statusText(status)}</p>
+              ) : (
+                <p className="search-line__placeholder">Search</p>
+              )}
             </div>
             <ReceiverSignals
               activeReveal={Boolean(activeReveal)}
@@ -246,7 +260,7 @@ function ReceiverSignals({
 }
 
 function externalHandoffUrl(payload: RevealPayload) {
-  if (payload.kind === "location" && payload.autoOpenMaps === true) {
+  if (payload.kind === "location" && payload.autoOpenMaps !== false) {
     return (payload as LocationPayload).mapsUrl;
   }
   if (payload.kind === "celebrity" && payload.autoOpenSearch !== false) {

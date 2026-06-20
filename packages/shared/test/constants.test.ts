@@ -13,9 +13,9 @@ import {
 describe("shared constants", () => {
   it("keeps the OpenReveal identity and session code contract stable", () => {
     expect(APP_NAME).toBe("OpenReveal");
-    expect(SESSION_CODE_LENGTH).toBe(8);
-    expect(SESSION_CODE_ALPHABET).not.toContain("0");
-    expect(SESSION_CODE_ALPHABET).not.toContain("O");
+    // Numeric short codes: fast to type on a phone numeric keypad.
+    expect(SESSION_CODE_LENGTH).toBe(3);
+    expect(SESSION_CODE_ALPHABET).toBe("0123456789");
     expect(CONNECTION_STATES).toEqual([
       "disconnected",
       "connecting",

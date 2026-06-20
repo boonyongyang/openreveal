@@ -6,7 +6,7 @@ import path from "node:path";
 import cookie from "@fastify/cookie";
 import rateLimit from "@fastify/rate-limit";
 import websocket from "@fastify/websocket";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import QRCode from "qrcode";
 
@@ -25,7 +25,7 @@ import { startCleanupScheduler } from "./maintenance.js";
 import { autocompletePlaces, getPlaceDetails, placesConfigured } from "./places.js";
 import { RealtimeHub } from "./realtime.js";
 import { createSessionCode } from "./session-codes.js";
-import { revealPayloads, sessionEvents, sessions } from "./schema.js";
+import { receiverDevices, revealPayloads, sessionEvents, sessions } from "./schema.js";
 import {
   createMessageRateLimiter,
   LivenessReaper,
@@ -167,6 +167,30 @@ async function expireSession(
   hub.expire(session.code, reason);
 }
 
+// One live session at a time (MVP). Before creating a new session, properly
+// expire any existing one (so a still-connected spectator is notified and its
+// socket closed via hub.expire) and then DELETE the rows. Deleting frees the
+// short code immediately: with only 1000 numeric codes, leaving retired rows
+// around would eventually fill the namespace and break code allocation.
+async function retirePriorSessions() {
+  const prior = await db.select().from(sessions);
+  if (prior.length === 0) return;
+
+  for (const session of prior) {
+    if (session.status === "live") {
+      await expireSession(session, "ended_by_performer", "performer");
+    } else {
+      hub.expire(session.code, "ended_by_performer");
+    }
+  }
+
+  const ids = prior.map((session) => session.id);
+  await db.delete(revealPayloads).where(inArray(revealPayloads.sessionId, ids));
+  await db.delete(receiverDevices).where(inArray(receiverDevices.sessionId, ids));
+  await db.delete(sessionEvents).where(inArray(sessionEvents.sessionId, ids));
+  await db.delete(sessions).where(inArray(sessions.id, ids));
+}
+
 function isPerformer(request: FastifyRequest) {
   return verifyPerformerToken(request.cookies[PERFORMER_COOKIE], config.sessionSecret);
 }
@@ -176,11 +200,18 @@ async function requirePerformer(request: FastifyRequest, reply: FastifyReply) {
   return reply.status(401).send({ error: "performer_auth_required" });
 }
 
+// The bare short URL the performer types on the spectator phone, e.g.
+// "https://openreveal.web.app/482". Kept in one place so the URL shape lives
+// in a single spot.
+function receiverUrlFor(code: string) {
+  return `${config.appBaseUrl}/${code}`;
+}
+
 function buildConsoleState(session: typeof sessions.$inferSelect): ConsoleSessionState {
   const receiver = hub.getReceiver(session.code);
   return {
     sessionCode: session.code,
-    receiverUrl: `${config.appBaseUrl}/r/${session.code}`,
+    receiverUrl: receiverUrlFor(session.code),
     expiresAt: session.expiresAt,
     status: session.status,
     connectionState: hub.getConnectionState(session.code),
@@ -429,8 +460,10 @@ export async function buildServer() {
   });
 
   app.post("/api/sessions", async (_request, reply) => {
+    await retirePriorSessions();
+
     let code = createSessionCode();
-    for (let attempt = 0; attempt < 5; attempt += 1) {
+    for (let attempt = 0; attempt < 10; attempt += 1) {
       const existing = await findSession(code);
       if (!existing) break;
       code = createSessionCode();
@@ -438,7 +471,7 @@ export async function buildServer() {
 
     const now = new Date();
     const expiresAt = new Date(now.getTime() + config.sessionTtlMinutes * 60_000);
-    const receiverUrl = `${config.appBaseUrl}/r/${code}`;
+    const receiverUrl = receiverUrlFor(code);
     const qrSvg = await QRCode.toString(receiverUrl, {
       type: "svg",
       margin: 1,

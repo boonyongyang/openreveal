@@ -29,7 +29,7 @@ export function registerLocationEffect() {
         placeId: cleanText(record.placeId, "placeId", false, 300),
         lat: cleanNumber(record.lat, "lat", -90, 90),
         lng: cleanNumber(record.lng, "lng", -180, 180),
-        autoOpenMaps: record.autoOpenMaps === true
+        autoOpenMaps: record.autoOpenMaps !== false
       };
 
       return {

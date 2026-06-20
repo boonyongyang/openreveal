@@ -3,17 +3,19 @@
 // for the README. Unlike record:showcase (which emits gitignored MP4s), the
 // output here lives in docs/screenshots/ and is meant to be committed.
 import { chromium, expect } from "@playwright/test";
-import { mkdir, rm } from "node:fs/promises";
+import { mkdir, readFile, rm } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { spawn } from "node:child_process";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const outputDir = join(root, "docs", "screenshots");
+const rawDir = join(outputDir, "_raw");
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:5173";
 const apiBaseURL = process.env.PLAYWRIGHT_API_BASE_URL ?? "http://localhost:4000";
 const passphrase = process.env.PERFORMER_PASSPHRASE ?? "openreveal-dev";
 
 await mkdir(outputDir, { recursive: true });
+await mkdir(rawDir, { recursive: true });
 await rm(join(root, "data", "screenshots.sqlite"), { force: true });
 
 const server = spawn("pnpm", ["dev"], {
@@ -57,9 +59,11 @@ try {
 
   const performerPage = await performerContext.newPage();
   const receiverPage = await receiverContext.newPage();
+  const framePage = await performerContext.newPage();
 
-  await captureFlow(performerPage, receiverPage);
+  await captureFlow(performerPage, receiverPage, framePage);
 
+  await rm(rawDir, { force: true, recursive: true });
   console.log("Screenshots captured:");
   console.log(outputDir);
 } catch (error) {
@@ -82,7 +86,57 @@ async function shot(page, name) {
   await page.screenshot({ path: join(outputDir, name) });
 }
 
-async function captureFlow(performerPage, receiverPage) {
+// Capture the spectator phone, then composite it into a device frame on a
+// transparent background so the README thumbnail reads as a phone screen
+// instead of floating content in empty black.
+async function shotPhone(receiverPage, framePage, name) {
+  const rawPath = join(rawDir, name);
+  await receiverPage.screenshot({ path: rawPath });
+  const dataUrl = `data:image/png;base64,${(await readFile(rawPath)).toString("base64")}`;
+
+  await framePage.setContent(`<!doctype html><html><head><meta charset="utf-8">
+  <style>
+    html, body { margin: 0; background: transparent; }
+    .wrap { display: inline-block; padding: 34px; }
+    .phone {
+      position: relative;
+      width: 300px;
+      padding: 13px;
+      border-radius: 54px;
+      background: linear-gradient(155deg, #34343a 0%, #161618 60%, #0c0c0e 100%);
+      box-shadow:
+        0 34px 70px -22px rgba(15, 12, 8, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+    }
+    .screen {
+      position: relative;
+      border-radius: 42px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 0 0 2px #050506;
+    }
+    .screen img { display: block; width: 100%; height: auto; }
+    .notch {
+      position: absolute;
+      z-index: 2;
+      top: 13px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 92px;
+      height: 22px;
+      border-radius: 999px;
+      background: #060607;
+    }
+  </style></head><body>
+    <div class="wrap"><div class="phone"><div class="notch"></div>
+    <div class="screen"><img src="${dataUrl}"></div></div></div>
+  </body></html>`);
+
+  const frame = await framePage.locator(".wrap");
+  await frame.screenshot({ path: join(outputDir, name), omitBackground: true });
+}
+
+async function captureFlow(performerPage, receiverPage, framePage) {
   await performerPage.goto(`${baseURL}/console`);
   await performerPage.getByLabel("Passphrase").fill(passphrase);
   await performerPage.getByRole("button", { name: "Continue" }).click();
@@ -99,7 +153,7 @@ async function captureFlow(performerPage, receiverPage) {
   await expect(receiverPage.locator(".search-line")).toBeVisible();
   await expect(performerPage.getByRole("heading", { name: "Foregrounded" })).toBeVisible();
   await settle();
-  await shot(receiverPage, "receiver-standby.png");
+  await shotPhone(receiverPage, framePage, "receiver-standby.png");
 
   await performerPage.getByLabel("Location name").fill("Kuala Lumpur");
   await performerPage.getByLabel("Country").fill("Malaysia");
@@ -113,7 +167,7 @@ async function captureFlow(performerPage, receiverPage) {
   await expect(performerPage.locator(".status-pill--delivered")).toHaveText("Delivered");
   await expect(receiverPage.getByRole("heading", { name: "Kuala Lumpur" })).toBeVisible();
   await settle(1200);
-  await shot(receiverPage, "reveal-location.png");
+  await shotPhone(receiverPage, framePage, "reveal-location.png");
 
   await performerPage.getByRole("button", { name: "Reset", exact: true }).click();
   await expect(receiverPage.locator(".search-line")).toBeVisible();
@@ -126,7 +180,7 @@ async function captureFlow(performerPage, receiverPage) {
   await performerPage.getByRole("button", { name: "Send", exact: true }).click();
   await expect(receiverPage.locator(".text-reveal").getByText("Violet")).toBeVisible();
   await settle(1200);
-  await shot(receiverPage, "reveal-text.png");
+  await shotPhone(receiverPage, framePage, "reveal-text.png");
 
   await performerPage.getByRole("button", { name: "Reset", exact: true }).click();
   await expect(receiverPage.locator(".search-line")).toBeVisible();
@@ -140,7 +194,7 @@ async function captureFlow(performerPage, receiverPage) {
   await performerPage.getByRole("button", { name: "Send", exact: true }).click();
   await expect(receiverPage.getByRole("heading", { name: "Taylor Swift" })).toBeVisible();
   await settle(1200);
-  await shot(receiverPage, "reveal-celebrity.png");
+  await shotPhone(receiverPage, framePage, "reveal-celebrity.png");
 }
 
 async function waitForHealthyServer() {
