@@ -74,13 +74,15 @@ async function createSession(page: Page) {
   await page.getByRole("button", { name: "Create session" }).click();
   await page.getByRole("button", { name: "Advanced" }).click();
   const receiverUrl = await page.getByLabel("Direct receiver URL").inputValue();
-  expect(receiverUrl).toMatch(/\/r\/[A-Z2-9]+$/);
+  expect(receiverUrl).toMatch(/\/\d{3}$/);
   return receiverUrl;
 }
 
 async function sendLocationReveal(page: Page, receiverPage: Page, locationName: string) {
   await page.getByLabel("Location name").fill(locationName);
   await page.getByLabel("Country").fill("Malaysia");
+  // Keep the in-app reveal (default now redirects to Google Maps on send).
+  await page.getByLabel("Open Maps automatically when sent").uncheck();
   await page.getByRole("button", { name: "Arm" }).click();
   await expect(page.locator(".status-pill--prepared")).toHaveText("Ready");
   await expect(receiverPage.getByRole("heading", { name: locationName })).not.toBeVisible();
