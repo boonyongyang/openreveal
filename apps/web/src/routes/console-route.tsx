@@ -534,7 +534,7 @@ export function ConsoleRoute() {
     </div>
   );
   const revealControls = (
-    <div className="button-row">
+    <div className="button-row reveal-actions">
       <button
         className="button"
         disabled={Boolean(armDisabledReason) || prepared?.state === "preparing"}
