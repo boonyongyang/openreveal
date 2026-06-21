@@ -251,9 +251,43 @@ export function SpectatorReceiver({ embedded = false, sessionCode }: SpectatorRe
               </svg>
             </form>
             <div className="search-chips" aria-hidden="true">
-              <span className="search-chip" />
-              <span className="search-chip" />
-              <span className="search-chip" />
+              <span className="search-chip">
+                <svg className="search-chip__icon" viewBox="0 0 24 24" width="15" height="15">
+                  <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" strokeWidth="2" />
+                  <path d="M12 7v5l3.2 2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                <span className="search-chip__label">Recent</span>
+              </span>
+              <span className="search-chip">
+                <svg className="search-chip__icon" viewBox="0 0 24 24" width="15" height="15">
+                  <path
+                    fill="currentColor"
+                    d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"
+                  />
+                </svg>
+                <span className="search-chip__label">Nearby</span>
+              </span>
+              <span className="search-chip">
+                <svg className="search-chip__icon" viewBox="0 0 24 24" width="15" height="15">
+                  <path
+                    d="M3 17l6-6 4 4 7-7"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M14 8h6v6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span className="search-chip__label">Trending</span>
+              </span>
             </div>
             <ReceiverSignals
               activeReveal={Boolean(activeReveal)}

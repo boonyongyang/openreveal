@@ -1167,15 +1167,32 @@ textarea {
 
 .search-chips {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
 }
 
 .search-chip {
-  width: 56px;
-  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 14px;
   border-radius: 999px;
   background: #303134;
   border: 1px solid #3c4043;
+  color: #bdc1c6;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.search-chip__icon {
+  flex-shrink: 0;
+  color: #8ab4f8;
+}
+
+.search-chip__label {
+  line-height: 1;
 }
 
 .search-line p,
