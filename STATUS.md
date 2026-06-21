@@ -110,10 +110,23 @@
 ## Verification Notes
 
 - Docker build now passes after pinning pnpm in the Docker image instead of relying on Node 22.12's bundled Corepack signature set.
-- Cloud Run deployment is currently blocked on target project selection and billing. `boonyongyang` does not have billing enabled; `spacebuns-kotlin` was explicitly rejected by the project owner and was not deployed.
-- `pnpm cloudrun:preflight boonyongyang` correctly reports the current blockers: billing disabled and Cloud Run/Cloud Build/Artifact Registry services not enabled.
+- Cloud Run test deployment is live in the dedicated `openreveal` project, region `asia-southeast1`, at `https://openreveal-tcug7qrd2a-as.a.run.app`.
+- The live Cloud Run service reports Ready=True, routes 100% traffic to revision `openreveal-00008-8lb`, and is configured for the v1 single-instance shape with `autoscaling.knative.dev/maxScale=1`, 1 vCPU, 512Mi memory, and 3600s request timeout.
+- `pnpm cloudrun:preflight openreveal` now passes: billing is enabled and Cloud Run, Cloud Build, and Artifact Registry APIs are enabled.
+- Firebase Hosting is reachable at `https://openreveal.web.app`, but it currently serves the static frontend only. The real API/WebSocket endpoint is the Cloud Run URL until Firebase Hosting is wired as a redirect/front door or a custom Cloud Run domain is chosen.
 - Playwright now defaults to local `http://localhost:5173`/`http://localhost:4000` test URLs even when `.env` is temporarily pointed at a LAN IP or tunnel for phone testing.
 - Codex in-app browser navigation to `localhost:5173` and `127.0.0.1:5173` was blocked by the browser client during the latest sanity pass; Playwright successfully exercised the same local app.
+
+Latest hosted verification pass on 2026-06-21:
+
+- `gcloud run services describe openreveal --region asia-southeast1 --project openreveal`: passed; service Ready=True.
+- `pnpm cloudrun:preflight openreveal`: passed.
+- `pnpm smoke:deploy https://openreveal-tcug7qrd2a-as.a.run.app`: passed, including `/api/health`, HSTS, frontend fallbacks, CSP, anti-frame headers, and `/ws` upgrade.
+- Direct live checks returned HTTP 200 for Cloud Run root, Cloud Run `/api/health`, Firebase Hosting root, and Firebase Hosting `/console` fallback.
+- Firebase CLI verification was blocked under the system Node 26 path by the known global Firebase CLI `SlowBuffer.prototype` crash; use the Node 22/Herd Firebase CLI path or the hosted HTTP checks until the global CLI is updated.
+- Trick mechanics now have dedicated e2e coverage (`apps/web/e2e/decoy-fidelity.pw.ts`, `maps-redirect.pw.ts`, `back-trap.pw.ts`) running on the real WebKit engine at an iPhone 13 profile (`mobile-safari` Playwright project; CI installs webkit). Full suite green: 26/26 across chromium + webkit.
+- `node scripts/verify-live-safari.mjs` drove the live deployment with WebKit/iPhone end to end (standby decoy → arm/send → real Google Maps redirect with the place prefilled → pageshow back-trap held, no app/URL leak). Screenshots captured.
+- Spectator standby decoy refined: empty placeholder chips replaced with generic, brand-free shortcut chips (Recent/Nearby/Trending). Still an original search-style surface — no Google wordmark or assets. The only remaining gap is the physical iPhone back-swipe gesture + Maps-app handoff, which no headless engine reproduces.
 
 Latest automated verification pass on 2026-06-20:
 
@@ -156,14 +169,16 @@ Latest Android emulator verification on 2026-06-06:
 
 ## Next Steps
 
-Project implementation is ready for local testing and hosted smoke testing. Public deployment is not fully unblocked until the owner-side configuration and physical-device QA items below are complete.
+Project implementation is now deployed to a live Cloud Run test instance and ready for hosted smoke testing. Public release is not fully unblocked until the remaining owner-side production hardening and physical-device QA items below are complete.
 
 1. Complete Phase 7 deployment closure:
-   - [ ] Choose target GCP project ID and region
-   - [ ] Enable billing on the chosen project
+   - [x] Choose target GCP project ID and region: `openreveal`, `asia-southeast1`
+   - [x] Enable billing on the chosen project
    - [ ] Fill `requirements/owner-inputs.md`
-   - [ ] Set production environment variables from `.env.example`
-   - [ ] Deploy and run `pnpm smoke:deploy <hosted-url>`
+   - [ ] Rotate the temporary Cloud Run performer passphrase and session secret into owner-approved production values
+   - [ ] Decide whether `openreveal.web.app` should redirect/front to Cloud Run or whether a custom Cloud Run domain should be used
+   - [ ] Choose durable SQLite/libSQL storage and backup policy before depending on session history
+   - [x] Deploy and run `pnpm smoke:deploy <hosted-url>`
 2. Run physical-device QA when devices are available:
    - [ ] Run `requirements/mobile-qa.md` on iPhone Safari
    - [ ] Run `requirements/mobile-qa.md` on Android Chrome
@@ -175,8 +190,8 @@ Project implementation is ready for local testing and hosted smoke testing. Publ
 
 ## Final Readiness Summary
 
-- Ready now: local desktop testing, LAN/tunnel rehearsal, automated browser coverage, Docker production smoke, Cloud Run preflight checks, and generated QA video/screenshots.
+- Ready now: local desktop testing, LAN/tunnel rehearsal, automated browser coverage, Docker production smoke, Cloud Run preflight checks, hosted Cloud Run smoke, and generated QA video/screenshots.
 - GitHub status: ready for private collaboration with green CI; not yet a public open-source release because the repository is private and has no tag or GitHub Release.
-- Waiting on owner input: billed Google Cloud project or alternative host, production secrets, optional Google Places API key, abuse report URL, and data retention/backup decision.
+- Waiting on owner input: public domain/front-door decision, production secret rotation, optional Google Places API key, abuse report URL, and data retention/backup decision.
 - Waiting on real devices: iPhone Safari and Android Chrome runs from `requirements/mobile-qa.md`.
 - Intentional boundary: the receiver standby page remains an original search-style surface. It should not be changed into an exact Google clone or use Google trademarks/assets unless the project is using an approved Google integration surface and complies with their terms.
