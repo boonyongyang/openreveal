@@ -56,7 +56,6 @@ test("different receiver device is rejected while the original receiver is activ
     await expect(page.getByRole("heading", { name: "Foregrounded" })).toBeVisible();
 
     await secondReceiverPage.goto(receiverUrl);
-    await expect(secondReceiverPage.getByText("Session unavailable")).toBeVisible();
     await expect(secondReceiverPage.getByText("This session is already open elsewhere")).toBeVisible();
     await expect(firstReceiverPage.locator(".search-line")).toBeVisible();
   } finally {

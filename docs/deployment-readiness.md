@@ -12,15 +12,16 @@ Use this as the final gate before publishing an OpenReveal instance. Follow [tes
 - [x] Production-mode smoke with Docker, `/api/health`, `/console`, frontend fallback, security headers, and `/ws` upgrade (passed 2026-05-27)
 - [x] `make docker-build` when deploying with Docker (passed 2026-05-27)
 - [x] Cloud Run preflight command added.
-- [ ] `pnpm smoke:deploy https://your-openreveal-url` after the hosted URL exists.
+- [x] `pnpm cloudrun:preflight openreveal` (passed 2026-06-21).
+- [x] `pnpm smoke:deploy https://openreveal-tcug7qrd2a-as.a.run.app` (passed 2026-06-21, including `/ws` upgrade).
 
 ## Owner Inputs
 
-- [ ] Final public domain.
-- [ ] Hosting target.
-- [ ] HTTPS or reverse-proxy choice.
+- [ ] Final public domain/front door. Current live app URL is `https://openreveal-tcug7qrd2a-as.a.run.app`; `https://openreveal.web.app` is static Firebase Hosting only.
+- [x] Hosting target for first live test: Cloud Run service `openreveal` in project `openreveal`, region `asia-southeast1`.
+- [x] HTTPS choice for first live test: Cloud Run direct HTTPS URL.
 - [ ] Abuse-report destination for `VITE_ABUSE_REPORT_URL`.
-- [ ] Production performer passphrase storage.
+- [ ] Production performer passphrase and session secret rotation/storage. The live deployment still uses temporary test values.
 - [ ] SQLite data directory and backup path.
 - [ ] Cleanup schedule and retention window.
 - [ ] Public/private access decision for the hosted instance.

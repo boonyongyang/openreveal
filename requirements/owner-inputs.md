@@ -4,12 +4,12 @@ These are the remaining decisions or real-world checks that require project-owne
 
 ## Required Before Public Deployment
 
-- [ ] Final public domain, for example `openreveal.example`.
-- [ ] Hosting target. Current recommendation: dedicated Google Cloud Run project with `max instances = 1`.
-- [ ] GCP project ID with billing enabled. Do not use `spacebuns-kotlin`; `boonyongyang` currently lacks billing.
-- [ ] HTTPS/reverse-proxy choice. Cloud Run direct URL is enough for first smoke; Firebase Hosting/custom domain can be added later.
+- [ ] Final public domain/front door. Current live app URL is `https://openreveal-tcug7qrd2a-as.a.run.app`; `https://openreveal.web.app` is live as static Firebase Hosting only.
+- [x] Hosting target for first live test: dedicated Google Cloud Run project with `max instances = 1`.
+- [x] GCP project ID with billing enabled: `openreveal` in `asia-southeast1`.
+- [x] HTTPS choice for first live smoke: Cloud Run direct URL.
 - [ ] Production abuse-report destination for `VITE_ABUSE_REPORT_URL`.
-- [ ] Production performer passphrase storage approach.
+- [ ] Production performer passphrase and session secret rotation/storage approach. The current Cloud Run deployment is test-ready, not public-secret-ready.
 - [ ] Production SQLite storage and backup location.
 - [ ] Cleanup schedule and retention window.
 - [ ] Whether the public reference instance is invite-only/private or reachable by anyone.
