@@ -26,18 +26,13 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] }
     },
     {
-      // Phone-viewport run of the trick-mechanics specs only (keeps CI fast).
-      // Chromium engine at iPhone 13 dimensions + touch — CI only installs
-      // chromium, and the back-trap caveat keeps a real phone as final gate.
-      name: "mobile",
+      // Trick-mechanics specs on the REAL WebKit engine at iPhone 13 dims —
+      // the same engine iOS Safari runs, so bfcache/back-trap, the 16px
+      // no-zoom rule, and the Maps redirect are verified on Safari, not a
+      // chromium stand-in. Scoped to the three specs to keep CI fast.
+      name: "mobile-safari",
       testMatch: ["**/decoy-fidelity.pw.ts", "**/maps-redirect.pw.ts", "**/back-trap.pw.ts"],
-      use: {
-        browserName: "chromium",
-        viewport: { width: 390, height: 844 },
-        deviceScaleFactor: 3,
-        isMobile: true,
-        hasTouch: true
-      }
+      use: { ...devices["iPhone 13"] }
     }
   ],
   webServer: {
