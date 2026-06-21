@@ -216,32 +216,51 @@ export function SpectatorReceiver({ embedded = false, sessionCode }: SpectatorRe
     >
       <section className="receiver-surface" aria-live="polite">
         {receiverMode === "search" ? (
-          <>
-            <div className="search-line">
-              <svg
-                className="search-line__icon"
-                viewBox="0 0 24 24"
-                width="20"
-                height="20"
-                aria-hidden="true"
-              >
+          <div className="search-home">
+            <div className="search-home__logo" aria-hidden="true">
+              <span className="search-dot search-dot--b" />
+              <span className="search-dot search-dot--r" />
+              <span className="search-dot search-dot--y" />
+              <span className="search-dot search-dot--g" />
+            </div>
+            <form className="search-line" onSubmit={(event) => event.preventDefault()}>
+              <svg className="search-line__icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
                 <path
                   fill="currentColor"
                   d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0A4.5 4.5 0 1 1 14 9.5 4.49 4.49 0 0 1 9.5 14Z"
                 />
               </svg>
-              {statusText(status) ? (
-                <p>{statusText(status)}</p>
-              ) : (
-                <p className="search-line__placeholder">Search</p>
-              )}
+              <input
+                className="search-line__input"
+                type="text"
+                inputMode="search"
+                enterKeyHint="search"
+                autoComplete="off"
+                aria-label="Search"
+                placeholder="Search"
+              />
+              <svg className="search-line__mic" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                <path fill="#4285f4" d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z" />
+                <path fill="#34a853" d="M11 18.92A7 7 0 0 1 5 12H3a9 9 0 0 0 8 8.94V24h2v-3.06A9 9 0 0 0 21 12h-2a7 7 0 0 1-8 6.92Z" />
+              </svg>
+              <svg className="search-line__lens" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                <circle cx="12" cy="12" r="3.2" fill="#4285f4" />
+                <path fill="#ea4335" d="M5 5h4l1.2-1.6h3.6L15 5h-2.5l-1-1.2h-1L9.5 5Z" />
+                <path fill="#fbbc04" d="M3 7h5l-1.6 2.2A5.8 5.8 0 0 0 6 12H3Z" />
+                <path fill="#34a853" d="M12 18a6 6 0 0 0 5.6-3.9l1.9.7A8 8 0 0 1 12 20Z" />
+              </svg>
+            </form>
+            <div className="search-chips" aria-hidden="true">
+              <span className="search-chip" />
+              <span className="search-chip" />
+              <span className="search-chip" />
             </div>
             <ReceiverSignals
               activeReveal={Boolean(activeReveal)}
               cachedReveal={Boolean(cachedReveal)}
               status={status}
             />
-          </>
+          </div>
         ) : null}
         <div className="result-space">
           {ActiveReveal && activeReveal ? <ActiveReveal payload={activeReveal as never} /> : null}
@@ -323,20 +342,6 @@ function sendMessage(socket: WebSocket, message: unknown) {
   socket.send(JSON.stringify(message));
 }
 
-function statusText(status: ReceiverStatus) {
-  switch (status) {
-    case "checking":
-      return "";
-    case "live":
-      return "";
-    case "reconnecting":
-      return "";
-    case "expired":
-      return "Page inactive";
-    case "in_use":
-      return "Session unavailable";
-  }
-}
 
 export function receiverRetryDelayMs(attempt: number) {
   const boundedAttempt = Math.max(0, Math.min(attempt, 4));
