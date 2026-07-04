@@ -18,6 +18,18 @@ const console_ = await consoleCtx.newPage();
 const phone = await phoneCtx.newPage();
 const log = (m) => process.stdout.write(`• ${m}\n`);
 
+async function waitForMapsUrl(page, timeout) {
+  try {
+    await page.waitForURL("**/maps/**", { timeout });
+  } catch (error) {
+    for (let index = 0; index < 20; index += 1) {
+      if (page.url().includes("/maps")) return;
+      await page.waitForTimeout(250).catch(() => {});
+    }
+    throw error;
+  }
+}
+
 try {
   // --- Performer console (desktop Safari engine) ---
   await console_.goto(`${base}/console`);
@@ -57,7 +69,7 @@ try {
   log("performer sent the reveal");
 
   // --- Spectator phone redirects to real Google Maps ---
-  await phone.waitForURL("**/maps/**", { timeout: 30_000 });
+  await waitForMapsUrl(phone, 30_000);
   log(`phone redirected → ${phone.url().slice(0, 80)}…`);
   await phone.waitForTimeout(2500);
   await phone.screenshot({ path: join(outDir, "3-maps-redirect.png") });
@@ -66,7 +78,7 @@ try {
   await phone.goto(receiverUrl);
   await expect(phone.locator(".search-line")).toBeVisible();
   await phone.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true })));
-  await phone.waitForURL("**/maps/**", { timeout: 15_000 });
+  await waitForMapsUrl(phone, 15_000);
   if (phone.url().includes("/console")) throw new Error("LEAK: back exposed the app");
   log("back-trap held — restored receiver bounced straight back to Maps, no app leak");
   await phone.waitForTimeout(2000);

@@ -4,26 +4,33 @@ Use this as the final gate before publishing an OpenReveal instance. Follow [tes
 
 ## Automated Checks
 
-- [x] `pnpm install --frozen-lockfile` (passed 2026-06-20)
-- [x] `pnpm check` (passed 2026-06-20)
-- [x] `pnpm test:e2e` (20 passed, 2026-06-20)
+- [x] `pnpm install --frozen-lockfile` (passed 2026-07-04)
+- [x] `pnpm check` (passed 2026-07-04)
+- [x] `pnpm test:e2e` (26 passed, 2026-07-04)
 - [x] `pnpm test:latency` (20 samples, p95 8ms, max 8ms, 2026-05-31)
 - [x] `pnpm audit --audit-level moderate` (passed 2026-06-20)
 - [x] Production-mode smoke with Docker, `/api/health`, `/console`, frontend fallback, security headers, and `/ws` upgrade (passed 2026-05-27)
 - [x] `make docker-build` when deploying with Docker (passed 2026-05-27)
 - [x] Cloud Run preflight command added.
-- [x] `pnpm cloudrun:preflight openreveal` (passed 2026-06-21).
-- [x] `pnpm smoke:deploy https://openreveal-tcug7qrd2a-as.a.run.app` (passed 2026-06-21, including `/ws` upgrade).
+- [x] `pnpm cloudrun:preflight openreveal` (passed 2026-07-04, including Secret Manager API).
+- [x] `pnpm smoke:deploy https://openreveal-tcug7qrd2a-as.a.run.app` (passed 2026-07-04, including `/ws` upgrade).
+- [x] Cloud Run deploy helper and guide now use Secret Manager for `SESSION_SECRET` and `PERFORMER_PASSPHRASE` instead of plain service env vars.
+- [x] Cloud Run redeployed with generated Secret Manager-backed runtime secrets on 2026-07-04; latest ready revision `openreveal-00010-cw5`.
+- [x] Live WebKit/iPhone-profile proof run passed on 2026-07-04; screenshots in `/tmp/openreveal-live-2026-07-04`.
+- [x] Firebase Hosting deployed as same-path redirector at `https://openreveal.web.app` on 2026-07-04.
+- [x] Cloud Run `APP_BASE_URL` updated to `https://openreveal.web.app`; latest ready revision `openreveal-00011-vrt`.
+- [x] Live WebKit/iPhone-profile front-door proof run passed on 2026-07-04; screenshots in `/tmp/openreveal-live-frontdoor-2026-07-04`.
 
 ## Owner Inputs
 
-- [ ] Final public domain/front door. Current live app URL is `https://openreveal-tcug7qrd2a-as.a.run.app`; `https://openreveal.web.app` is static Firebase Hosting only.
+- [x] Final public front door for current reference instance: `https://openreveal.web.app` redirects to the Cloud Run origin. A custom Cloud Run domain remains the preferred future polished URL.
 - [x] Hosting target for first live test: Cloud Run service `openreveal` in project `openreveal`, region `asia-southeast1`.
 - [x] HTTPS choice for first live test: Cloud Run direct HTTPS URL.
 - [ ] Abuse-report destination for `VITE_ABUSE_REPORT_URL`.
-- [ ] Production performer passphrase and session secret rotation/storage. The live deployment still uses temporary test values.
-- [ ] SQLite data directory and backup path.
-- [ ] Cleanup schedule and retention window.
+- [x] Production performer passphrase and session secret storage path: Secret Manager.
+- [ ] Optional owner-managed passphrase rotation before public launch. The current live service uses generated Secret Manager-backed values.
+- [x] SQLite data policy for current reference instance: demo-grade Cloud Run container SQLite is accepted; session history is not durable across redeploys/restarts.
+- [x] Cleanup schedule and retention window: default background cleanup every 30 minutes with default session TTL/retention behavior.
 - [ ] Public/private access decision for the hosted instance.
 
 ## Device QA

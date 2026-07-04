@@ -276,6 +276,7 @@ test("performer can export and import local JSON presets", async ({ page }, test
   await page.getByLabel("Import preset file").setInputFiles(importPath);
   await expect(page.getByLabel("Reveal text")).toHaveValue("Imported from a JSON preset.");
 
+  await expect(page.getByRole("button", { name: "Arm" })).toBeEnabled({ timeout: 15_000 });
   await page.getByRole("button", { name: "Arm" }).click();
   await expect(page.locator(".status-pill--prepared")).toHaveText("Ready");
   await expect(page.getByTestId("armed-summary")).toContainText("Custom text: Imported from a JSON preset.");

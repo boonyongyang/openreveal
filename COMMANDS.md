@@ -34,6 +34,7 @@ For the complete local desktop plus same-Wi-Fi phone setup path, see [docs/local
 | `make docker-build` | Build the reference production Docker image. | Before testing container deployment. |
 | `make record-showcase` | Record a local performer/audience QA MP4. | When you need a demo or review artifact. |
 | `make record-location-celebrity` | Record a focused location/celebrity performer/audience QA MP4. | When you want to review those two effects without custom text. |
+| `make cloudrun-deploy PROJECT_ID=... PERFORMER_PASSPHRASE=...` | Deploy Cloud Run with Secret Manager-backed runtime secrets, then run the hosted smoke test. | When the GCP project is ready and you are rotating/deploying production secrets. |
 | `make cloudrun-preflight PROJECT_ID=...` | Check Cloud Run auth, project, billing, and required services. | Before trying a Cloud Run deploy. |
 | `make smoke-deploy BASE_URL=https://...` | Smoke test a deployed OpenReveal URL (health, HTML fallback, security headers incl. HSTS, `/ws` upgrade). | After Cloud Run, Firebase Hosting, or custom-domain deploys. |
 | `pnpm security:probe [base-url]` | Active abuse probe: WS message-flood limit, per-IP socket cap, login rate limit, HSTS. **Intrusive** — run against local/staging. | After security changes, against a non-production target. |
@@ -55,6 +56,7 @@ pnpm audit
 pnpm maintenance:cleanup
 pnpm record:showcase
 pnpm record:location-celebrity
+PROJECT_ID=your-gcp-project-id PERFORMER_PASSPHRASE='choose-a-private-passphrase' pnpm cloudrun:deploy
 pnpm cloudrun:preflight your-gcp-project-id
 pnpm smoke:deploy https://your-openreveal-url
 ```

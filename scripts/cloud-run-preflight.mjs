@@ -5,7 +5,8 @@ import { spawnSync } from "node:child_process";
 const requiredServices = [
   "run.googleapis.com",
   "cloudbuild.googleapis.com",
-  "artifactregistry.googleapis.com"
+  "artifactregistry.googleapis.com",
+  "secretmanager.googleapis.com"
 ];
 const blockedProjects = new Set(["spacebuns-kotlin"]);
 

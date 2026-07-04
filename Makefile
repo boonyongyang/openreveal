@@ -1,4 +1,4 @@
-.PHONY: help install dev lint typecheck test test-e2e test-latency build check audit docker-build record-showcase record-location-celebrity cloudrun-preflight smoke-deploy security-probe maintenance-cleanup
+.PHONY: help install dev lint typecheck test test-e2e test-latency build check audit docker-build record-showcase record-location-celebrity cloudrun-deploy cloudrun-preflight smoke-deploy security-probe maintenance-cleanup
 
 help:
 	@printf "OpenReveal commands\n"
@@ -15,6 +15,7 @@ help:
 	@printf "  make docker-build  Build the reference production image\n"
 	@printf "  make record-showcase  Record a local performer/audience QA MP4\n"
 	@printf "  make record-location-celebrity  Record a focused location/celebrity QA MP4\n"
+	@printf "  make cloudrun-deploy PROJECT_ID=... PERFORMER_PASSPHRASE=...  Deploy Cloud Run with Secret Manager\n"
 	@printf "  make cloudrun-preflight PROJECT_ID=...  Check Cloud Run project readiness\n"
 	@printf "  make smoke-deploy BASE_URL=https://...  Smoke test a deployed instance\n"
 	@printf "  make security-probe BASE_URL=http://localhost:4000  Intrusive abuse probe (local/staging)\n"
@@ -58,6 +59,11 @@ record-showcase:
 
 record-location-celebrity:
 	pnpm record:location-celebrity
+
+cloudrun-deploy:
+	test -n "$(PROJECT_ID)"
+	test -n "$(PERFORMER_PASSPHRASE)"
+	PROJECT_ID="$(PROJECT_ID)" PERFORMER_PASSPHRASE="$(PERFORMER_PASSPHRASE)" pnpm cloudrun:deploy
 
 cloudrun-preflight:
 	test -n "$(PROJECT_ID)"

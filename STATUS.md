@@ -74,6 +74,7 @@
 - Cloud Run deployment guide is available at `docs/cloud-run-deployment.md`.
 - `.gcloudignore` is in place so Cloud Run source deploys do not upload local env files, databases, build outputs, or Playwright artifacts.
 - Cloud Run preflight is available through `pnpm cloudrun:preflight <project-id>` and `make cloudrun-preflight PROJECT_ID=<project-id>`.
+- Cloud Run deployment helper is available through `pnpm cloudrun:deploy` and `make cloudrun-deploy`; it stores `SESSION_SECRET` and `PERFORMER_PASSPHRASE` in Secret Manager and deploys them with `--set-secrets`.
 - Hosted-URL smoke script is available through `pnpm smoke:deploy <url>` and `make smoke-deploy BASE_URL=<url>`.
 - Local QA showcase recording is available through `pnpm record:showcase` and `make record-showcase`; MP4 outputs are written to `test-results/showcase/`.
 - Focused location/celebrity QA recording is available through `pnpm record:location-celebrity` and `make record-location-celebrity`; MP4 outputs are written to `test-results/location-celebrity/`.
@@ -111,9 +112,9 @@
 
 - Docker build now passes after pinning pnpm in the Docker image instead of relying on Node 22.12's bundled Corepack signature set.
 - Cloud Run test deployment is live in the dedicated `openreveal` project, region `asia-southeast1`, at `https://openreveal-tcug7qrd2a-as.a.run.app`.
-- The live Cloud Run service reports Ready=True, routes 100% traffic to revision `openreveal-00008-8lb`, and is configured for the v1 single-instance shape with `autoscaling.knative.dev/maxScale=1`, 1 vCPU, 512Mi memory, and 3600s request timeout.
+- The live Cloud Run service reports Ready=True, routes 100% traffic to revision `openreveal-00011-vrt`, and is configured for the v1 single-instance shape with `autoscaling.knative.dev/maxScale=1`, 1 vCPU, 512Mi memory, and 3600s request timeout.
 - `pnpm cloudrun:preflight openreveal` now passes: billing is enabled and Cloud Run, Cloud Build, and Artifact Registry APIs are enabled.
-- Firebase Hosting is reachable at `https://openreveal.web.app`, but it currently serves the static frontend only. The real API/WebSocket endpoint is the Cloud Run URL until Firebase Hosting is wired as a redirect/front door or a custom Cloud Run domain is chosen.
+- Firebase Hosting is reachable at `https://openreveal.web.app` and is configured as a same-path redirector to the Cloud Run origin. The real API/WebSocket endpoint remains the Cloud Run URL.
 - Playwright now defaults to local `http://localhost:5173`/`http://localhost:4000` test URLs even when `.env` is temporarily pointed at a LAN IP or tunnel for phone testing.
 - Codex in-app browser navigation to `localhost:5173` and `127.0.0.1:5173` was blocked by the browser client during the latest sanity pass; Playwright successfully exercised the same local app.
 
@@ -122,11 +123,25 @@ Latest hosted verification pass on 2026-06-21:
 - `gcloud run services describe openreveal --region asia-southeast1 --project openreveal`: passed; service Ready=True.
 - `pnpm cloudrun:preflight openreveal`: passed.
 - `pnpm smoke:deploy https://openreveal-tcug7qrd2a-as.a.run.app`: passed, including `/api/health`, HSTS, frontend fallbacks, CSP, anti-frame headers, and `/ws` upgrade.
-- Direct live checks returned HTTP 200 for Cloud Run root, Cloud Run `/api/health`, Firebase Hosting root, and Firebase Hosting `/console` fallback.
+- Direct live checks returned HTTP 200 for Cloud Run root, Cloud Run `/api/health`, Firebase Hosting root, and Firebase Hosting `/console` fallback at that time.
 - Firebase CLI verification was blocked under the system Node 26 path by the known global Firebase CLI `SlowBuffer.prototype` crash; use the Node 22/Herd Firebase CLI path or the hosted HTTP checks until the global CLI is updated.
 - Trick mechanics now have dedicated e2e coverage (`apps/web/e2e/decoy-fidelity.pw.ts`, `maps-redirect.pw.ts`, `back-trap.pw.ts`) running on the real WebKit engine at an iPhone 13 profile (`mobile-safari` Playwright project; CI installs webkit). Full suite green: 26/26 across chromium + webkit.
 - `node scripts/verify-live-safari.mjs` drove the live deployment with WebKit/iPhone end to end (standby decoy → arm/send → real Google Maps redirect with the place prefilled → pageshow back-trap held, no app/URL leak). Screenshots captured.
 - Spectator standby decoy refined: empty placeholder chips replaced with generic, brand-free shortcut chips (Recent/Nearby/Trending). Still an original search-style surface — no Google wordmark or assets. The only remaining gap is the physical iPhone back-swipe gesture + Maps-app handoff, which no headless engine reproduces.
+
+Latest deployment-closure verification pass on 2026-07-04:
+
+- `CI=true pnpm install --frozen-lockfile`: passed after moving pnpm overrides into `pnpm-workspace.yaml` and explicitly approving the Vite/esbuild build dependency.
+- `CI=true pnpm check`: passed with elevated local-network permission for API/WebSocket tests.
+- `CI=true pnpm test:e2e`: passed, 26/26 across Chromium and the mobile Safari Playwright profile.
+- `CI=true pnpm smoke:deploy https://openreveal-tcug7qrd2a-as.a.run.app`: passed, including `/api/health`, HSTS, frontend fallbacks, CSP, anti-frame headers, and `/ws` upgrade.
+- `CI=true pnpm cloudrun:preflight openreveal`: passed after enabling `secretmanager.googleapis.com`.
+- `PROJECT_ID=openreveal PERFORMER_PASSPHRASE=<generated> CI=true pnpm cloudrun:deploy`: passed and deployed revision `openreveal-00010-cw5`, serving 100% traffic.
+- The live Cloud Run service now reads `SESSION_SECRET` from Secret Manager secret `openreveal-session-secret` and `PERFORMER_PASSPHRASE` from Secret Manager secret `openreveal-performer-passphrase`.
+- `LIVE_PASSPHRASE=<from Secret Manager> LIVE_BASE_URL=https://openreveal-tcug7qrd2a-as.a.run.app OUT_DIR=/tmp/openreveal-live-2026-07-04 CI=true node scripts/verify-live-safari.mjs`: passed. It created a real session, rendered the receiver on the iPhone WebKit profile, sent a location reveal, redirected to Google Maps, and verified the back-trap behavior. Screenshots are in `/tmp/openreveal-live-2026-07-04`.
+- Firebase Hosting is live at `https://openreveal.web.app` as a same-path redirector to the Cloud Run origin. This keeps Firebase out of the WebSocket path.
+- Cloud Run `APP_BASE_URL` is now `https://openreveal.web.app`, so new sessions and QR codes use the short Firebase front door. `API_BASE_URL` remains the Cloud Run origin.
+- `LIVE_PASSPHRASE=<from Secret Manager> LIVE_BASE_URL=https://openreveal-tcug7qrd2a-as.a.run.app OUT_DIR=/tmp/openreveal-live-frontdoor-2026-07-04 CI=true node scripts/verify-live-safari.mjs`: passed with a generated spectator URL on `https://openreveal.web.app/<code>`. Screenshots are in `/tmp/openreveal-live-frontdoor-2026-07-04`.
 
 Latest automated verification pass on 2026-06-20:
 
@@ -175,9 +190,10 @@ Project implementation is now deployed to a live Cloud Run test instance and rea
    - [x] Choose target GCP project ID and region: `openreveal`, `asia-southeast1`
    - [x] Enable billing on the chosen project
    - [ ] Fill `requirements/owner-inputs.md`
-   - [ ] Rotate the temporary Cloud Run performer passphrase and session secret into owner-approved production values
-   - [ ] Decide whether `openreveal.web.app` should redirect/front to Cloud Run or whether a custom Cloud Run domain should be used
-   - [ ] Choose durable SQLite/libSQL storage and backup policy before depending on session history
+   - [x] Rotate the live Cloud Run performer passphrase and session secret into Secret Manager-backed generated values
+   - [ ] Replace the generated performer passphrase with an owner-managed long-term value before public launch, if desired
+   - [x] Decide and deploy current front door: `openreveal.web.app` redirects to Cloud Run; a custom Cloud Run domain remains the best future polished URL
+   - [x] Choose current storage policy: demo-grade Cloud Run SQLite is accepted for this reference instance; do not depend on session history across redeploys/restarts
    - [x] Deploy and run `pnpm smoke:deploy <hosted-url>`
 2. Run physical-device QA when devices are available:
    - [ ] Run `requirements/mobile-qa.md` on iPhone Safari

@@ -4,14 +4,15 @@ These are the remaining decisions or real-world checks that require project-owne
 
 ## Required Before Public Deployment
 
-- [ ] Final public domain/front door. Current live app URL is `https://openreveal-tcug7qrd2a-as.a.run.app`; `https://openreveal.web.app` is live as static Firebase Hosting only.
+- [x] Final public front door for current reference instance: `https://openreveal.web.app` redirects to the Cloud Run origin. A custom Cloud Run domain remains the preferred future polished URL.
 - [x] Hosting target for first live test: dedicated Google Cloud Run project with `max instances = 1`.
 - [x] GCP project ID with billing enabled: `openreveal` in `asia-southeast1`.
 - [x] HTTPS choice for first live smoke: Cloud Run direct URL.
 - [ ] Production abuse-report destination for `VITE_ABUSE_REPORT_URL`.
-- [ ] Production performer passphrase and session secret rotation/storage approach. The current Cloud Run deployment is test-ready, not public-secret-ready.
-- [ ] Production SQLite storage and backup location.
-- [ ] Cleanup schedule and retention window.
+- [x] Production performer passphrase and session secret storage path: Secret Manager.
+- [ ] Optional owner-managed passphrase rotation before public launch. The current live Cloud Run deployment uses generated Secret Manager-backed values.
+- [x] Production SQLite policy for current reference instance: demo-grade Cloud Run container SQLite is accepted; session history is not durable across redeploys/restarts.
+- [x] Cleanup schedule and retention window: default background cleanup every 30 minutes with default session TTL/retention behavior.
 - [ ] Whether the public reference instance is invite-only/private or reachable by anyone.
 
 ## Device QA Needed From You

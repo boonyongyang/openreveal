@@ -19,6 +19,7 @@
     "record:location-celebrity": "node scripts/record-location-celebrity.mjs",
     "record:showcase": "node scripts/record-showcase.mjs",
     "screenshots": "node scripts/capture-screenshots.mjs",
+    "cloudrun:deploy": "./scripts/cloud-run-deploy.sh",
     "cloudrun:preflight": "node scripts/cloud-run-preflight.mjs",
     "smoke:deploy": "node scripts/deployment-smoke.mjs",
     "security:probe": "node scripts/security-probe.mjs",
@@ -33,11 +34,5 @@
     "typescript": "^5.9.3",
     "vitest": "^4.0.0",
     "ws": "^8.18.3"
-  },
-  "pnpm": {
-    "overrides": {
-      "@babel/core": "7.29.7",
-      "esbuild": ">=0.28.1"
-    }
   }
 }
