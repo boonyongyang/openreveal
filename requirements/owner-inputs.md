@@ -8,12 +8,12 @@ These are the remaining decisions or real-world checks that require project-owne
 - [x] Hosting target for first live test: dedicated Google Cloud Run project with `max instances = 1`.
 - [x] GCP project ID with billing enabled: `openreveal` in `asia-southeast1`.
 - [x] HTTPS choice for first live smoke: Cloud Run direct URL.
-- [ ] Production abuse-report destination for `VITE_ABUSE_REPORT_URL`.
+- [x] Production abuse-report destination for `VITE_ABUSE_REPORT_URL`: upstream GitHub safety issue form by default.
 - [x] Production performer passphrase and session secret storage path: Secret Manager.
 - [ ] Optional owner-managed passphrase rotation before public launch. The current live Cloud Run deployment uses generated Secret Manager-backed values.
 - [x] Production SQLite policy for current reference instance: demo-grade Cloud Run container SQLite is accepted; session history is not durable across redeploys/restarts.
 - [x] Cleanup schedule and retention window: default background cleanup every 30 minutes with default session TTL/retention behavior.
-- [ ] Whether the public reference instance is invite-only/private or reachable by anyone.
+- [x] Public reference instance access: reachable by anyone.
 
 ## Device QA Needed From You
 

@@ -6,13 +6,66 @@
 
 OpenReveal is an open-source, consent-based spectator-phone mentalism PWA. A performer creates a live session, asks a spectator to open the site and enter a short code, and controls an original reveal page from a private console.
 
-The current build implements the live session foundation plus location reveal, text-only celebrity reveal with auditable preset metadata, and a Phase 6 custom text reveal. The performer console can create a session, open demo mode, arm any built-in effect, send it to the spectator receiver page, receive delivery acknowledgements, and reset the session.
+The v0.1 build is designed as one clean routine flow: the performer works from `/console`, the spectator opens the short site, enters the code, waits on a neutral screen, and sees the reveal only when the performer sends it.
+
+## Live Project
+
+- Public front door: [openreveal.web.app](https://openreveal.web.app)
+- Performer console: [openreveal.web.app/console](https://openreveal.web.app/console)
+- First release: [v0.1.0](https://github.com/boonyongyang/openreveal/releases/tag/v0.1.0)
+
+The Firebase front door redirects to the Cloud Run service on the same path. That is intentional: WebSocket traffic stays on Cloud Run, where the backend session hub lives.
+
+## Visual Tour
+
+The performer drives a private console; the spectator sees only the waiting/reveal surface on their own phone.
+
+![OpenReveal in action: the performer arms a reveal in the console and it appears live on the spectator phone](docs/screenshots/openreveal-demo.gif)
+
+**Performer console**
+
+![Performer console with a live session, grouped code, QR code, receiver status, and effect controls](docs/screenshots/console-session.png)
+
+**Spectator phone states**
+
+| Waiting | Location reveal | Custom text | Celebrity reveal |
+| --- | --- | --- | --- |
+| ![Spectator standby screen](docs/screenshots/receiver-standby.png) | ![Location reveal showing Kuala Lumpur, Malaysia](docs/screenshots/reveal-location.png) | ![Custom text reveal](docs/screenshots/reveal-text.png) | ![Celebrity reveal showing Taylor Swift](docs/screenshots/reveal-celebrity.png) |
 
 ## How it works
 
-1. **Create** — the performer opens the private console and starts a session, which produces a short code and a QR.
-2. **Connect** — the spectator opens the site on their own phone and enters the code (or scans the QR). The console shows the phone is live.
-3. **Reveal** — the performer arms a reveal and sends it; it appears instantly on the spectator's phone over a live WebSocket, with a delivery acknowledgement back to the console.
+```mermaid
+sequenceDiagram
+  actor Performer
+  actor Spectator
+  participant Console as /console
+  participant API as Fastify API
+  participant WS as WebSocket Hub
+  participant Phone as Spectator Receiver
+
+  Performer->>Console: Create session
+  Console->>API: POST /api/sessions
+  API-->>Console: Code + QR
+  Performer->>Spectator: "Open the site and enter this code"
+  Spectator->>Phone: Opens / and joins with code
+  Phone->>WS: Connect as receiver
+  WS-->>Console: Receiver is live
+  Performer->>Console: Arm effect
+  Console->>API: Validate + prepare reveal
+  API->>WS: reveal_prepared
+  Phone-->>WS: prepared acknowledgement
+  Performer->>Console: Send
+  Console->>API: POST /api/reveals/:id/send
+  API->>WS: reveal_sent
+  Phone-->>Spectator: Render reveal
+  Phone-->>Console: delivery acknowledgement
+```
+
+1. **Create** - the performer opens the private console and starts a session, which produces a grouped session code and QR backup.
+2. **Join** - the spectator opens the site root or `/j`, enters the code, and is moved into `/r/<code>` with history replacement so Back does not return to the join form.
+3. **Prepare** - the performer selects an effect, fills the payload, and arms it. The backend validates and stores the prepared reveal.
+4. **Send** - the performer sends the reveal. The receiver renders it over the live WebSocket and reports delivery latency back to the console.
+5. **Reset or end** - reset returns the spectator to the neutral waiting screen; end shows a plain inactive-session message.
 
 Nothing is shown on the spectator phone until the performer sends it, and the
 performer only ever controls pages served by this project — see the
@@ -22,10 +75,25 @@ performer only ever controls pages served by this project — see the
 
 - **Live two-device sessions** over WebSocket, with reconnect and a liveness reaper.
 - **Built-in reveals** — location (Google Maps link, with a manual fallback when no Places key is set), celebrity (text-only, auditable preset metadata), and custom text.
-- **Private performer console** — session create, demo mode, arm / send / reset / end, and receiver state at a glance.
+- **Private performer console** — Quick Session for routine performance, Advanced mode for diagnostics, direct receiver URL, demo mode, logs, and preset import/export.
 - **Consent-first by design** — spectators opt in by opening a URL and entering a code; no spectator data is collected or stored centrally.
 - **Hardened** — per-IP and per-route rate limiting, constant-time passphrase check, anonymous-WebSocket abuse controls, CSP/HSTS/anti-framing headers, and an Origin/Referer CSRF guard. Exercised in CI on every push (see [SECURITY.md](SECURITY.md)).
-- **Self-hostable** — single-host Cloud Run friendly; no hosted instance required.
+- **Self-hostable** — single-host Cloud Run friendly, with documented local and production setup.
+
+## Architecture At A Glance
+
+```mermaid
+flowchart LR
+  console["Performer console\nReact /console"] --> api["Fastify API\nsessions, auth, effects"]
+  join["Spectator join\n/ or /j"] --> receiver["Receiver\n/r/<code>"]
+  console <--> ws["WebSocket hub\nsingle Node process"]
+  receiver <--> ws
+  api --> db["SQLite/libSQL\nsessions, reveals, events"]
+  api --> effects["Effect registry\nlocation, celebrity, custom text"]
+  ws --> db
+```
+
+V1 intentionally runs as a single backend instance. The WebSocket hub and abuse counters are in memory, while SQLite stores sessions, reveal payloads, receiver records, and event history. For the current hosted reference instance, SQLite is demo-grade container storage; use durable libSQL/Turso, Cloud SQL, or another managed database before relying on long-term history.
 
 ## Stack
 
@@ -54,30 +122,9 @@ Open the performer console at [http://localhost:5173/console](http://localhost:5
 
 For a full walkthrough, see [STARTER-GUIDE.md](STARTER-GUIDE.md). For the focused desktop and same-Wi-Fi phone workflow, see [docs/local-testing-setup.md](docs/local-testing-setup.md).
 
-## Demo
+## Screenshots And Recordings
 
-The performer drives a private console; the spectator sees only a clean reveal on
-their own phone. Left = performer console, right = the spectator's phone, in sync:
-
-![OpenReveal in action: the performer arms a reveal in the console and it appears live on the spectator's phone](docs/screenshots/openreveal-demo.gif)
-
-> There is no hosted public demo — OpenReveal is meant to be run locally or
-> self-hosted (it keeps the project free to maintain and avoids holding any
-> spectator data centrally). It runs in ~2 minutes locally, see
-> [First Run](#first-run).
-
-**Performer console** (desktop)
-
-![Performer console with a live session, QR code, receiver URL, and the effects panel](docs/screenshots/console-session.png)
-
-**Spectator phone** (standby → location, custom text, and celebrity reveals)
-
-| Standby | Location | Custom text | Celebrity |
-| --- | --- | --- | --- |
-| ![Spectator standby screen](docs/screenshots/receiver-standby.png) | ![Location reveal showing Kuala Lumpur, Malaysia](docs/screenshots/reveal-location.png) | ![Custom text reveal](docs/screenshots/reveal-text.png) | ![Celebrity reveal showing Taylor Swift](docs/screenshots/reveal-celebrity.png) |
-
-These stills are committed under `docs/screenshots/` and regenerated from the real
-app flow with:
+The committed visuals are generated from the real app flow:
 
 ```sh
 pnpm screenshots                 # capture the committed README stills

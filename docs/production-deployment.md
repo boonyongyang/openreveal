@@ -50,10 +50,12 @@ PERFORMER_PASSPHRASE=replace-with-a-private-passphrase
 SESSION_TTL_MINUTES=30
 PORT=4000
 WEB_DIST_DIR=/srv/openreveal/apps/web/dist
-VITE_ABUSE_REPORT_URL=https://openreveal.example/report-form-or-issue-tracker
+VITE_ABUSE_REPORT_URL=https://github.com/boonyongyang/openreveal/issues/new?template=safety_concern.md
 ```
 
 `WEB_DIST_DIR` must point at the built web app directory. Prefer an absolute path because `pnpm --filter @openreveal/api start` runs from `apps/api`. Startup validation fails in production if required secrets, HTTPS URLs, persistent database path, or `WEB_DIST_DIR` are missing.
+
+`VITE_ABUSE_REPORT_URL` is a frontend build-time value. For the upstream reference deployment it points to the public GitHub safety issue form. Self-hosted operators should replace it with their own report form, issue tracker, or monitored contact page before building the web app.
 
 ## Start
 
@@ -90,7 +92,7 @@ docker run --rm \
   -e API_BASE_URL=https://openreveal.example \
   -e SESSION_SECRET=replace-with-at-least-32-random-characters \
   -e PERFORMER_PASSPHRASE=replace-with-a-private-passphrase \
-  -e VITE_ABUSE_REPORT_URL=https://openreveal.example/report-form-or-issue-tracker \
+  -e VITE_ABUSE_REPORT_URL=https://github.com/boonyongyang/openreveal/issues/new?template=safety_concern.md \
   openreveal:local
 ```
 

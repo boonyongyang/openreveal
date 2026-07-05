@@ -1,4 +1,6 @@
-const reportUrl = import.meta.env.VITE_ABUSE_REPORT_URL as string | undefined;
+const defaultReportUrl = "https://github.com/boonyongyang/openreveal/issues/new?template=safety_concern.md";
+const configuredReportUrl = import.meta.env.VITE_ABUSE_REPORT_URL as string | undefined;
+const reportUrl = configuredReportUrl?.trim() || defaultReportUrl;
 
 export function ReportRoute() {
   return (
@@ -39,18 +41,17 @@ export function ReportRoute() {
           <h2>Self-hosted instance</h2>
           <p>
             Operators should configure `VITE_ABUSE_REPORT_URL` to point at their
-            public report form, issue tracker, or monitored contact page. Without
-            that value, this page remains a visible placeholder and checklist.
+            public report form, issue tracker, or monitored contact page. If it
+            is left unset, OpenReveal links to the upstream GitHub safety issue
+            form.
           </p>
         </div>
 
         <div className="button-row">
-          {reportUrl ? (
-            <a className="button button--primary" href={reportUrl} rel="noreferrer" target="_blank">
-              Open report destination
-            </a>
-          ) : null}
-          <a className={reportUrl ? "button" : "button button--primary"} href="/privacy">
+          <a className="button button--primary" href={reportUrl} rel="noreferrer" target="_blank">
+            Open report destination
+          </a>
+          <a className="button" href="/privacy">
             Privacy and safety notes
           </a>
           <a className="button button--quiet" href="/console">

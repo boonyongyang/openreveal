@@ -38,7 +38,7 @@
 - `Strict-Transport-Security` is emitted on both API and web responses when the deployment base URL is https.
 - `pnpm smoke:deploy` asserts the HSTS header. `pnpm security:probe <base-url>` is an intrusive abuse probe (WS message-flood limit, per-IP socket cap, login rate limit, HSTS) for local/staging; all six defenses were runtime-verified one-by-one against a live instance on 2026-06-17.
 - Maintenance cleanup command is available through `pnpm maintenance:cleanup` and `make maintenance-cleanup`.
-- Hosted-instance report placeholder is implemented at `/report`.
+- Hosted-instance report page is implemented at `/report` and links to the upstream GitHub safety issue form by default.
 - Receivers that join after a reveal was sent are replayed the active reveal from SQLite.
 - Receiver reconnects use a stable browser device id so the same phone can replace its stale socket instead of being blocked as `in_use`.
 - Receiver preflight and WebSocket transport failures now stay in reconnecting mode with capped backoff; inactive/expired UI is reserved for explicit backend expiry or `in_use` state.
@@ -157,13 +157,13 @@ Still-current supporting evidence from 2026-05-31:
 - `pnpm record:showcase`: passed and generated combined/performer/audience MP4 artifacts in `test-results/showcase/`.
 - `pnpm record:location-celebrity`: passed and generated combined/performer/audience MP4 artifacts in `test-results/location-celebrity/`.
 
-Latest GitHub repository check on 2026-06-20:
+Latest GitHub repository check on 2026-07-04:
 
-- The setup/readiness update is prepared for review from the `bbae7b9` `main` baseline; merge it before treating the new evidence as the public baseline.
-- The latest GitHub Actions `CI` run on `main` passed on 2026-06-17.
-- The repository is currently private, despite the intended open-source positioning.
-- No version tag or GitHub Release exists yet.
-- `LICENSE` now uses the canonical full AGPL-3.0 text; GitHub will re-detect it after this change reaches `main`.
+- The deployment setup is committed on `main` at `cb3e43f` (`Finalize hosted OpenReveal deployment setup`).
+- GitHub Actions checks passed for the release baseline.
+- The first annotated version tag exists: `v0.1.0`.
+- The first GitHub Release exists at `https://github.com/boonyongyang/openreveal/releases/tag/v0.1.0`.
+- `LICENSE` uses the canonical full AGPL-3.0 text.
 
 Latest container and LAN verification:
 
@@ -184,12 +184,12 @@ Latest Android emulator verification on 2026-06-06:
 
 ## Next Steps
 
-Project implementation is now deployed to a live Cloud Run test instance and ready for hosted smoke testing. Public release is not fully unblocked until the remaining owner-side production hardening and physical-device QA items below are complete.
+Project implementation is deployed to Cloud Run with a Firebase Hosting front door and is ready for portfolio/demo use. The remaining items are operational polish and physical-device QA, not core implementation blockers.
 
 1. Complete Phase 7 deployment closure:
    - [x] Choose target GCP project ID and region: `openreveal`, `asia-southeast1`
    - [x] Enable billing on the chosen project
-   - [ ] Fill `requirements/owner-inputs.md`
+   - [ ] Fill remaining owner-specific fields in `requirements/owner-inputs.md`
    - [x] Rotate the live Cloud Run performer passphrase and session secret into Secret Manager-backed generated values
    - [ ] Replace the generated performer passphrase with an owner-managed long-term value before public launch, if desired
    - [x] Decide and deploy current front door: `openreveal.web.app` redirects to Cloud Run; a custom Cloud Run domain remains the best future polished URL
@@ -199,15 +199,16 @@ Project implementation is now deployed to a live Cloud Run test instance and rea
    - [ ] Run `requirements/mobile-qa.md` on iPhone Safari
    - [ ] Run `requirements/mobile-qa.md` on Android Chrome
    - [ ] Record notes and blockers in `requirements/mobile-qa.md`
-3. Close the GitHub release boundary:
-   - [ ] Decide whether the repository should become public
-   - [ ] Make it public only after confirming no secrets or private artifacts are tracked
-   - [ ] Create the first version tag and GitHub Release after the deployment and device gates pass
+3. Maintain the public release boundary:
+   - [x] Create the first version tag and GitHub Release
+   - [ ] Keep release notes and README screenshots current after UI changes
+   - [x] Confirm public repository and first release baseline
+   - [ ] Confirm no secrets or private artifacts are tracked before every public push
 
 ## Final Readiness Summary
 
-- Ready now: local desktop testing, LAN/tunnel rehearsal, automated browser coverage, Docker production smoke, Cloud Run preflight checks, hosted Cloud Run smoke, and generated QA video/screenshots.
-- GitHub status: ready for private collaboration with green CI; not yet a public open-source release because the repository is private and has no tag or GitHub Release.
-- Waiting on owner input: public domain/front-door decision, production secret rotation, optional Google Places API key, abuse report URL, and data retention/backup decision.
+- Ready now: local desktop testing, LAN/tunnel rehearsal, automated browser coverage, Docker production smoke, Cloud Run preflight checks, hosted Cloud Run smoke, Firebase front door, GitHub release, and generated QA video/screenshots.
+- GitHub status: v0.1.0 release baseline exists.
+- Waiting on owner input: optional custom domain, optional owner-managed passphrase rotation, optional Google Places API key, and whether to upgrade storage beyond demo-grade SQLite.
 - Waiting on real devices: iPhone Safari and Android Chrome runs from `requirements/mobile-qa.md`.
 - Intentional boundary: the receiver standby page remains an original search-style surface. It should not be changed into an exact Google clone or use Google trademarks/assets unless the project is using an approved Google integration surface and complies with their terms.

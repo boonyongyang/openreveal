@@ -26,12 +26,12 @@ Use this as the final gate before publishing an OpenReveal instance. Follow [tes
 - [x] Final public front door for current reference instance: `https://openreveal.web.app` redirects to the Cloud Run origin. A custom Cloud Run domain remains the preferred future polished URL.
 - [x] Hosting target for first live test: Cloud Run service `openreveal` in project `openreveal`, region `asia-southeast1`.
 - [x] HTTPS choice for first live test: Cloud Run direct HTTPS URL.
-- [ ] Abuse-report destination for `VITE_ABUSE_REPORT_URL`.
+- [x] Abuse-report destination for `VITE_ABUSE_REPORT_URL`: upstream GitHub safety issue form by default.
 - [x] Production performer passphrase and session secret storage path: Secret Manager.
 - [ ] Optional owner-managed passphrase rotation before public launch. The current live service uses generated Secret Manager-backed values.
 - [x] SQLite data policy for current reference instance: demo-grade Cloud Run container SQLite is accepted; session history is not durable across redeploys/restarts.
 - [x] Cleanup schedule and retention window: default background cleanup every 30 minutes with default session TTL/retention behavior.
-- [ ] Public/private access decision for the hosted instance.
+- [x] Public/private access decision for the hosted instance: public reference instance.
 
 ## Device QA
 
@@ -54,7 +54,7 @@ Use this as the final gate before publishing an OpenReveal instance. Follow [tes
 - [x] Text-only celebrity presets with source/license metadata.
 - [x] Baseline git commit created on `main`.
 - [x] Private GitHub repository exists and latest `main` CI passed.
-- [ ] GitHub repository visibility changed to public, if this is intended to be an open-source release.
-- [ ] Version tag and GitHub Release created.
+- [x] GitHub repository visibility changed to public, if this is intended to be an open-source release.
+- [x] Version tag and GitHub Release created.
 - [ ] Physical mobile QA recorded.
-- [ ] Production environment variables set from `.env.example`.
+- [x] Production environment variables set from `.env.example`.

@@ -83,7 +83,7 @@ gcloud run deploy openreveal \
   --allow-unauthenticated \
   --max-instances 1 \
   --timeout 3600 \
-  --set-env-vars NODE_ENV=production,APP_BASE_URL=https://placeholder.invalid,API_BASE_URL=https://placeholder.invalid,DATABASE_URL=file:/data/openreveal.sqlite,SESSION_TTL_MINUTES=30,GOOGLE_PLACES_ENABLED=false,WEB_DIST_DIR=/app/apps/web/dist,VITE_ABUSE_REPORT_URL= \
+  --set-env-vars NODE_ENV=production,APP_BASE_URL=https://placeholder.invalid,API_BASE_URL=https://placeholder.invalid,DATABASE_URL=file:/data/openreveal.sqlite,SESSION_TTL_MINUTES=30,GOOGLE_PLACES_ENABLED=false,WEB_DIST_DIR=/app/apps/web/dist,VITE_ABUSE_REPORT_URL=https://github.com/boonyongyang/openreveal/issues/new?template=safety_concern.md \
   --set-secrets SESSION_SECRET=openreveal-session-secret:latest,PERFORMER_PASSPHRASE=openreveal-performer-passphrase:latest
 ```
 

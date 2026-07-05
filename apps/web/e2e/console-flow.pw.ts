@@ -20,6 +20,10 @@ test("report page gives hosted-instance abuse reporting guidance", async ({ page
   await expect(page.getByRole("heading", { name: "Report a safety concern" })).toBeVisible();
   await expect(page.getByText("The hosted instance URL.")).toBeVisible();
   await expect(page.getByText("VITE_ABUSE_REPORT_URL")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open report destination" })).toHaveAttribute(
+    "href",
+    "https://github.com/boonyongyang/openreveal/issues/new?template=safety_concern.md"
+  );
 });
 
 test("home page is the minimal spectator join page with installable PWA metadata", async ({ page }) => {

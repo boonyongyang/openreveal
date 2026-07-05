@@ -29,7 +29,7 @@ SESSION_TTL_MINUTES=30
 PERFORMER_PASSPHRASE=openreveal-dev-local
 PORT=4000
 API_RATE_LIMIT_MAX=100
-VITE_ABUSE_REPORT_URL=
+VITE_ABUSE_REPORT_URL=https://github.com/boonyongyang/openreveal/issues/new?template=safety_concern.md
 WEB_DIST_DIR=
 GOOGLE_PLACES_API_KEY=
 GOOGLE_PLACES_ENABLED=false

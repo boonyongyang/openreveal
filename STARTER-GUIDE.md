@@ -1,6 +1,6 @@
 # OpenReveal Starter Guide
 
-This guide walks through running OpenReveal locally and rehearsing the current built-in effects.
+This guide walks through running OpenReveal locally and rehearsing the current built-in effects. The hosted reference instance is available at [https://openreveal.web.app](https://openreveal.web.app), but local rehearsal is still the safest way to develop and test changes.
 
 For a focused checklist that covers desktop rehearsal plus a same-Wi-Fi audience phone, see [docs/local-testing-setup.md](docs/local-testing-setup.md).
 
@@ -54,7 +54,27 @@ In the performer console:
 3. Ask the spectator to open the site root or `/j` and enter the 8-character session code. Use `Advanced` for Demo mode, direct receiver URL, logs, and diagnostics.
 4. Wait until the connection panel shows `Foregrounded`.
 
-The console opens in `Quick session` mode by default. Use this mode for a fast trick setup: create the session, read the code, choose one reveal, then `Arm` and `Send`. Switch to `Advanced` when you need direct receiver URL, Demo mode, preset import/export, receiver history, latency details, or the full activity log.
+The console opens in `Quick session` mode by default. Use this mode for a fast trick setup:
+
+1. Create the session.
+2. Read the grouped code aloud.
+3. Let the spectator enter the code on their phone.
+4. Pick one effect.
+5. Click `Arm`.
+6. Click `Send`.
+
+Switch to `Advanced` when you need direct receiver URL, Demo mode, preset import/export, receiver history, latency details, or the full activity log.
+
+The intended live routine looks like this:
+
+```mermaid
+flowchart LR
+  create["Performer creates session"] --> code["Spectator enters code"]
+  code --> wait["Phone waits on neutral screen"]
+  wait --> arm["Performer arms reveal"]
+  arm --> send["Performer sends reveal"]
+  send --> reset["Reset or end session"]
+```
 
 The receiver URL has this shape:
 
@@ -132,14 +152,19 @@ pnpm test:e2e
 
 ## 8. What To Build Next
 
-The current tracked next step is Phase 7 deployment closure:
+The hosted v0.1 reference deployment is already in place:
 
-- Fill the owner input checklist for domain, hosting, HTTPS, passphrase storage, SQLite backups, cleanup, and abuse-report destination.
-- Set production environment variables from `.env.example`.
-- Run the mobile QA checklist on iPhone Safari and Android Chrome.
-- Record same-Wi-Fi, mobile-data, lock/resume, and background/foreground notes.
-- Confirm short network interruptions show restoring/reconnecting instead of an inactive page.
-- Use `docs/deployment-readiness.md` to close the final automated, owner, and physical-device deployment gates.
-- Run `make docker-build` if Docker is the deployment path and the Docker daemon is available.
+- Firebase front door: `https://openreveal.web.app`
+- Cloud Run service: `openreveal` in `asia-southeast1`
+- Runtime secrets: Google Secret Manager
+- Current storage policy: demo-grade container SQLite
+
+The remaining useful work is operational polish, not new effect scope:
+
+- Run the physical mobile QA checklist on iPhone Safari and Android Chrome.
+- Record QR scan, phone lock/resume, mobile-data, and background/foreground notes in `requirements/mobile-qa.md`.
+- Decide whether to rotate the generated performer passphrase to an owner-managed long-term passphrase.
+- Keep demo-grade SQLite for portfolio use, or upgrade to durable storage before relying on long-term session history.
+- Consider a custom short domain later if `openreveal.web.app` is not polished enough for performance use.
 
 Use [STATUS.md](STATUS.md) for the current project state and [COMMANDS.md](COMMANDS.md) for the command reference.
