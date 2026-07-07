@@ -112,7 +112,7 @@
 
 - Docker build now passes after pinning pnpm in the Docker image instead of relying on Node 22.12's bundled Corepack signature set.
 - Cloud Run test deployment is live in the dedicated `openreveal` project, region `asia-southeast1`, at `https://openreveal-tcug7qrd2a-as.a.run.app`.
-- The live Cloud Run service reports Ready=True, routes 100% traffic to revision `openreveal-00011-vrt`, and is configured for the v1 single-instance shape with `autoscaling.knative.dev/maxScale=1`, 1 vCPU, 512Mi memory, and 3600s request timeout.
+- The live Cloud Run service reports Ready=True, routes 100% traffic to revision `openreveal-00012-wcb`, and is configured for the v1 single-instance shape with `autoscaling.knative.dev/maxScale=1`, 1 vCPU, 512Mi memory, and 3600s request timeout.
 - `pnpm cloudrun:preflight openreveal` now passes: billing is enabled and Cloud Run, Cloud Build, and Artifact Registry APIs are enabled.
 - Firebase Hosting is reachable at `https://openreveal.web.app` and is configured as a same-path redirector to the Cloud Run origin. The real API/WebSocket endpoint remains the Cloud Run URL.
 - Playwright now defaults to local `http://localhost:5173`/`http://localhost:4000` test URLs even when `.env` is temporarily pointed at a LAN IP or tunnel for phone testing.
@@ -150,6 +150,8 @@ Latest spectator standby simplification pass on 2026-07-07:
 - Regenerated committed README screenshots with `CI=true pnpm screenshots`.
 - `CI=true pnpm check`: passed with elevated local-network permission for API/WebSocket tests.
 - `CI=true pnpm test:e2e`: passed, 26/26 across Chromium and the mobile Safari Playwright profile.
+- Deployed Cloud Run revision `openreveal-00012-wcb`, serving 100% traffic.
+- `CI=true pnpm smoke:deploy https://openreveal-tcug7qrd2a-as.a.run.app`: passed, including `/api/health`, HSTS, frontend fallbacks, CSP, anti-frame headers, and `/ws` upgrade.
 
 Latest automated verification pass on 2026-06-20:
 
