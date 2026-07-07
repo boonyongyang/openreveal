@@ -127,7 +127,7 @@ Latest hosted verification pass on 2026-06-21:
 - Firebase CLI verification was blocked under the system Node 26 path by the known global Firebase CLI `SlowBuffer.prototype` crash; use the Node 22/Herd Firebase CLI path or the hosted HTTP checks until the global CLI is updated.
 - Trick mechanics now have dedicated e2e coverage (`apps/web/e2e/decoy-fidelity.pw.ts`, `maps-redirect.pw.ts`, `back-trap.pw.ts`) running on the real WebKit engine at an iPhone 13 profile (`mobile-safari` Playwright project; CI installs webkit). Full suite green: 26/26 across chromium + webkit.
 - `node scripts/verify-live-safari.mjs` drove the live deployment with WebKit/iPhone end to end (standby decoy → arm/send → real Google Maps redirect with the place prefilled → pageshow back-trap held, no app/URL leak). Screenshots captured.
-- Spectator standby decoy refined: empty placeholder chips replaced with generic, brand-free shortcut chips (Recent/Nearby/Trending). Still an original search-style surface — no Google wordmark or assets. The only remaining gap is the physical iPhone back-swipe gesture + Maps-app handoff, which no headless engine reproduces.
+- Spectator standby decoy refined into a simpler original search-style surface: abstract mark, inert search pill, no fake shortcut chips, no mic/lens controls, no visible receiver diagnostics, and no Google wordmark/assets. The only remaining gap is the physical iPhone back-swipe gesture + Maps-app handoff, which no headless engine reproduces.
 
 Latest deployment-closure verification pass on 2026-07-04:
 
@@ -142,6 +142,14 @@ Latest deployment-closure verification pass on 2026-07-04:
 - Firebase Hosting is live at `https://openreveal.web.app` as a same-path redirector to the Cloud Run origin. This keeps Firebase out of the WebSocket path.
 - Cloud Run `APP_BASE_URL` is now `https://openreveal.web.app`, so new sessions and QR codes use the short Firebase front door. `API_BASE_URL` remains the Cloud Run origin.
 - `LIVE_PASSPHRASE=<from Secret Manager> LIVE_BASE_URL=https://openreveal-tcug7qrd2a-as.a.run.app OUT_DIR=/tmp/openreveal-live-frontdoor-2026-07-04 CI=true node scripts/verify-live-safari.mjs`: passed with a generated spectator URL on `https://openreveal.web.app/<code>`. Screenshots are in `/tmp/openreveal-live-frontdoor-2026-07-04`.
+
+Latest spectator standby simplification pass on 2026-07-07:
+
+- Removed the fake interactive receiver standby elements: shortcut chips, mic/lens controls, focusable search input, and spectator-visible receiver diagnostics.
+- Replaced the four-color dot mark with an original abstract two-orb mark.
+- Regenerated committed README screenshots with `CI=true pnpm screenshots`.
+- `CI=true pnpm check`: passed with elevated local-network permission for API/WebSocket tests.
+- `CI=true pnpm test:e2e`: passed, 26/26 across Chromium and the mobile Safari Playwright profile.
 
 Latest automated verification pass on 2026-06-20:
 

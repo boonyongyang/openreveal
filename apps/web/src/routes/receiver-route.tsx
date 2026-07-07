@@ -217,83 +217,19 @@ export function SpectatorReceiver({ embedded = false, sessionCode }: SpectatorRe
       <section className="receiver-surface" aria-live="polite">
         {receiverMode === "search" ? (
           <div className="search-home">
-            <div className="search-home__logo" aria-hidden="true">
-              <span className="search-dot search-dot--b" />
-              <span className="search-dot search-dot--r" />
-              <span className="search-dot search-dot--y" />
-              <span className="search-dot search-dot--g" />
+            <div className="search-mark" aria-hidden="true">
+              <span className="search-mark__orb search-mark__orb--large" />
+              <span className="search-mark__orb search-mark__orb--small" />
             </div>
-            <form className="search-line" onSubmit={(event) => event.preventDefault()}>
+            <div className="search-line search-line--inert" aria-hidden="true">
               <svg className="search-line__icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
                 <path
                   fill="currentColor"
                   d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0A4.5 4.5 0 1 1 14 9.5 4.49 4.49 0 0 1 9.5 14Z"
                 />
               </svg>
-              <input
-                className="search-line__input"
-                type="text"
-                inputMode="search"
-                enterKeyHint="search"
-                autoComplete="off"
-                aria-label="Search"
-                placeholder="Search"
-              />
-              <svg className="search-line__mic" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-                <path fill="#4285f4" d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z" />
-                <path fill="#34a853" d="M11 18.92A7 7 0 0 1 5 12H3a9 9 0 0 0 8 8.94V24h2v-3.06A9 9 0 0 0 21 12h-2a7 7 0 0 1-8 6.92Z" />
-              </svg>
-              <svg className="search-line__lens" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-                <circle cx="12" cy="12" r="3.2" fill="#4285f4" />
-                <path fill="#ea4335" d="M5 5h4l1.2-1.6h3.6L15 5h-2.5l-1-1.2h-1L9.5 5Z" />
-                <path fill="#fbbc04" d="M3 7h5l-1.6 2.2A5.8 5.8 0 0 0 6 12H3Z" />
-                <path fill="#34a853" d="M12 18a6 6 0 0 0 5.6-3.9l1.9.7A8 8 0 0 1 12 20Z" />
-              </svg>
-            </form>
-            <div className="search-chips" aria-hidden="true">
-              <span className="search-chip">
-                <svg className="search-chip__icon" viewBox="0 0 24 24" width="15" height="15">
-                  <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" strokeWidth="2" />
-                  <path d="M12 7v5l3.2 2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-                <span className="search-chip__label">Recent</span>
-              </span>
-              <span className="search-chip">
-                <svg className="search-chip__icon" viewBox="0 0 24 24" width="15" height="15">
-                  <path
-                    fill="currentColor"
-                    d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"
-                  />
-                </svg>
-                <span className="search-chip__label">Nearby</span>
-              </span>
-              <span className="search-chip">
-                <svg className="search-chip__icon" viewBox="0 0 24 24" width="15" height="15">
-                  <path
-                    d="M3 17l6-6 4 4 7-7"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M14 8h6v6"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span className="search-chip__label">Trending</span>
-              </span>
+              <span className="search-line__placeholder">Search</span>
             </div>
-            <ReceiverSignals
-              activeReveal={Boolean(activeReveal)}
-              cachedReveal={Boolean(cachedReveal)}
-              status={status}
-            />
           </div>
         ) : null}
         <div className="result-space">
@@ -303,31 +239,6 @@ export function SpectatorReceiver({ embedded = false, sessionCode }: SpectatorRe
         </div>
       </section>
     </main>
-  );
-}
-
-function ReceiverSignals({
-  activeReveal,
-  cachedReveal,
-  status
-}: {
-  activeReveal: boolean;
-  cachedReveal: boolean;
-  status: ReceiverStatus;
-}) {
-  return (
-    <div
-      className="receiver-signals"
-      data-active={activeReveal ? "true" : "false"}
-      data-prepared={cachedReveal ? "true" : "false"}
-      data-state={status}
-      title={`state:${status} prepared:${cachedReveal ? "yes" : "no"} active:${activeReveal ? "yes" : "no"}`}
-      aria-hidden="true"
-    >
-      <span className={status === "live" ? "is-on" : ""} />
-      <span className={cachedReveal ? "is-on" : ""} />
-      <span className={activeReveal ? "is-on" : ""} />
-    </div>
   );
 }
 
