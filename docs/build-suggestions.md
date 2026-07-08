@@ -2,22 +2,26 @@
 
 This is the recommended build order after the first deployment-readiness pass. Keep Phase 7 deployment closure ahead of new product scope.
 
-## Required Before Public Deployment
+## Still Required Before Real Public Performance Use
 
-- Complete `requirements/owner-inputs.md`.
 - Run `requirements/mobile-qa.md` on iPhone Safari and Android Chrome.
-- Set production values from `.env.example`.
-- Run `make docker-build` if Docker is the chosen deployment path.
-- Run `pnpm smoke:deploy https://your-openreveal-url` after the hosted URL exists.
-- Push the baseline commit or create a release tag from a clean repository.
+- Record the physical-device results in `requirements/mobile-qa.md` and `requirements/owner-inputs.md`.
+- Decide whether to replace the generated Secret Manager performer passphrase with an owner-managed long-term value.
+- Run `pnpm release:scan` before every public push or release tag.
+
+## Already Handled For The Reference Deployment
+
+- Production values are configured for Cloud Run and Firebase Hosting.
+- Docker build, Cloud Run preflight, hosted smoke, and WebKit/iPhone-profile proof runs have passed.
+- `openreveal.web.app` is live as the short Firebase front door.
+- The GitHub repository, `v0.1.0` tag, and first release baseline exist.
 
 ## Recommended Immediately After First Deployment
 
 1. Add hosted-instance operations notes:
-   - backup restore drill for SQLite
-   - cleanup job schedule
-   - reverse-proxy WebSocket example
-   - log-retention expectations
+   - document the accepted demo-grade SQLite reset policy
+   - keep cleanup schedule and log-retention expectations visible
+   - add a backup/restore drill only if storage is upgraded beyond container-local SQLite
 2. Add mobile QA result snapshots:
    - device/browser versions
    - same-Wi-Fi timing notes

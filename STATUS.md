@@ -153,6 +153,13 @@ Latest spectator standby simplification pass on 2026-07-07:
 - Deployed Cloud Run revision `openreveal-00012-wcb`, serving 100% traffic.
 - `CI=true pnpm smoke:deploy https://openreveal-tcug7qrd2a-as.a.run.app`: passed, including `/api/health`, HSTS, frontend fallbacks, CSP, anti-frame headers, and `/ws` upgrade.
 
+Latest repo-side deployment-readiness pass on 2026-07-09:
+
+- Added `pnpm release:scan` / `make release-scan` for tracked and unignored secret/private artifact checks before public pushes.
+- `CI=true pnpm release:scan`: passed, 140 tracked/unignored files checked.
+- `CI=true pnpm check`: passed after granting local API/WebSocket test binding permission; lint, typecheck, unit/API/web tests, and build were green.
+- Playwright browser binaries were refreshed locally after the first E2E attempt found missing Chromium/WebKit executables. The E2E rerun still needs to be run when elevated local-server execution is available again; latest completed full suite remains the 26/26 pass from 2026-07-07.
+
 Latest automated verification pass on 2026-06-20:
 
 - `pnpm install --frozen-lockfile`: passed with pnpm 10.10.0.
@@ -213,7 +220,7 @@ Project implementation is deployed to Cloud Run with a Firebase Hosting front do
    - [x] Create the first version tag and GitHub Release
    - [ ] Keep release notes and README screenshots current after UI changes
    - [x] Confirm public repository and first release baseline
-   - [ ] Confirm no secrets or private artifacts are tracked before every public push
+   - [ ] Run `pnpm release:scan` before every public push to confirm no common secrets or private deployment artifacts are tracked or sitting unignored
 
 ## Final Readiness Summary
 

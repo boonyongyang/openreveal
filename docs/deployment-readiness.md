@@ -5,8 +5,8 @@ Use this as the final gate before publishing an OpenReveal instance. Follow [tes
 ## Automated Checks
 
 - [x] `pnpm install --frozen-lockfile` (passed 2026-07-04)
-- [x] `pnpm check` (passed 2026-07-04)
-- [x] `pnpm test:e2e` (26 passed, 2026-07-04)
+- [x] `pnpm check` (passed 2026-07-09)
+- [x] `pnpm test:e2e` (26 passed, 2026-07-07)
 - [x] `pnpm test:latency` (20 samples, p95 8ms, max 8ms, 2026-05-31)
 - [x] `pnpm audit --audit-level moderate` (passed 2026-06-20)
 - [x] Production-mode smoke with Docker, `/api/health`, `/console`, frontend fallback, security headers, and `/ws` upgrade (passed 2026-05-27)
@@ -20,6 +20,8 @@ Use this as the final gate before publishing an OpenReveal instance. Follow [tes
 - [x] Firebase Hosting deployed as same-path redirector at `https://openreveal.web.app` on 2026-07-04.
 - [x] Cloud Run `APP_BASE_URL` updated to `https://openreveal.web.app`; latest ready revision `openreveal-00011-vrt`.
 - [x] Live WebKit/iPhone-profile front-door proof run passed on 2026-07-04; screenshots in `/tmp/openreveal-live-frontdoor-2026-07-04`.
+- [x] Latest standby UI deployment reached Cloud Run revision `openreveal-00012-wcb` on 2026-07-07 and passed `pnpm smoke:deploy https://openreveal-tcug7qrd2a-as.a.run.app`.
+- [x] `pnpm release:scan` passed on 2026-07-09 for tracked/unignored secret and private artifact checks.
 
 ## Owner Inputs
 
@@ -58,3 +60,5 @@ Use this as the final gate before publishing an OpenReveal instance. Follow [tes
 - [x] Version tag and GitHub Release created.
 - [ ] Physical mobile QA recorded.
 - [x] Production environment variables set from `.env.example`.
+- [x] `pnpm release:scan` added to the release command surface.
+- [ ] Re-run `pnpm release:scan` before each public push or release tag.
