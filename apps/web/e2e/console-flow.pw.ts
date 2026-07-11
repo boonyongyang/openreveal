@@ -35,7 +35,7 @@ test("home page is the minimal spectator join page with installable PWA metadata
   await expect(page.getByRole("link", { name: "Privacy and safety notes" })).not.toBeVisible();
   await expect(page.getByRole("link", { name: "Report a safety concern" })).not.toBeVisible();
   await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", "/manifest.webmanifest");
-  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute("content", "#191713");
+  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute("content", "#1f0d24");
 
   const manifest = await page.request.get("/manifest.webmanifest");
   expect(manifest.status()).toBe(200);
@@ -47,13 +47,15 @@ test("home page is the minimal spectator join page with installable PWA metadata
   expect(icon.headers()["content-type"]).toContain("image/svg+xml");
 });
 
-test("about page keeps the public project overview", async ({ page }) => {
+test("about page presents the public project overview", async ({ page }) => {
   await page.goto("/about");
 
-  await expect(page.getByRole("heading", { name: "OpenReveal" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Open console" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Privacy and safety notes" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Report a safety concern" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "One shared moment. Nothing to install." })
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Run a session" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Read the safety boundary" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Report a concern" })).toBeVisible();
 });
 
 test("performer can log in and create a session", async ({ page }) => {
