@@ -138,8 +138,8 @@ describe("OpenReveal API", () => {
       qrSvg: string;
       expiresAt: string;
     }>();
-    expect(body.sessionCode).toHaveLength(3);
-    expect(body.sessionCode).toMatch(/^\d{3}$/);
+    expect(body.sessionCode).toHaveLength(8);
+    expect(body.sessionCode).toMatch(/^[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{8}$/);
     expect(body.receiverUrl).toMatch(new RegExp(`/${body.sessionCode}$`));
     expect(body.qrSvg).toContain("<svg");
     expect(Date.parse(body.expiresAt)).toBeGreaterThan(Date.now());

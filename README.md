@@ -68,17 +68,17 @@ sequenceDiagram
 5. **Reset or end** - reset returns the spectator to the neutral waiting screen; end shows a plain inactive-session message.
 
 Nothing is shown on the spectator phone until the performer sends it, and the
-performer only ever controls pages served by this project — see the
+performer only ever controls pages served by this project. See the
 [Safety Boundary](#safety-boundary).
 
 ## Features
 
 - **Live two-device sessions** over WebSocket, with reconnect and a liveness reaper.
-- **Built-in reveals** — location (Google Maps link, with a manual fallback when no Places key is set), celebrity (text-only, auditable preset metadata), and custom text.
-- **Private performer console** — Quick Session for routine performance, Advanced mode for diagnostics, direct receiver URL, demo mode, logs, and preset import/export.
-- **Consent-first by design** — spectators opt in by opening a URL and entering a code; no spectator data is collected or stored centrally.
-- **Hardened** — per-IP and per-route rate limiting, constant-time passphrase check, anonymous-WebSocket abuse controls, CSP/HSTS/anti-framing headers, and an Origin/Referer CSRF guard. Exercised in CI on every push (see [SECURITY.md](SECURITY.md)).
-- **Self-hostable** — single-host Cloud Run friendly, with documented local and production setup.
+- **Built-in reveals**: location (Google Maps link, with a manual fallback when no Places key is set), celebrity (text-only, auditable preset metadata), and custom text.
+- **Private performer console**: Quick Session for routine performance, Advanced mode for diagnostics, direct receiver URL, demo mode, logs, and preset import/export.
+- **Consent-first by design**: spectators opt in by opening a URL and entering a code; no spectator data is collected or stored centrally.
+- **Hardened**: per-IP and per-route rate limiting, constant-time passphrase check, anonymous-WebSocket abuse controls, CSP/HSTS/anti-framing headers, and an Origin/Referer CSRF guard. Exercised in CI on every push (see [SECURITY.md](SECURITY.md)).
+- **Self-hostable**: single-host Cloud Run friendly, with documented local and production setup.
 
 ## Architecture At A Glance
 
@@ -167,7 +167,7 @@ See [requirements/safety-and-legal.md](requirements/safety-and-legal.md) for the
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening issues or pull requests. New effects should follow [docs/effect-authoring.md](docs/effect-authoring.md), and preset/asset work should follow [docs/routine-pack-licensing.md](docs/routine-pack-licensing.md).
 
-By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md). To report a security vulnerability, follow the [Security Policy](SECURITY.md) — do not open a public issue.
+By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md). To report a security vulnerability, follow the [Security Policy](SECURITY.md). Do not open a public issue.
 
 ## Planning Docs
 

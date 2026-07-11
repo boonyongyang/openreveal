@@ -20,7 +20,7 @@ test("pageshow back-trap re-redirects a restored receiver, never showing the app
     await receiverPage.goto(receiverUrl);
     await expect(page.getByRole("heading", { name: "Foregrounded" })).toBeVisible();
 
-    // Perform the reveal — receiver redirects to the Maps stub.
+    // Perform the reveal. The receiver redirects to the Maps stub.
     await sendLocationRevealWithMaps(page);
     await receiverPage.waitForURL("**/maps/search/**");
 
@@ -29,7 +29,7 @@ test("pageshow back-trap re-redirects a restored receiver, never showing the app
     await receiverPage.goto(receiverUrl);
     await expect(receiverPage.locator(".search-line")).toBeVisible();
 
-    // Dispatch pageshow until the bounce fires — the listener attaches in a
+    // Dispatch pageshow until the bounce fires. The listener attaches in a
     // post-paint effect, so a single dispatch can race ahead of it.
     await expect
       .poll(

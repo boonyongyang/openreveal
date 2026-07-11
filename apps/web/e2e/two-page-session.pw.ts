@@ -56,7 +56,7 @@ test("performer controls a real receiver page end to end", async ({ browser, pag
     await page.getByRole("button", { name: "Create session" }).click();
     await page.getByRole("button", { name: "Advanced" }).click();
     const receiverUrl = await page.getByLabel("Direct receiver URL").inputValue();
-    expect(receiverUrl).toMatch(/\/\d{3}$/);
+    expect(receiverUrl).toMatch(/\/[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{8}$/);
 
     await receiverPage.goto(receiverUrl);
     await expect(receiverPage.locator(".search-line")).toBeVisible();

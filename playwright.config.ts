@@ -26,7 +26,7 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] }
     },
     {
-      // Trick-mechanics specs on the REAL WebKit engine at iPhone 13 dims —
+      // Trick-mechanics specs on the REAL WebKit engine at iPhone 13 dimensions.
       // the same engine iOS Safari runs, so bfcache/back-trap, the 16px
       // no-zoom rule, and the Maps redirect are verified on Safari, not a
       // chromium stand-in. Scoped to the three specs to keep CI fast.

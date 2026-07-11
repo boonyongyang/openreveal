@@ -34,9 +34,9 @@ In scope:
 
 Out of scope:
 
-- Misconfigured self-hosted deployments (for example, a weak
-  `PERFORMER_PASSPHRASE` or running multiple instances without a shared store —
-  see [docs/cloud-run-deployment.md](docs/cloud-run-deployment.md)).
+- Misconfigured self-hosted deployments, such as a weak
+  `PERFORMER_PASSPHRASE` or multiple instances without a shared store. See
+  [docs/cloud-run-deployment.md](docs/cloud-run-deployment.md).
 - Social-engineering or physical-access scenarios.
 - Denial of service that requires privileged network position.
 

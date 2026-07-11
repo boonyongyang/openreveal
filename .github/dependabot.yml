@@ -1,7 +1,7 @@
 version: 2
 updates:
   # npm/pnpm: take minor + patch automatically so `pnpm audit` stays green,
-  # but ignore major bumps (e.g. TypeScript 6, Vite 8) — those are adopted
+  # but ignore major bumps (e.g. TypeScript 6, Vite 8). Those are adopted
   # deliberately, not on a weekly schedule. Security advisories are delivered
   # by GitHub's separate security-update path regardless of these rules.
   - package-ecosystem: npm

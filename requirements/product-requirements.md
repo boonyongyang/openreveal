@@ -235,13 +235,13 @@ Acceptance:
 
 Each phase below corresponds to a milestone in plan.md. A phase is not started until the previous phase passes its acceptance criteria.
 
-### Phase 1.0 — Scaffolding
+### Phase 1.0: Scaffolding
 
 - Workspace structure, lint, types, env example, basic CI commands.
 - No product features yet.
 - Done when: `pnpm install && pnpm dev` boots an empty frontend and backend; `pnpm test` and `pnpm lint` pass on the empty repo.
 
-### Phase 1.1 — Session foundation
+### Phase 1.1: Session foundation
 
 - Create-session API.
 - Performer login (passphrase → signed token).
@@ -251,7 +251,7 @@ Each phase below corresponds to a milestone in plan.md. A phase is not started u
 - Connection panel in performer console.
 - Done when: performer creates session, spectator joins, both see live connection state. No reveals yet.
 
-### Phase 1.2 — Location reveal
+### Phase 1.2: Location reveal
 
 - Land the effect-plugin contract from `technical-requirements.md` "Effect Plugin Contract" before writing the location effect. The contract must exist before the first effect is built; otherwise the second effect (Phase 1.3) will require a refactor.
 - Implement location as the first plugin: `validate`, `enrich` (Maps URL), `PerformerForm`, `SpectatorReveal`.
@@ -261,13 +261,13 @@ Each phase below corresponds to a milestone in plan.md. A phase is not started u
 - Latency assertion for prepared foreground/local browser tests.
 - Done when: full end-to-end illusion works for location on iPhone Safari and Android Chrome, and the core session/realtime code has zero references to the string `"location"`.
 
-### Phase 1.3 — Celebrity reveal
+### Phase 1.3: Celebrity reveal
 
 - Celebrity form + preset list.
 - Spectator result card (reusing the same effect-plugin shape as location).
 - Done when: second effect ships without modifying core session/realtime code, proving the plugin shape.
 
-### Phase 1.4 — Reliability and safety hardening
+### Phase 1.4: Reliability and safety hardening
 
 - Rate limits on session creation, code lookup, and reveal endpoints.
 - Session expiry edge case coverage.
@@ -282,7 +282,7 @@ Each phase below corresponds to a milestone in plan.md. A phase is not started u
 
 Phases below are sequenced. Each phase assumes prior phases are merged and stable.
 
-### Phase 2 — Performance polish
+### Phase 2: Performance polish
 
 Goal: make v1 effects feel professional and rehearsal-ready.
 
@@ -293,7 +293,7 @@ Goal: make v1 effects feel professional and rehearsal-ready.
 5. Reveal animation tuning, including reduced-motion support.
 6. Theme packs: alternate color/typography for the spectator search page (still original, still non-impersonating).
 
-### Phase 3 — Effect kit expansion
+### Phase 3: Effect kit expansion
 
 Goal: add more reveal types by reusing the v1 effect-plugin shape. Build order within the phase prioritizes simplest effect first to validate plugin extensibility.
 
@@ -306,7 +306,7 @@ Goal: add more reveal types by reusing the v1 effect-plugin shape. Build order w
 
 Each new effect must ship behind the same plugin contract (no special-casing in core), with browser flow tests and a mobile QA pass.
 
-### Phase 4 — Performer power tools
+### Phase 4: Performer power tools
 
 Goal: enable longer and more complex routines.
 
@@ -316,7 +316,7 @@ Goal: enable longer and more complex routines.
 - Performance history and rehearsal analytics, stored locally on the performer's machine.
 - Custom routine builder: chain reveals with conditionals.
 
-### Phase 5 — Multi-receiver and scale
+### Phase 5: Multi-receiver and scale
 
 Goal: support real public deployments and group performances.
 
@@ -326,7 +326,7 @@ Goal: support real public deployments and group performances.
 - Account-based performer auth (replacing the single passphrase).
 - Optional hosted reference instance with abuse controls and report-and-disable path.
 
-### Phase 6 — Distribution and ecosystem
+### Phase 6: Distribution and ecosystem
 
 Goal: let the community build on top.
 

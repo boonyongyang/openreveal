@@ -134,7 +134,7 @@ export function ConsoleRoute() {
     return new URL("/", session.receiverUrl).toString();
   }, [session]);
   const displaySessionCode = session ? formatSessionCode(session.sessionCode) : "";
-  // What the performer types on the spectator phone, e.g. "openreveal.web.app/482".
+  // The receiver address shown only in Advanced mode, e.g. "openreveal.web.app/ABCD1234".
   const typedUrl = useMemo(
     () => (session ? session.receiverUrl.replace(/^https?:\/\//, "") : ""),
     [session]
@@ -777,12 +777,12 @@ export function ConsoleRoute() {
             </div>
             <div>
               <dt>Last seen</dt>
-              <dd>{session?.receiver?.lastSeenAt ? new Date(session.receiver.lastSeenAt).toLocaleTimeString() : "—"}</dd>
+              <dd>{session?.receiver?.lastSeenAt ? new Date(session.receiver.lastSeenAt).toLocaleTimeString() : "Not seen"}</dd>
             </div>
             <div>
               <dt>Last reveal latency</dt>
               <dd data-testid="last-reveal-latency">
-                {lastRevealLatencyMs === null ? "—" : formatLatency(lastRevealLatencyMs)}
+                {lastRevealLatencyMs === null ? "Not measured" : formatLatency(lastRevealLatencyMs)}
               </dd>
             </div>
           </dl>

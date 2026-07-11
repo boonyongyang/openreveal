@@ -27,7 +27,7 @@ describe("cleanupExpiredData", () => {
     await db.insert(sessions).values([
       {
         id: staleLiveSessionId,
-        code: "STALE001",
+        code: "STAE2345",
         status: "live",
         activeRevealId: staleLiveRevealId,
         createdAt: new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString(),
@@ -35,7 +35,7 @@ describe("cleanupExpiredData", () => {
       },
       {
         id: oldExpiredSessionId,
-        code: "OLD00001",
+        code: "ABCD2345",
         status: "expired",
         activeRevealId: null,
         createdAt: new Date(now.getTime() - 30 * 60 * 60 * 1000).toISOString(),
@@ -43,7 +43,7 @@ describe("cleanupExpiredData", () => {
       },
       {
         id: freshExpiredSessionId,
-        code: "FRESH001",
+        code: "FRSH2345",
         status: "expired",
         activeRevealId: null,
         createdAt: new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString(),

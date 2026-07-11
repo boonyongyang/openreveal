@@ -5,7 +5,7 @@ import { SESSION_CODE_ALPHABET, SESSION_CODE_LENGTH } from "@openreveal/shared";
 // alphabet) ripples from the shared constants alone.
 
 export function normalizeSessionCode(value: string): string {
-  return [...value]
+  return [...value.toUpperCase()]
     .filter((character) => SESSION_CODE_ALPHABET.includes(character))
     .join("")
     .slice(0, SESSION_CODE_LENGTH);
@@ -23,6 +23,6 @@ export function isValidSessionCode(code: string): boolean {
 // (named routes like /console, asset files, etc.).
 export function sessionCodeFromPath(path: string): string | null {
   const parts = path.split("/").filter(Boolean);
-  const candidate = parts[0] === "r" ? parts[1] : parts[0];
+  const candidate = (parts[0] === "r" ? parts[1] : parts[0])?.toUpperCase();
   return candidate && isValidSessionCode(candidate) ? candidate : null;
 }

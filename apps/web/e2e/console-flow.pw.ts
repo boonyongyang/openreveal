@@ -73,7 +73,7 @@ test("performer can log in and create a session", async ({ page }) => {
   await page.getByRole("button", { name: "Create session" }).click();
 
   await expect(page.getByText("in the phone browser")).toBeVisible();
-  await expect(page.locator(".quick-session__code")).toHaveText(/\d{3}/);
+  await expect(page.locator(".quick-session__code")).toHaveText(/[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{4} [23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{4}/);
   await expect(page.locator(".qr-box svg")).toBeVisible();
   await expect(page.getByRole("button", { name: "Copy site" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Copy code" })).toBeVisible();

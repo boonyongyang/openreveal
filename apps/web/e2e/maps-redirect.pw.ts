@@ -4,7 +4,7 @@ import { createSession, sendLocationRevealWithMaps, stubMaps } from "./_support.
 
 // The core trick payload: with Maps auto-open ON (the default), sending a
 // location reveal must navigate the spectator phone straight to a prefilled
-// Google Maps for that place — not show an in-app reveal.
+// Google Maps for that place, not show an in-app reveal.
 test("location reveal redirects the spectator to prefilled Google Maps", async ({ browser, page }) => {
   const receiverContext = await browser.newContext();
   const receiverPage = await receiverContext.newPage();

@@ -1331,7 +1331,7 @@ textarea {
 
 /*
  * Mobile performance pass: the performer drives the console from a phone during
- * the act, so it must be one-handed and fast — no iOS zoom-on-focus, big touch
+ * the act, so it must be one-handed and fast. No iOS zoom-on-focus, big touch
  * targets, and Arm/Send always within thumb reach.
  */
 @media (max-width: 640px) {

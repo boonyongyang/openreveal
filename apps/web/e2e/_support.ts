@@ -35,13 +35,13 @@ export async function createSession(page: Page): Promise<CreatedSession> {
   await page.getByRole("button", { name: "Create session" }).click();
   await page.getByRole("button", { name: "Advanced" }).click();
   const receiverUrl = await page.getByLabel("Direct receiver URL").inputValue();
-  expect(receiverUrl).toMatch(/\/\d{3}$/);
+  expect(receiverUrl).toMatch(/\/[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{8}$/);
   const code = new URL(receiverUrl).pathname.split("/").filter(Boolean).pop()!;
   return { receiverUrl, code };
 }
 
 // Arm + send a Kuala Lumpur location reveal with Maps auto-open LEFT ON (the
-// real trick default). Performer-side assertions only — the receiver navigates
+// real trick default). Performer-side assertions only. The receiver navigates
 // away on send, so callers handle the redirect.
 export async function sendLocationRevealWithMaps(page: Page) {
   await page.getByLabel("Location name").fill("Kuala Lumpur");

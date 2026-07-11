@@ -84,7 +84,7 @@ function AboutPage() {
                 <span>Live session</span>
                 <span className="hero-live-indicator">Receiver ready</span>
               </div>
-              <p className="hero-console-card__code">ARCA 7412</p>
+              <p className="hero-console-card__code">ARCA 7423</p>
               <p>Ask the spectator to enter the code.</p>
               <div className="hero-console-card__cue">
                 <span>Location</span>
@@ -274,13 +274,15 @@ function JoinPage() {
               autoComplete="off"
               autoFocus
               id="receiver-session-code"
-              inputMode="numeric"
-              maxLength={SESSION_CODE_LENGTH}
+              autoCapitalize="characters"
+              inputMode="text"
+              maxLength={SESSION_CODE_LENGTH + 1}
               onChange={(event) => {
                 setJoinCode(normalizeSessionCode(event.target.value));
                 setJoinError("");
               }}
-              placeholder={"0".repeat(SESSION_CODE_LENGTH)}
+              placeholder="ABCD 2345"
+              spellCheck={false}
               value={joinCode}
             />
             <button className="button button--primary" type="submit">

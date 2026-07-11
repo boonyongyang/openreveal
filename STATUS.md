@@ -168,7 +168,16 @@ Latest UI and landing revamp pass on 2026-07-11:
 - Added current visual captures at `docs/screenshots/revamp-landing-desktop.png`, `docs/screenshots/revamp-landing-mobile.png`, `docs/screenshots/revamp-console-access-desktop.png`, and `docs/screenshots/revamp-join-mobile.png`; the README Visual Tour now uses those current surfaces.
 - Visual QA passed for `/about` at desktop and phone dimensions, `/` at phone dimensions, and the public `/console` access screen. The join form also showed the expected invalid-code recovery message.
 - Passed: `CI=true pnpm lint`, `CI=true pnpm typecheck`, `CI=true pnpm --filter @openreveal/web test`, `CI=true pnpm --filter @openreveal/web build`, `CI=true pnpm release:scan`, and `git diff --check`.
-- The full authenticated local screenshot and E2E rerun remains pending CI or a normal local-server run. Its isolated dev-server process was blocked by the current sandbox's local IPC restriction, and no production behavior was changed in this visual refresh.
+- GitHub Actions passed the full verification workflow for `edd2b51` after the landing-page browser assertions were updated. It covered workspace checks, Chromium and mobile-Safari browser flows, and the production Docker image.
+
+Latest final deployment review on 2026-07-11:
+
+- Restored the product-specified session-code contract: eight case-insensitive, unambiguous characters, grouped for display and accepted with or without the grouping space on entry.
+- Removed em and en dashes from tracked project copy, source comments, and console fallback labels.
+- Reviewed `/about`, `/`, `/j`, `/r/<code>`, `/console`, `/privacy`, and `/report` locally at desktop and phone sizes. The spectator path remains free of navigation, marketing, and external links.
+- `CI=true pnpm check`: passed.
+- `CI=true pnpm test:e2e`: passed, 26/26 across Chromium and the mobile Safari profile.
+- `CI=true pnpm release:scan`: passed, 150 tracked/unignored files checked.
 
 Latest automated verification pass on 2026-06-20:
 

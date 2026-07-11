@@ -31,7 +31,7 @@ test("prepared foreground reveal render acknowledgement p95 stays under target",
     latencies.push(parseLatency(await page.getByTestId("last-reveal-latency").innerText()));
 
     await page.getByRole("button", { name: "Reset", exact: true }).click();
-    await expect(page.getByTestId("last-reveal-latency")).toHaveText("—");
+    await expect(page.getByTestId("last-reveal-latency")).toHaveText("Not measured");
     await expect(page.getByText("No reveal armed")).toBeVisible();
   }
 

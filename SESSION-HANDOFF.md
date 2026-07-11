@@ -1,83 +1,36 @@
 # OpenReveal Session Handoff
 
-Last updated: 2026-06-17
+Last updated: 2026-07-11
 
-## Current Repo State
+## Current State
 
-- Working directory: `/Users/boonyongyang/Development/stuff/inject-magic`
-- Current branch: `main`
-- Latest committed change: `982366d Add reconnect Playwright coverage`
-- Large uncommitted baseline: 51 modified tracked files plus untracked feature files
-  (`apps/api/src/places.ts`, `apps/api/test/places.test.ts`, `apps/web/src/lib/id.ts`,
-  `scripts/*`, `apps/web/public/`, `docs/cloud-run-deployment.md`, `docs/local-testing-setup.md`).
-  Everything STATUS.md describes as done since `982366d` is still uncommitted.
-- `.env` is local-only and intentionally git-ignored.
-- Generated/build folders stay ignored: `node_modules/`, `apps/*/dist/`,
-  `packages/shared/dist/`, `data/`, `*.sqlite`, and `test-results/`.
+- OpenReveal is a consent-based spectator-phone performance PWA with a private performer console at `/console`.
+- The public root and `/j` are intentionally minimal session-code entry pages. `/about` contains the public project landing page.
+- Sessions use eight-character, case-insensitive, unambiguous codes. The console displays them in two groups of four.
+- `.env` is local-only and intentionally git-ignored. Generated build output, SQLite data, screenshots, and test results are ignored as well.
 
-## Deployment Decision (2026-06-17)
+## Hosted Topology
 
-- Target is **single-host Cloud Run**: the API serves the built web app via `WEB_DIST_DIR`,
-  so web, API, and WebSocket share one origin. This needs no cross-origin code changes —
-  the web uses relative `/api` and `/ws` paths and a same-origin `sameSite: "lax"` cookie.
-- **Firebase was dropped.** A Firebase Hosting config (`firebase.json`, `.firebaserc`,
-  `.firebase/`) had appeared but was removed. A Firebase + Cloud Run split was rejected
-  because Firebase Hosting cannot proxy WebSocket and the split would force
-  `VITE_API_ORIGIN`, `sameSite: "none"` cookies, and CORS changes.
-- Cloud Run is still blocked on owner inputs: a billed GCP project ID and region.
-  `pnpm cloudrun:preflight <project-id>` reports the blockers.
+- `https://openreveal.web.app` is the short spectator front door through Firebase Hosting.
+- Firebase Hosting redirects the requested path to Cloud Run. Cloud Run serves the application, API, and WebSocket endpoint, so WebSocket traffic never depends on Firebase Hosting.
+- The deployed Cloud Run service is single-instance by design. Its SQLite storage is suitable for demos and rehearsals, not durable session history.
 
-## Verification State
+## Current Verification
 
-- `pnpm typecheck`: passed (2026-06-17).
-- `pnpm test`: passed (2026-06-17).
-- Per STATUS.md (2026-06-06): `pnpm check`, `pnpm test:e2e` (19 flows),
-  `pnpm test:latency` (p95 8ms), `pnpm audit`, Docker production smoke,
-  `pnpm smoke:deploy`, and Android emulator QA all passed.
-- Re-run before committing the baseline:
+- `CI=true pnpm check`: passed on 2026-07-11.
+- `CI=true pnpm test:e2e`: passed, 26 browser flows across Chromium and the mobile Safari profile, on 2026-07-11.
+- `CI=true pnpm release:scan`: passed, with no tracked or unignored private deployment artifacts.
+- Browser review covered `/about`, `/`, `/j`, `/r/<code>`, `/console`, `/privacy`, and `/report` at desktop and phone widths.
 
-  ```sh
-  pnpm install --frozen-lockfile
-  pnpm check
-  pnpm test:e2e
-  pnpm test:latency
-  pnpm audit --audit-level moderate
-  git diff --check
-  ```
+## Deployment Checklist
 
-## Landed 2026-06-17
+1. Commit and push the reviewed revision, then wait for GitHub Actions to pass.
+2. Deploy the built revision with `pnpm cloudrun:deploy` using the existing Secret Manager-backed configuration.
+3. Run `pnpm smoke:deploy https://openreveal-tcug7qrd2a-as.a.run.app` after Cloud Run is ready.
+4. Confirm `https://openreveal.web.app` redirects to the new Cloud Run revision and creates receiver URLs with the Firebase front door.
 
-Baseline committed and a four-phase security hardening pass shipped on `main`
-(not pushed). All green: `pnpm check`, `test:e2e` (20), `test:latency`
-(p95 12ms), `audit --audit-level moderate` (1 low only).
+## Remaining Real-World Boundaries
 
-- `a7017ab` Baseline + audit-regression fix (vite/esbuild bumps).
-- `efd4915` WebSocket abuse hardening: per-IP socket cap, per-socket message
-  rate limit, ping/pong liveness reaper, `trustProxy`.
-- `f2e55ad` Login brute-force limit + constant-time compare; Google Places
-  response cache + optional daily budget.
-- `7e681c2` Background cleanup scheduler for expired data + HSTS on https.
-- `691c9fc` Deploy/abuse-control documentation.
-
-New env knobs (all have safe defaults): `AUTH_RATE_LIMIT_MAX`,
-`CLEANUP_INTERVAL_MINUTES`, `GOOGLE_PLACES_DAILY_BUDGET`.
-
-## What To Do Next
-
-1. Run physical-device QA and record results in `requirements/mobile-qa.md`:
-   iPhone Safari and Android Chrome — same-Wi-Fi join, foreground/background,
-   lock/unlock, receiver reload, short network interruption, reconnect after reveal.
-2. Unblock deployment (owner): choose a billed GCP project ID and region, fill
-   `requirements/owner-inputs.md`, set production env from `.env.example`, deploy
-   with `--max-instances 1`, then run `pnpm smoke:deploy <hosted-url>`.
-3. Consider pushing `main` / tagging a release before the public deploy.
-4. Post-v1 only: moving rate-limit + WS hub state to a shared store is the
-   prerequisite for running more than one instance.
-
-## Suggested First Prompt For Next Session
-
-```text
-Read AGENTS.md, SESSION-HANDOFF.md, STATUS.md, and git status. Continue OpenReveal.
-Deploy target is single-host Cloud Run (Firebase dropped). First, re-run pnpm check +
-test:e2e + audit, then help me commit the uncommitted baseline as one coherent commit.
-```
+- Run the checklist in `requirements/mobile-qa.md` on a physical iPhone Safari and Android Chrome device before a public performance.
+- Keep the service at one instance unless the realtime hub, rate limiting, and storage move to shared infrastructure.
+- Replace demo-grade SQLite only when durable storage becomes a product requirement.

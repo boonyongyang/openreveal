@@ -169,9 +169,8 @@ async function expireSession(
 
 // One live session at a time (MVP). Before creating a new session, properly
 // expire any existing one (so a still-connected spectator is notified and its
-// socket closed via hub.expire) and then DELETE the rows. Deleting frees the
-// short code immediately: with only 1000 numeric codes, leaving retired rows
-// around would eventually fill the namespace and break code allocation.
+// socket closed via hub.expire) and then delete the rows. This keeps the
+// single-session MVP boundary explicit and leaves the session table clean.
 async function retirePriorSessions() {
   const prior = await db.select().from(sessions);
   if (prior.length === 0) return;
