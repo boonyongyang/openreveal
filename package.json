@@ -31,7 +31,7 @@
     "typecheck": "pnpm -r --if-present typecheck"
   },
   "devDependencies": {
-    "@playwright/test": "^1.56.0",
+    "@playwright/test": "^1.61.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.0",
     "ws": "^8.18.3"
