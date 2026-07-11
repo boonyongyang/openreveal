@@ -179,6 +179,14 @@ Latest final deployment review on 2026-07-11:
 - `CI=true pnpm test:e2e`: passed, 26/26 across Chromium and the mobile Safari profile.
 - `CI=true pnpm release:scan`: passed, 150 tracked/unignored files checked.
 
+Latest production deployment on 2026-07-12:
+
+- `pnpm cloudrun:preflight openreveal`: passed under the configured owner account.
+- Deployed source revision from the reviewed `3983813` build to Cloud Run revision `openreveal-00014-g5n`, serving 100% of traffic.
+- Cloud Run uses `https://openreveal.web.app` for `APP_BASE_URL`, the Cloud Run service URL for `API_BASE_URL`, Secret Manager-backed session and performer secrets, and `maxScale=1`.
+- `pnpm smoke:deploy https://openreveal-tcug7qrd2a-as.a.run.app`: passed for health, HSTS, frontend fallback, CSP, anti-frame headers, and WebSocket upgrade.
+- Firebase Hosting was verified to preserve the root and receiver path before redirecting to Cloud Run.
+
 Latest automated verification pass on 2026-06-20:
 
 - `pnpm install --frozen-lockfile`: passed with pnpm 10.10.0.

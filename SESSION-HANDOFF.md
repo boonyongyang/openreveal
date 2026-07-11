@@ -1,6 +1,6 @@
 # OpenReveal Session Handoff
 
-Last updated: 2026-07-11
+Last updated: 2026-07-12
 
 ## Current State
 
@@ -13,6 +13,7 @@ Last updated: 2026-07-11
 
 - `https://openreveal.web.app` is the short spectator front door through Firebase Hosting.
 - Firebase Hosting redirects the requested path to Cloud Run. Cloud Run serves the application, API, and WebSocket endpoint, so WebSocket traffic never depends on Firebase Hosting.
+- Cloud Run revision `openreveal-00014-g5n` is live and serves 100% of traffic as of 2026-07-12.
 - The deployed Cloud Run service is single-instance by design. Its SQLite storage is suitable for demos and rehearsals, not durable session history.
 
 ## Current Verification
@@ -21,6 +22,7 @@ Last updated: 2026-07-11
 - `CI=true pnpm test:e2e`: passed, 26 browser flows across Chromium and the mobile Safari profile, on 2026-07-11.
 - `CI=true pnpm release:scan`: passed, with no tracked or unignored private deployment artifacts.
 - Browser review covered `/about`, `/`, `/j`, `/r/<code>`, `/console`, `/privacy`, and `/report` at desktop and phone widths.
+- Cloud Run preflight and hosted smoke both passed on 2026-07-12. Firebase Hosting was checked for both the root and receiver-path redirect.
 
 ## Deployment Checklist
 

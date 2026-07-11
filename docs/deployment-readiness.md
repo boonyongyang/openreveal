@@ -22,6 +22,10 @@ Use this as the final gate before publishing an OpenReveal instance. Follow [tes
 - [x] Live WebKit/iPhone-profile front-door proof run passed on 2026-07-04; screenshots in `/tmp/openreveal-live-frontdoor-2026-07-04`.
 - [x] Latest standby UI deployment reached Cloud Run revision `openreveal-00012-wcb` on 2026-07-07 and passed `pnpm smoke:deploy https://openreveal-tcug7qrd2a-as.a.run.app`.
 - [x] `pnpm release:scan` passed on 2026-07-09 for tracked/unignored secret and private artifact checks.
+- [x] Final UI and session-code review passed `CI=true pnpm check` and `CI=true pnpm test:e2e` (26 flows) on 2026-07-11.
+- [x] Cloud Run preflight, Secret Manager rotation, and source deployment passed on 2026-07-12. Revision `openreveal-00014-g5n` serves 100% of traffic.
+- [x] Post-deploy smoke passed on 2026-07-12 for health, HSTS, HTML fallbacks, CSP, anti-frame headers, and `/ws` upgrade.
+- [x] Firebase Hosting front-door redirect was verified on 2026-07-12 for both the root and a receiver path.
 
 ## Owner Inputs
 

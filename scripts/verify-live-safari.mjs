@@ -40,7 +40,8 @@ try {
   await console_.getByRole("button", { name: "Advanced" }).click();
   const receiverUrl = await console_.getByLabel("Direct receiver URL").inputValue();
   const code = new URL(receiverUrl).pathname.split("/").filter(Boolean).pop();
-  log(`session created — spectator URL ${receiverUrl} (code ${code})`);
+  expect(receiverUrl).toMatch(/^https:\/\/openreveal\.web\.app\/[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{8}$/);
+  log(`session created: spectator URL ${receiverUrl} (code ${code})`);
 
   // --- Spectator phone (iPhone 13 WebKit) on standby ---
   await phone.goto(receiverUrl);
@@ -49,13 +50,13 @@ try {
   await phone.screenshot({ path: join(outDir, "1-standby-decoy.png") });
   log("standby decoy rendered on iPhone Safari");
 
-  // Prove the search bar is real + iOS no-zoom (16px).
-  const input = phone.locator(".search-line__input");
-  await input.click();
-  await input.fill("weather today");
-  const fontSize = await input.evaluate((el) => getComputedStyle(el).fontSize);
-  log(`search input focusable, value="${await input.inputValue()}", font-size=${fontSize}`);
-  await input.fill("");
+  // Standby is visual only, with no field or control that could expose the app.
+  await expect(phone.locator(".search-line__placeholder")).toHaveText("Search");
+  await expect(phone.locator(".search-line__input")).toHaveCount(0);
+  await expect(phone.getByRole("textbox")).toHaveCount(0);
+  await expect(phone.getByRole("button")).toHaveCount(0);
+  await expect(phone.getByRole("link")).toHaveCount(0);
+  log("standby surface is inert and exposes no interactive controls");
 
   // --- Performer arms + sends a location reveal (Maps auto-open ON) ---
   await console_.getByLabel("Location name").fill("Kuala Lumpur");
@@ -80,7 +81,7 @@ try {
   await phone.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true })));
   await waitForMapsUrl(phone, 15_000);
   if (phone.url().includes("/console")) throw new Error("LEAK: back exposed the app");
-  log("back-trap held — restored receiver bounced straight back to Maps, no app leak");
+  log("back-trap held: restored receiver bounced straight back to Maps, no app leak");
   await phone.waitForTimeout(2000);
   await phone.screenshot({ path: join(outDir, "4-back-trap.png") });
 
