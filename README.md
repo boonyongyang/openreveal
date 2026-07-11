@@ -18,19 +18,19 @@ The Firebase front door redirects to the Cloud Run service on the same path. Tha
 
 ## Visual Tour
 
-The performer drives a private console; the spectator sees only the waiting/reveal surface on their own phone.
+The public story, private console, and spectator entry are deliberately different surfaces. The performer gets clear controls; the spectator gets one action and no distracting navigation.
 
-![OpenReveal in action: the performer arms a reveal in the console and it appears live on the spectator phone](docs/screenshots/openreveal-demo.gif)
+**Public landing**
 
-**Performer console**
+![OpenReveal landing page with the live routine story and visual session preview](docs/screenshots/revamp-landing-desktop.png)
 
-![Performer console with a live session, grouped code, QR code, receiver status, and effect controls](docs/screenshots/console-session.png)
+**Performer access**
 
-**Spectator phone states**
+![OpenReveal performer access screen with private passphrase entry](docs/screenshots/revamp-console-access-desktop.png)
 
-| Waiting | Location reveal | Custom text | Celebrity reveal |
-| --- | --- | --- | --- |
-| ![Spectator standby screen](docs/screenshots/receiver-standby.png) | ![Location reveal showing Kuala Lumpur, Malaysia](docs/screenshots/reveal-location.png) | ![Custom text reveal](docs/screenshots/reveal-text.png) | ![Celebrity reveal showing Taylor Swift](docs/screenshots/reveal-celebrity.png) |
+**Spectator entry**
+
+![OpenReveal spectator session-code entry screen on a phone](docs/screenshots/revamp-join-mobile.png)
 
 ## How it works
 

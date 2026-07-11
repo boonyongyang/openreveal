@@ -160,6 +160,16 @@ Latest repo-side deployment-readiness pass on 2026-07-09:
 - `CI=true pnpm check`: passed after granting local API/WebSocket test binding permission; lint, typecheck, unit/API/web tests, and build were green.
 - Playwright browser binaries were refreshed locally after the first E2E attempt found missing Chromium/WebKit executables. The E2E rerun still needs to be run when elevated local-server execution is available again; latest completed full suite remains the 26/26 pass from 2026-07-07.
 
+Latest UI and landing revamp pass on 2026-07-11:
+
+- Added `PRODUCT.md` and `DESIGN.md` as the source of truth for the renewed visual system and route intent.
+- Rebuilt `/about` as a complete public landing page with real product captures, an explained three-step routine, safety principles, source links, and performer CTA.
+- Refreshed the spectator code-entry surface, performer console shell, policy pages, receiver surface, and responsive styles under one shared palette and motion system.
+- Added current visual captures at `docs/screenshots/revamp-landing-desktop.png`, `docs/screenshots/revamp-landing-mobile.png`, `docs/screenshots/revamp-console-access-desktop.png`, and `docs/screenshots/revamp-join-mobile.png`; the README Visual Tour now uses those current surfaces.
+- Visual QA passed for `/about` at desktop and phone dimensions, `/` at phone dimensions, and the public `/console` access screen. The join form also showed the expected invalid-code recovery message.
+- Passed: `CI=true pnpm lint`, `CI=true pnpm typecheck`, `CI=true pnpm --filter @openreveal/web test`, `CI=true pnpm --filter @openreveal/web build`, `CI=true pnpm release:scan`, and `git diff --check`.
+- The full authenticated local screenshot and E2E rerun remains pending CI or a normal local-server run. Its isolated dev-server process was blocked by the current sandbox's local IPC restriction, and no production behavior was changed in this visual refresh.
+
 Latest automated verification pass on 2026-06-20:
 
 - `pnpm install --frozen-lockfile`: passed with pnpm 10.10.0.
@@ -218,7 +228,7 @@ Project implementation is deployed to Cloud Run with a Firebase Hosting front do
    - [ ] Record notes and blockers in `requirements/mobile-qa.md`
 3. Maintain the public release boundary:
    - [x] Create the first version tag and GitHub Release
-   - [ ] Keep release notes and README screenshots current after UI changes
+   - [ ] Regenerate the authenticated session and reveal screenshots after the full local screenshot pipeline or CI is available
    - [x] Confirm public repository and first release baseline
    - [ ] Run `pnpm release:scan` before every public push to confirm no common secrets or private deployment artifacts are tracked or sitting unignored
 
