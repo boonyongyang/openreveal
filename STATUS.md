@@ -112,7 +112,7 @@
 
 - Docker build now passes after pinning pnpm in the Docker image instead of relying on Node 22.12's bundled Corepack signature set.
 - Cloud Run test deployment is live in the dedicated `openreveal` project, region `asia-southeast1`, at `https://openreveal-tcug7qrd2a-as.a.run.app`.
-- The live Cloud Run service reports Ready=True, routes 100% traffic to revision `openreveal-00012-wcb`, and is configured for the v1 single-instance shape with `autoscaling.knative.dev/maxScale=1`, 1 vCPU, 512Mi memory, and 3600s request timeout.
+- The live Cloud Run service reports Ready=True, routes 100% traffic to revision `openreveal-00014-g5n`, and is configured for the v1 single-instance shape with `autoscaling.knative.dev/maxScale=1`, 1 vCPU, 512Mi memory, and 3600s request timeout.
 - `pnpm cloudrun:preflight openreveal` now passes: billing is enabled and Cloud Run, Cloud Build, and Artifact Registry APIs are enabled.
 - Firebase Hosting is reachable at `https://openreveal.web.app` and is configured as a same-path redirector to the Cloud Run origin. The real API/WebSocket endpoint remains the Cloud Run URL.
 - Playwright now defaults to local `http://localhost:5173`/`http://localhost:4000` test URLs even when `.env` is temporarily pointed at a LAN IP or tunnel for phone testing.
@@ -187,7 +187,15 @@ Latest production deployment on 2026-07-12:
 - `pnpm smoke:deploy https://openreveal-tcug7qrd2a-as.a.run.app`: passed for health, HSTS, frontend fallback, CSP, anti-frame headers, and WebSocket upgrade.
 - Firebase Hosting was verified to preserve the root and receiver path before redirecting to Cloud Run.
 
-Latest automated verification pass on 2026-06-20:
+Latest dependency maintenance verification on 2026-07-14:
+
+- Consolidated the pending Playwright, Fastify, React, React DOM, React types, and Vite patch/minor updates into one lockfile refresh.
+- `CI=true pnpm check`: passed.
+- `CI=true pnpm test:e2e`: passed, 26/26 across Chromium and the mobile Safari profile.
+- `CI=true pnpm release:scan`: passed, 150 tracked/unignored files checked.
+- `CI=true pnpm audit --audit-level moderate`: passed with no known vulnerabilities.
+
+Historical automated verification baseline from 2026-06-20:
 
 - `pnpm install --frozen-lockfile`: passed with pnpm 10.10.0.
 - `pnpm check`: passed.
