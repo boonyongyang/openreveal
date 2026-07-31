@@ -31,9 +31,12 @@ export async function loginPerformer(page: Page) {
   await page.goto("/console");
   await waitForApi(page);
   const consoleHeading = page.getByRole("heading", { name: "Performer console" });
+  const passphraseInput = page.getByLabel("Passphrase");
 
-  if (!(await consoleHeading.isVisible())) {
-    await page.getByLabel("Passphrase").fill(performerPassphrase);
+  await expect(consoleHeading.or(passphraseInput)).toBeVisible();
+
+  if (await passphraseInput.isVisible()) {
+    await passphraseInput.fill(performerPassphrase);
     await page.getByRole("button", { name: "Continue" }).click();
   }
 

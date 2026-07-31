@@ -4,6 +4,7 @@ import { loginPerformer } from "./_support";
 
 test("spectator can join from root or /j with a session code", async ({ browser, page }) => {
   await loginPerformer(page);
+  let previousReceiverUrl = "";
 
   for (const joinPath of ["/", "/j"]) {
     const receiverContext = await browser.newContext();
@@ -14,7 +15,12 @@ test("spectator can join from root or /j with a session code", async ({ browser,
         .getByRole("button", { name: joinPath === "/" ? "Create session" : "Start new session" })
         .click();
       await page.getByRole("button", { name: "Advanced" }).click();
-      const receiverUrl = await page.getByLabel("Direct receiver URL").inputValue();
+      const receiverUrlInput = page.getByLabel("Direct receiver URL");
+      if (previousReceiverUrl) {
+        await expect(receiverUrlInput).not.toHaveValue(previousReceiverUrl);
+      }
+      const receiverUrl = await receiverUrlInput.inputValue();
+      previousReceiverUrl = receiverUrl;
       const sessionCode = receiverUrl.split("/").pop() ?? "";
 
       await receiverPage.goto(joinPath);
