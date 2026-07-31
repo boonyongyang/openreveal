@@ -23,6 +23,8 @@ export default defineConfig({
   workers: 1,
   retries: 1,
   reporter: "list",
+  timeout: 60_000,
+  expect: { timeout: 10_000 },
   outputDir: process.env.HOSTED_EVIDENCE_DIR ?? "test-results/hosted",
   use: {
     baseURL,

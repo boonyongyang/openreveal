@@ -14,9 +14,11 @@ ABUSE_REPORT_URL="${ABUSE_REPORT_URL:-https://github.com/boonyongyang/openreveal
 case "$DEPLOY_ENV" in
   staging)
     SERVICE="${SERVICE:-openreveal-staging}"
+    API_RATE_LIMIT_MAX_VALUE="${API_RATE_LIMIT_MAX:-1000}"
     ;;
   production)
     SERVICE="${SERVICE:-openreveal}"
+    API_RATE_LIMIT_MAX_VALUE="${API_RATE_LIMIT_MAX:-100}"
     ;;
   *)
     echo "ERROR: set DEPLOY_ENV=staging or DEPLOY_ENV=production." >&2
@@ -119,7 +121,7 @@ gcloud run deploy "$SERVICE" \
   --max-instances 1 \
   --timeout 3600 \
   --labels "environment=${DEPLOY_ENV},release-sha=${RELEASE_SHA}" \
-  --set-env-vars "NODE_ENV=production,APP_BASE_URL=${APP_BASE_URL},API_BASE_URL=${API_BASE_URL},DATABASE_URL=file:/data/openreveal.sqlite,SESSION_TTL_MINUTES=30,GOOGLE_PLACES_ENABLED=false,GOOGLE_PLACES_DAILY_BUDGET=0,WEB_DIST_DIR=/app/apps/web/dist,VITE_ABUSE_REPORT_URL=${ABUSE_REPORT_URL}" \
+  --set-env-vars "NODE_ENV=production,APP_BASE_URL=${APP_BASE_URL},API_BASE_URL=${API_BASE_URL},DATABASE_URL=file:/data/openreveal.sqlite,SESSION_TTL_MINUTES=30,API_RATE_LIMIT_MAX=${API_RATE_LIMIT_MAX_VALUE},AUTH_RATE_LIMIT_MAX=10,GOOGLE_PLACES_ENABLED=false,GOOGLE_PLACES_DAILY_BUDGET=0,WEB_DIST_DIR=/app/apps/web/dist,VITE_ABUSE_REPORT_URL=${ABUSE_REPORT_URL}" \
   --set-secrets "SESSION_SECRET=${SESSION_SECRET_SECRET}:${SESSION_SECRET_VERSION},PERFORMER_PASSPHRASE=${PERFORMER_PASSPHRASE_SECRET}:${PERFORMER_PASSPHRASE_VERSION}"
 
 SERVICE_URL="$(gcloud run services describe "$SERVICE" --region "$REGION" --format='value(status.url)')"

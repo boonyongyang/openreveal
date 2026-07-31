@@ -20,6 +20,9 @@ disposable and is not a durable session-history store.
   pins the newest enabled version number into the Cloud Run revision instead
   of using the mutable `latest` alias.
 - Staging cannot target the `openreveal` service.
+- Staging uses a 1000-request/minute general HTTP budget so the serialized
+  hosted suite can run from one worker IP. Its performer login limit remains
+  the production value of 10 attempts/minute.
 - Production requires `main`, a clean worktree, a front-door URL, and the
   explicit `ALLOW_PRODUCTION_DEPLOY` acknowledgement.
 - Do not run the intrusive security probe against production.
@@ -180,6 +183,9 @@ does not need to change.
 - Maximum instances: `1`
 - Request timeout: `3600` seconds
 - Places integration: disabled by default
+- General HTTP limit: `1000` requests/minute in staging for automation, `100`
+  in production
+- Performer login limit: `10` attempts/minute in staging and production
 - Session TTL: `30` minutes
 - Database: `file:/data/openreveal.sqlite`
 

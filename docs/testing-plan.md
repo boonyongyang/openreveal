@@ -187,6 +187,11 @@ pnpm verify:hosted
 Run `pnpm security:probe https://your-staging-url` last. The probe is
 intrusive and must not target production.
 
+The reference staging deployment uses a higher general HTTP request budget so
+the serialized browser suite can run from one worker IP. The performer login
+limit and WebSocket abuse limits remain production-like and are checked by the
+staging security probe.
+
 ## 7. Deployment Pass Criteria
 
 The feature set is ready for deployment only when:
