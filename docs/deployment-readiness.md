@@ -4,6 +4,17 @@ Use this as the final gate before publishing an OpenReveal instance. Follow [tes
 
 ## Automated Checks
 
+Current release-validation candidate on 2026-08-01:
+
+- [x] Frozen pnpm 10.34.5 install passed.
+- [x] `CI=true pnpm check` passed.
+- [x] `CI=true pnpm test:e2e` passed, 26/26 across Chromium and the mobile Safari profile.
+- [x] `CI=true pnpm test:latency` passed, 20 samples, p95 10ms, max 10ms.
+- [x] `CI=true pnpm release:scan` passed, 159 tracked/unignored files checked.
+- [x] Committed screenshots regenerated from the real local flow.
+- [ ] Current dependency audit awaits explicit approval for npm audit-service metadata disclosure.
+- [ ] Current container build and isolated staging validation remain to be completed.
+
 - [x] `pnpm install --frozen-lockfile` (passed 2026-07-04)
 - [x] `pnpm check` (passed 2026-07-09)
 - [x] `pnpm test:e2e` (26 passed, 2026-07-07)
@@ -15,6 +26,9 @@ Use this as the final gate before publishing an OpenReveal instance. Follow [tes
 - [x] `pnpm cloudrun:preflight openreveal` (passed 2026-07-04, including Secret Manager API).
 - [x] `pnpm smoke:deploy https://openreveal-tcug7qrd2a-as.a.run.app` (passed 2026-07-04, including `/ws` upgrade).
 - [x] Cloud Run deploy helper and guide now use Secret Manager for `SESSION_SECRET` and `PERFORMER_PASSPHRASE` instead of plain service env vars.
+- [x] Release tooling separates immutable image build, environment provisioning,
+  and deployment; staging cannot target production, and deployed revisions pin
+  exact secret version numbers.
 - [x] Cloud Run redeployed with generated Secret Manager-backed runtime secrets on 2026-07-04; latest ready revision `openreveal-00010-cw5`.
 - [x] Live WebKit/iPhone-profile proof run passed on 2026-07-04; screenshots in `/tmp/openreveal-live-2026-07-04`.
 - [x] Firebase Hosting deployed as same-path redirector at `https://openreveal.web.app` on 2026-07-04.
@@ -66,3 +80,5 @@ Use this as the final gate before publishing an OpenReveal instance. Follow [tes
 - [x] Production environment variables set from `.env.example`.
 - [x] `pnpm release:scan` added to the release command surface.
 - [ ] Re-run `pnpm release:scan` before each public push or release tag.
+- [ ] Verify the current candidate on `openreveal-staging` before production promotion.
+- [ ] Promote only the staging-tested image digest from reviewed `main` with the explicit production acknowledgement.

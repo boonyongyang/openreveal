@@ -74,7 +74,13 @@
 - Cloud Run deployment guide is available at `docs/cloud-run-deployment.md`.
 - `.gcloudignore` is in place so Cloud Run source deploys do not upload local env files, databases, build outputs, or Playwright artifacts.
 - Cloud Run preflight is available through `pnpm cloudrun:preflight <project-id>` and `make cloudrun-preflight PROJECT_ID=<project-id>`.
-- Cloud Run deployment helper is available through `pnpm cloudrun:deploy` and `make cloudrun-deploy`; it stores `SESSION_SECRET` and `PERFORMER_PASSPHRASE` in Secret Manager and deploys them with `--set-secrets`.
+- Cloud Run release tooling separates `cloudrun:build`, `cloudrun:provision`,
+  and `cloudrun:deploy`: builds resolve an immutable digest, provisioning
+  creates only missing environment-specific secrets, and deploys consume exact
+  enabled secret version numbers without rotating values.
+- Hosted validation is available through `pnpm test:hosted` and
+  `pnpm verify:hosted`; both run against an already-deployed staging URL rather
+  than starting local servers.
 - Hosted-URL smoke script is available through `pnpm smoke:deploy <url>` and `make smoke-deploy BASE_URL=<url>`.
 - Local QA showcase recording is available through `pnpm record:showcase` and `make record-showcase`; MP4 outputs are written to `test-results/showcase/`.
 - Focused location/celebrity QA recording is available through `pnpm record:location-celebrity` and `make record-location-celebrity`; MP4 outputs are written to `test-results/location-celebrity/`.
@@ -195,6 +201,36 @@ Latest dependency maintenance verification on 2026-07-14:
 - `CI=true pnpm release:scan`: passed, 150 tracked/unignored files checked.
 - `CI=true pnpm audit --audit-level moderate`: passed with no known vulnerabilities.
 
+Latest mobile and under-the-hood walkthrough pass on 2026-07-15:
+
+- Reworked `/about` so the simple performer-to-spectator routine is followed by a visible, accurate system walkthrough: private console, short-lived SQLite session, WebSocket state, and prepared/delivered receiver acknowledgements.
+- Replaced the stale public gallery with four captures from the real app flow: Quick Session setup, spectator standby, prepared reveal, and delivered location reveal.
+- Tightened the phone layout: the landing page makes its primary action full-width, reduces decorative visual height, and keeps the routine readable before the visual scene; the console arranges its mode and session actions into thumb-sized rows above the large code and QR setup panel.
+- `pnpm screenshots` now refreshes the committed documentation images, website showcase images, desktop and phone landing captures, mobile console capture, and desktop and phone under-the-hood captures from the real local flow.
+- `pnpm check`: passed.
+- `pnpm test:e2e`: passed, 26/26 across Chromium and the mobile Safari profile.
+- `pnpm release:scan`: passed.
+- `git diff --check`: passed. Touched source and copy contain no em or en dashes.
+
+Latest release-validation preparation on 2026-08-01:
+
+- Preserved the mobile and under-the-hood redesign on the isolated
+  `codex/openreveal-release-validation` branch and regenerated its committed
+  screenshots from the real local flow.
+- Consolidated current dependency maintenance under pnpm 10.34.5 and separated
+  the CI dependency audit from the workspace verification job.
+- Added immutable Cloud Build artifact creation, staging-only provisioning,
+  environment-gated digest deployment, exact Secret Manager version pinning,
+  hosted Playwright verification, and a reusable release evidence template.
+- `CI=true pnpm check`: passed.
+- `CI=true pnpm test:e2e`: passed, 26/26 across Chromium and the mobile Safari profile.
+- `CI=true pnpm test:latency`: passed, 20 samples, p95 10ms, max 10ms.
+- `CI=true pnpm release:scan`: passed, 159 tracked/unignored files checked.
+- The current npm audit is intentionally pending explicit approval because it
+  submits dependency graph metadata to an external audit service.
+- The local Docker daemon was unavailable; Cloud Build and isolated staging
+  remain the current container and hosted-runtime proof gates.
+
 Historical automated verification baseline from 2026-06-20:
 
 - `pnpm install --frozen-lockfile`: passed with pnpm 10.10.0.
@@ -236,7 +272,9 @@ Latest Android emulator verification on 2026-06-06:
 
 ## Next Steps
 
-Project implementation is deployed to Cloud Run with a Firebase Hosting front door and is ready for portfolio/demo use. The remaining items are operational polish and physical-device QA, not core implementation blockers.
+The currently deployed production remains ready for portfolio/demo use. The
+new release-validation candidate is locally green but must pass its isolated
+staging gates before it is eligible for production promotion.
 
 1. Complete Phase 7 deployment closure:
    - [x] Choose target GCP project ID and region: `openreveal`, `asia-southeast1`
@@ -253,13 +291,16 @@ Project implementation is deployed to Cloud Run with a Firebase Hosting front do
    - [ ] Record notes and blockers in `requirements/mobile-qa.md`
 3. Maintain the public release boundary:
    - [x] Create the first version tag and GitHub Release
-   - [ ] Regenerate the authenticated session and reveal screenshots after the full local screenshot pipeline or CI is available
+   - [x] Regenerate the authenticated session and reveal screenshots from the full local screenshot pipeline
    - [x] Confirm public repository and first release baseline
    - [ ] Run `pnpm release:scan` before every public push to confirm no common secrets or private deployment artifacts are tracked or sitting unignored
 
 ## Final Readiness Summary
 
 - Ready now: local desktop testing, LAN/tunnel rehearsal, automated browser coverage, Docker production smoke, Cloud Run preflight checks, hosted Cloud Run smoke, Firebase front door, GitHub release, and generated QA video/screenshots.
+- Current candidate: local check, 26 browser flows, latency, release scan, and
+  refreshed visual evidence are green; immutable staging build and hosted
+  verification are next.
 - GitHub status: v0.1.0 release baseline exists.
 - Waiting on owner input: optional custom domain, optional owner-managed passphrase rotation, optional Google Places API key, and whether to upgrade storage beyond demo-grade SQLite.
 - Waiting on real devices: iPhone Safari and Android Chrome runs from `requirements/mobile-qa.md`.

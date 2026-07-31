@@ -3,19 +3,27 @@
 // for the README. Unlike record:showcase (which emits gitignored MP4s), the
 // output here lives in docs/screenshots/ and is meant to be committed.
 import { chromium, expect } from "@playwright/test";
-import { mkdir, readFile, rm } from "node:fs/promises";
+import { copyFile, mkdir, readFile, rm } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { spawn } from "node:child_process";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const outputDir = join(root, "docs", "screenshots");
 const rawDir = join(outputDir, "_raw");
+const showcaseDir = join(root, "apps", "web", "public", "showcase");
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:5173";
 const apiBaseURL = process.env.PLAYWRIGHT_API_BASE_URL ?? "http://localhost:4000";
 const passphrase = process.env.PERFORMER_PASSPHRASE ?? "openreveal-dev";
+const showcaseShots = new Set([
+  "console-session.png",
+  "receiver-standby.png",
+  "console-armed.png",
+  "reveal-location.png"
+]);
 
 await mkdir(outputDir, { recursive: true });
 await mkdir(rawDir, { recursive: true });
+await mkdir(showcaseDir, { recursive: true });
 await rm(join(root, "data", "screenshots.sqlite"), { force: true });
 
 const server = spawn("pnpm", ["dev"], {
@@ -43,6 +51,9 @@ server.stderr.on("data", (chunk) => (serverLog += chunk.toString()));
 let browser;
 let performerContext;
 let receiverContext;
+let landingDesktopContext;
+let landingMobileContext;
+let consoleMobileContext;
 
 try {
   await waitForHealthyServer();
@@ -56,12 +67,29 @@ try {
     viewport: { height: 844, width: 390 },
     deviceScaleFactor: 2
   });
+  landingDesktopContext = await browser.newContext({
+    viewport: { height: 1000, width: 1440 },
+    deviceScaleFactor: 2
+  });
+  landingMobileContext = await browser.newContext({
+    viewport: { height: 844, width: 390 },
+    deviceScaleFactor: 2
+  });
+  consoleMobileContext = await browser.newContext({
+    viewport: { height: 844, width: 390 },
+    deviceScaleFactor: 2
+  });
 
   const performerPage = await performerContext.newPage();
   const receiverPage = await receiverContext.newPage();
   const framePage = await performerContext.newPage();
+  const landingDesktopPage = await landingDesktopContext.newPage();
+  const landingMobilePage = await landingMobileContext.newPage();
+  const consoleMobilePage = await consoleMobileContext.newPage();
 
   await captureFlow(performerPage, receiverPage, framePage);
+  await captureMobileConsole(consoleMobilePage);
+  await capturePublicScreens(landingDesktopPage, landingMobilePage);
 
   await rm(rawDir, { force: true, recursive: true });
   console.log("Screenshots captured:");
@@ -70,6 +98,9 @@ try {
   console.error(serverLog);
   throw error;
 } finally {
+  if (landingDesktopContext) await landingDesktopContext.close().catch(() => null);
+  if (landingMobileContext) await landingMobileContext.close().catch(() => null);
+  if (consoleMobileContext) await consoleMobileContext.close().catch(() => null);
   if (performerContext) await performerContext.close().catch(() => null);
   if (receiverContext) await receiverContext.close().catch(() => null);
   if (browser) await browser.close().catch(() => null);
@@ -84,6 +115,7 @@ try {
 
 async function shot(page, name) {
   await page.screenshot({ path: join(outputDir, name) });
+  await publishShowcaseShot(name);
 }
 
 // Capture the spectator phone, then composite it into a device frame on a
@@ -134,6 +166,12 @@ async function shotPhone(receiverPage, framePage, name) {
 
   const frame = await framePage.locator(".wrap");
   await frame.screenshot({ path: join(outputDir, name), omitBackground: true });
+  await publishShowcaseShot(name);
+}
+
+async function publishShowcaseShot(name) {
+  if (!showcaseShots.has(name)) return;
+  await copyFile(join(outputDir, name), join(showcaseDir, name));
 }
 
 async function captureFlow(performerPage, receiverPage, framePage) {
@@ -141,13 +179,15 @@ async function captureFlow(performerPage, receiverPage, framePage) {
   await performerPage.getByLabel("Passphrase").fill(passphrase);
   await performerPage.getByRole("button", { name: "Continue" }).click();
   await expect(performerPage.getByRole("heading", { name: "Performer console" })).toBeVisible();
-  await performerPage.getByRole("button", { name: "Advanced" }).click();
-
   await performerPage.getByRole("button", { name: "Create session" }).click();
-  const receiverUrl = await performerPage.getByLabel("Direct receiver URL").inputValue();
+  await expect(performerPage.locator(".quick-session__code")).toBeVisible();
   await expect(performerPage.locator(".qr-box svg")).toBeVisible();
   await settle();
   await shot(performerPage, "console-session.png");
+
+  await performerPage.getByRole("button", { name: "Advanced" }).click();
+  const receiverUrl = await performerPage.getByLabel("Direct receiver URL").inputValue();
+  await expect(performerPage.locator(".qr-box svg")).toBeVisible();
 
   await receiverPage.goto(receiverUrl);
   await expect(receiverPage.locator(".search-line")).toBeVisible();
@@ -195,6 +235,50 @@ async function captureFlow(performerPage, receiverPage, framePage) {
   await expect(receiverPage.getByRole("heading", { name: "Taylor Swift" })).toBeVisible();
   await settle(1200);
   await shotPhone(receiverPage, framePage, "reveal-celebrity.png");
+}
+
+async function capturePublicScreens(landingDesktopPage, landingMobilePage) {
+  await landingDesktopPage.goto(`${baseURL}/about`);
+  await expect(
+    landingDesktopPage.getByRole("heading", { name: "One shared moment. Nothing to install." })
+  ).toBeVisible();
+  await hideSkipLink(landingDesktopPage);
+  await settle();
+  await shot(landingDesktopPage, "revamp-landing-desktop.png");
+
+  const underTheHood = landingDesktopPage.locator(".brand-under-the-hood");
+  await expect(underTheHood).toBeVisible();
+  await underTheHood.screenshot({ path: join(outputDir, "revamp-under-the-hood-desktop.png") });
+
+  await landingMobilePage.goto(`${baseURL}/about`);
+  await expect(
+    landingMobilePage.getByRole("heading", { name: "One shared moment. Nothing to install." })
+  ).toBeVisible();
+  await hideSkipLink(landingMobilePage);
+  await settle();
+  await shot(landingMobilePage, "revamp-landing-mobile.png");
+
+  const mobileUnderTheHood = landingMobilePage.locator(".brand-under-the-hood");
+  await expect(mobileUnderTheHood).toBeVisible();
+  await mobileUnderTheHood.screenshot({ path: join(outputDir, "revamp-under-the-hood-mobile.png") });
+}
+
+async function captureMobileConsole(consoleMobilePage) {
+  await consoleMobilePage.goto(`${baseURL}/console`);
+  await consoleMobilePage.getByLabel("Passphrase").fill(passphrase);
+  await consoleMobilePage.getByRole("button", { name: "Continue" }).click();
+  await expect(consoleMobilePage.getByRole("heading", { name: "Performer console" })).toBeVisible();
+  await consoleMobilePage.getByRole("button", { name: "Create session" }).click();
+  await expect(consoleMobilePage.locator(".quick-session__code")).toBeVisible();
+  await settle();
+  await shot(consoleMobilePage, "revamp-console-mobile.png");
+}
+
+async function hideSkipLink(page) {
+  await page.locator(".skip-link").evaluate((element) => {
+    element.setAttribute("aria-hidden", "true");
+    element.setAttribute("style", "display: none");
+  });
 }
 
 async function waitForHealthyServer() {

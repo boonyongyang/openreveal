@@ -5,7 +5,7 @@
   "description": "Open-source, consent-based spectator-phone mentalism PWA.",
   "license": "AGPL-3.0-only",
   "type": "module",
-  "packageManager": "pnpm@10.10.0",
+  "packageManager": "pnpm@10.34.5",
   "engines": {
     "node": ">=22.12.0",
     "pnpm": ">=10.0.0"
@@ -20,20 +20,24 @@
     "record:showcase": "node scripts/record-showcase.mjs",
     "release:scan": "node scripts/release-artifact-scan.mjs",
     "screenshots": "node scripts/capture-screenshots.mjs",
+    "cloudrun:build": "./scripts/cloud-run-build.sh",
     "cloudrun:deploy": "./scripts/cloud-run-deploy.sh",
     "cloudrun:preflight": "node scripts/cloud-run-preflight.mjs",
+    "cloudrun:provision": "./scripts/cloud-run-provision.sh",
     "smoke:deploy": "node scripts/deployment-smoke.mjs",
     "security:probe": "node scripts/security-probe.mjs",
     "lint": "pnpm -r --if-present lint",
     "test": "pnpm -r --workspace-concurrency=1 --if-present test",
     "test:e2e": "playwright test",
+    "test:hosted": "playwright test --config playwright.hosted.config.ts",
     "test:latency": "playwright test --config playwright.latency.config.ts",
+    "verify:hosted": "node scripts/verify-live-safari.mjs",
     "typecheck": "pnpm -r --if-present typecheck"
   },
   "devDependencies": {
-    "@playwright/test": "^1.61.1",
+    "@playwright/test": "^1.62.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.0",
-    "ws": "^8.18.3"
+    "vitest": "^4.1.10",
+    "ws": "^8.21.1"
   }
 }

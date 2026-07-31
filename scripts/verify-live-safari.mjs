@@ -1,14 +1,15 @@
 #!/usr/bin/env node
-// One-off proof run: drives the LIVE deployment with the real WebKit engine
+// Hosted proof run: drives a staging or production deployment with the real WebKit engine
 // (the engine iOS Safari uses) at an iPhone 13 profile, through a full trick
 // round, capturing screenshots as evidence. Not part of CI.
 import { devices, expect, webkit } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
-const base = process.env.LIVE_BASE_URL ?? "https://openreveal-tcug7qrd2a-as.a.run.app";
-const passphrase = process.env.LIVE_PASSPHRASE ?? "openreveal-first-test";
-const outDir = resolve(process.env.OUT_DIR ?? "/tmp/openreveal-safari");
+const base = requiredUrl("LIVE_BASE_URL");
+const passphrase = requiredEnv("LIVE_PASSPHRASE");
+const expectedReceiverOrigin = new URL(process.env.EXPECTED_RECEIVER_ORIGIN?.trim() || base).origin;
+const outDir = resolve(process.env.OUT_DIR?.trim() || "test-results/hosted-webkit");
 await mkdir(outDir, { recursive: true });
 
 const browser = await webkit.launch();
@@ -39,8 +40,10 @@ try {
   await console_.getByRole("button", { name: "Create session" }).click();
   await console_.getByRole("button", { name: "Advanced" }).click();
   const receiverUrl = await console_.getByLabel("Direct receiver URL").inputValue();
-  const code = new URL(receiverUrl).pathname.split("/").filter(Boolean).pop();
-  expect(receiverUrl).toMatch(/^https:\/\/openreveal\.web\.app\/[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{8}$/);
+  const receiver = new URL(receiverUrl);
+  const code = receiver.pathname.split("/").filter(Boolean).pop();
+  expect(receiver.origin).toBe(expectedReceiverOrigin);
+  expect(receiver.pathname).toMatch(/^\/[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{8}$/);
   log(`session created: spectator URL ${receiverUrl} (code ${code})`);
 
   // --- Spectator phone (iPhone 13 WebKit) on standby ---
@@ -92,4 +95,21 @@ try {
   throw error;
 } finally {
   await browser.close();
+}
+
+function requiredEnv(name) {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new Error(`Set ${name} before running hosted WebKit verification.`);
+  }
+  return value;
+}
+
+function requiredUrl(name) {
+  const value = requiredEnv(name);
+  const url = new URL(value);
+  if (url.protocol !== "https:") {
+    throw new Error(`${name} must use https.`);
+  }
+  return url.origin;
 }

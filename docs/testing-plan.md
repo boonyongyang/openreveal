@@ -16,6 +16,10 @@ pnpm test:latency
 pnpm audit --audit-level moderate
 ```
 
+The audit contacts the configured npm audit service and submits dependency
+names, versions, and graph metadata. Obtain approval for that external check
+when repository metadata disclosure is restricted.
+
 Expected result:
 
 - TypeScript, unit/API tests, and build pass through `pnpm check`.
@@ -165,6 +169,24 @@ pnpm smoke:deploy https://your-openreveal-url
 
 This checks `/api/health`, frontend route fallback, CSP and anti-framing headers, and the `/ws` WebSocket upgrade path.
 
+For an isolated staging service, continue with the hosted browser and mobile
+WebKit proof before any production promotion:
+
+```sh
+HOSTED_BASE_URL=https://your-staging-url \
+HOSTED_API_BASE_URL=https://your-staging-url \
+PERFORMER_PASSPHRASE='from-secret-manager' \
+pnpm test:hosted
+
+LIVE_BASE_URL=https://your-staging-url \
+LIVE_PASSPHRASE='from-secret-manager' \
+EXPECTED_RECEIVER_ORIGIN=https://your-staging-url \
+pnpm verify:hosted
+```
+
+Run `pnpm security:probe https://your-staging-url` last. The probe is
+intrusive and must not target production.
+
 ## 7. Deployment Pass Criteria
 
 The feature set is ready for deployment only when:
@@ -178,6 +200,11 @@ The feature set is ready for deployment only when:
 - `VITE_ABUSE_REPORT_URL` points at a real monitored report destination.
 - SQLite storage and backup paths are decided.
 - Docker build passes if Docker deployment is used.
+- The staging revision identifies a clean commit, immutable image digest, and
+  pinned Secret Manager version numbers.
+- Hosted smoke, Chromium/WebKit flows, mobile WebKit proof, and the staging
+  security probe pass against that revision.
+- Production promotion reuses the exact staging-tested image digest.
 
 ## Playwright Expansion Plan
 

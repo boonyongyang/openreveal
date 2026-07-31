@@ -4,6 +4,7 @@
 import { expect, type Page } from "@playwright/test";
 
 export const performerPassphrase = process.env.PERFORMER_PASSPHRASE ?? "openreveal-dev";
+const apiBaseUrl = process.env.PLAYWRIGHT_API_BASE_URL ?? "http://localhost:4000";
 
 // Real Google Maps target the receiver redirects to on a location reveal.
 // Glob matches buildMapsUrl() output in apps/api/src/effects/location.ts.
@@ -18,7 +19,7 @@ export async function waitForApi(page: Page) {
   await expect
     .poll(
       async () => {
-        const response = await page.request.get("http://localhost:4000/api/health").catch(() => null);
+        const response = await page.request.get(`${apiBaseUrl}/api/health`).catch(() => null);
         return response?.ok() ?? false;
       },
       { timeout: 30_000 }

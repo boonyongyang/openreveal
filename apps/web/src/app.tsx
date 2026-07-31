@@ -15,7 +15,7 @@ export function App() {
   if (path.startsWith("/r/")) return <ReceiverRoute />;
   if (path.startsWith("/j")) return <JoinPage />;
   if (path.startsWith("/about")) return <AboutPage />;
-  // Bare short code typed straight onto the spectator phone, e.g. domain/482.
+  // Bare session code typed directly on the spectator phone, e.g. domain/ABCD2345.
   if (sessionCodeFromPath(path)) return <ReceiverRoute />;
 
   return <JoinPage />;
@@ -33,7 +33,8 @@ function AboutPage() {
           <span>{APP_NAME}</span>
         </a>
         <nav aria-label="About OpenReveal">
-          <a href="#flow">How it works</a>
+          <a href="#flow">The routine</a>
+          <a href="#under-the-hood">Under the hood</a>
           <a href="#principles">Principles</a>
           <a href="https://github.com/boonyongyang/openreveal" rel="noreferrer" target="_blank">
             Source
@@ -68,9 +69,9 @@ function AboutPage() {
               </a>
             </div>
             <ul className="brand-proof" aria-label="OpenReveal highlights">
-              <li>Short-code entry</li>
-              <li>Live WebSocket delivery</li>
-              <li>Open source</li>
+              <li>One short code</li>
+              <li>One live connection</li>
+              <li>No app or account</li>
             </ul>
           </div>
 
@@ -154,35 +155,130 @@ function AboutPage() {
           </ol>
         </section>
 
-        <section className="brand-gallery" aria-label="OpenReveal product screens">
-          <figure className="brand-gallery__console">
-            <div className="brand-gallery__frame">
-              <img
-                alt="OpenReveal performer access screen with a passphrase field and a Continue button"
-                height="900"
-                loading="lazy"
-                src="/showcase/console-session.png"
-                width="1440"
-              />
+        <section
+          className="brand-under-the-hood"
+          id="under-the-hood"
+          aria-labelledby="under-the-hood-title"
+        >
+          <div className="brand-under-the-hood__intro">
+            <div>
+              <p className="brand-section-label">Under the hood</p>
+              <h2 id="under-the-hood-title">One small system. A visible handoff.</h2>
             </div>
-            <figcaption>Private performer access before a session starts.</figcaption>
-          </figure>
-          <figure className="brand-gallery__phone">
-            <div className="brand-gallery__frame">
-              <img
-                alt="OpenReveal spectator phone with a session-code input and Join button"
-                height="1200"
-                loading="lazy"
-                src="/showcase/receiver-standby.png"
-                width="720"
-              />
+            <div className="brand-under-the-hood__copy">
+              <p>
+                A session begins in the private console. The spectator page joins with the
+                code, receives state over one WebSocket, and acknowledges when the prepared
+                reveal is ready and when delivery completes.
+              </p>
+              <p>
+                This leaves the performer with a simple, inspectable sequence instead of a
+                fragile handoff between separate apps or services.
+              </p>
             </div>
-            <figcaption>One spectator action: enter the code and join.</figcaption>
-          </figure>
-          <p className="brand-gallery__note">
-            Built around a single-host realtime system, so the same codebase works locally,
-            in a rehearsal, or on a small public Cloud Run deployment.
-          </p>
+          </div>
+
+          <div className="brand-wire" aria-label="The live OpenReveal delivery path">
+            <article className="brand-wire__node">
+              <span>01</span>
+              <h3>Private console</h3>
+              <p>Creates the session and prepares the reveal.</p>
+              <small>Same-origin performer access</small>
+            </article>
+            <p className="brand-wire__link">Session and WebSocket</p>
+            <article className="brand-wire__node">
+              <span>02</span>
+              <h3>Session service</h3>
+              <p>Keeps one short-lived session and its delivery state.</p>
+              <small>Single-instance SQLite store</small>
+            </article>
+            <p className="brand-wire__link">State and reveal event</p>
+            <article className="brand-wire__node">
+              <span>03</span>
+              <h3>Spectator browser</h3>
+              <p>Waits on the neutral page until the performer sends.</p>
+              <small>Prepared and delivered acknowledgements</small>
+            </article>
+          </div>
+
+          <div className="brand-evidence" data-testid="live-flow-screens">
+            <div className="brand-evidence__heading">
+              <p className="brand-section-label">Captured from the live flow</p>
+              <h3>Four moments, one shared connection.</h3>
+              <p>
+                These are real app captures, generated from the same session flow used in
+                automated end-to-end testing.
+              </p>
+            </div>
+
+            <figure className="brand-evidence__wide">
+              <div className="brand-evidence__frame">
+                <img
+                  alt="OpenReveal Quick session console showing a grouped session code, QR code, and phone setup instructions"
+                  height="900"
+                  loading="lazy"
+                  src="/showcase/console-session.png"
+                  width="1440"
+                />
+              </div>
+              <figcaption>
+                <span>01</span>
+                <strong>Create a session.</strong> The performer gets a code, a QR backup,
+                and a single phone instruction.
+              </figcaption>
+            </figure>
+
+            <figure className="brand-evidence__phone">
+              <div className="brand-evidence__frame">
+                <img
+                  alt="OpenReveal spectator phone waiting on a neutral screen after joining a session"
+                  height="744"
+                  loading="lazy"
+                  src="/showcase/receiver-standby.png"
+                  width="394"
+                />
+              </div>
+              <figcaption>
+                <span>02</span>
+                <strong>The phone settles.</strong> There is no navigation to manage while it
+                waits for the reveal.
+              </figcaption>
+            </figure>
+
+            <figure className="brand-evidence__wide brand-evidence__wide--armed">
+              <div className="brand-evidence__frame">
+                <img
+                  alt="OpenReveal performer console with a prepared Kuala Lumpur location reveal and enabled send control"
+                  height="900"
+                  loading="lazy"
+                  src="/showcase/console-armed.png"
+                  width="1440"
+                />
+              </div>
+              <figcaption>
+                <span>03</span>
+                <strong>Arm before send.</strong> The console shows when the receiver has
+                prepared the reveal and when sending is available.
+              </figcaption>
+            </figure>
+
+            <figure className="brand-evidence__phone brand-evidence__phone--result">
+              <div className="brand-evidence__frame">
+                <img
+                  alt="OpenReveal spectator phone displaying a delivered Kuala Lumpur location reveal"
+                  height="744"
+                  loading="lazy"
+                  src="/showcase/reveal-location.png"
+                  width="394"
+                />
+              </div>
+              <figcaption>
+                <span>04</span>
+                <strong>Deliver one reveal.</strong> The event appears on the page the
+                spectator chose to open.
+              </figcaption>
+            </figure>
+          </div>
         </section>
 
         <section className="brand-principles" id="principles" aria-labelledby="principles-title">

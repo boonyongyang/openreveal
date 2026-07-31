@@ -1,7 +1,7 @@
 FROM node:22.12-bookworm-slim AS build
 
 WORKDIR /app
-RUN npm install -g pnpm@10.10.0
+RUN npm install -g pnpm@10.34.5
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 COPY apps/api/package.json apps/api/package.json
@@ -20,7 +20,7 @@ ENV PORT=4000
 ENV DATABASE_URL=file:/data/openreveal.sqlite
 ENV WEB_DIST_DIR=/app/apps/web/dist
 
-RUN npm install -g pnpm@10.10.0 && mkdir -p /data
+RUN npm install -g pnpm@10.34.5 && mkdir -p /data
 COPY --from=build /app /app
 
 EXPOSE 4000

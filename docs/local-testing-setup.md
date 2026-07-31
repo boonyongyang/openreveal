@@ -8,7 +8,7 @@ From the repo root:
 
 ```sh
 nvm use # optional; uses the repository's Node 22.12 CI baseline
-npm install --global pnpm@10.10.0 # only when pnpm 10 is not already installed
+npm install --global pnpm@10.34.5 # only when pnpm 10 is not already installed
 pnpm install --frozen-lockfile
 ```
 

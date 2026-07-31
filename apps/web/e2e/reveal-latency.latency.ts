@@ -3,6 +3,7 @@ import { expect, type Page, test } from "@playwright/test";
 const SAMPLE_COUNT = Number(process.env.OPENREVEAL_LATENCY_SAMPLES ?? "20");
 const P95_TARGET_MS = 250;
 const performerPassphrase = process.env.PERFORMER_PASSPHRASE ?? "openreveal-dev";
+const apiBaseUrl = process.env.PLAYWRIGHT_API_BASE_URL ?? "http://localhost:4000";
 
 test("prepared foreground reveal render acknowledgement p95 stays under target", async ({ page }) => {
   test.setTimeout(Math.max(120_000, SAMPLE_COUNT * 10_000));
@@ -64,7 +65,7 @@ async function waitForApi(page: Page) {
   await expect
     .poll(
       async () => {
-        const response = await page.request.get("http://localhost:4000/api/health").catch(() => null);
+        const response = await page.request.get(`${apiBaseUrl}/api/health`).catch(() => null);
         return response?.ok() ?? false;
       },
       { timeout: 30_000 }

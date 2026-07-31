@@ -3,6 +3,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { expect, type Page, test } from "@playwright/test";
 
 const performerPassphrase = process.env.PERFORMER_PASSPHRASE ?? "openreveal-dev";
+const apiBaseUrl = process.env.PLAYWRIGHT_API_BASE_URL ?? "http://localhost:4000";
 
 test("privacy page is reachable with anti-framing headers", async ({ page }) => {
   const response = await page.goto("/privacy");
@@ -56,6 +57,14 @@ test("about page presents the public project overview", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Run a session" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Read the safety boundary" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Report a concern" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "One small system. A visible handoff." })
+  ).toBeVisible();
+  await expect(page.getByTestId("live-flow-screens")).toBeVisible();
+  await expect(page.locator('img[src="/showcase/console-session.png"]')).toBeVisible();
+  await expect(page.locator('img[src="/showcase/receiver-standby.png"]')).toBeVisible();
+  await expect(page.locator('img[src="/showcase/console-armed.png"]')).toBeVisible();
+  await expect(page.locator('img[src="/showcase/reveal-location.png"]')).toBeVisible();
 });
 
 test("performer can log in and create a session", async ({ page }) => {
@@ -310,7 +319,7 @@ async function waitForApi(page: Page) {
   await expect
     .poll(
       async () => {
-        const response = await page.request.get("http://localhost:4000/api/health").catch(() => null);
+        const response = await page.request.get(`${apiBaseUrl}/api/health`).catch(() => null);
         return response?.ok() ?? false;
       },
       { timeout: 30_000 }

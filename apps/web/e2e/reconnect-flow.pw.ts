@@ -1,6 +1,7 @@
 import { expect, type Page, test } from "@playwright/test";
 
 const performerPassphrase = process.env.PERFORMER_PASSPHRASE ?? "openreveal-dev";
+const apiBaseUrl = process.env.PLAYWRIGHT_API_BASE_URL ?? "http://localhost:4000";
 
 test("receiver reload restores the latest sent reveal", async ({ browser, page }) => {
   const receiverContext = await browser.newContext();
@@ -94,7 +95,7 @@ async function waitForApi(page: Page) {
   await expect
     .poll(
       async () => {
-        const response = await page.request.get("http://localhost:4000/api/health").catch(() => null);
+        const response = await page.request.get(`${apiBaseUrl}/api/health`).catch(() => null);
         return response?.ok() ?? false;
       },
       { timeout: 30_000 }

@@ -27,6 +27,7 @@ For the complete local desktop plus same-Wi-Fi phone setup path, see [docs/local
 | `make typecheck` | Run TypeScript checks. | After changing shared contracts, API, or web code. |
 | `make test` | Run unit and API tests. | After backend/shared behavior changes. |
 | `make test-e2e` | Run Playwright browser flow tests. | After changing console, receiver, auth, realtime, or effect UI. |
+| `make test-hosted HOSTED_BASE_URL=... PERFORMER_PASSPHRASE=...` | Run the browser suite against an already-deployed staging service. | After staging smoke passes. |
 | `make test-latency` | Measure local prepared foreground reveal render-ack p95. | After realtime, receiver, or console latency changes. |
 | `make build` | Build all packages. | Before deployment or after build/config changes. |
 | `make check` | Run lint, typecheck, unit/API tests, and build. | Main pre-commit verification. |
@@ -35,10 +36,13 @@ For the complete local desktop plus same-Wi-Fi phone setup path, see [docs/local
 | `make record-showcase` | Record a local performer/audience QA MP4. | When you need a demo or review artifact. |
 | `make record-location-celebrity` | Record a focused location/celebrity performer/audience QA MP4. | When you want to review those two effects without custom text. |
 | `make release-scan` | Check tracked and unignored files for common real secrets and private deployment artifacts. | Before public pushes, release tags, or deploy handoff. |
-| `make cloudrun-deploy PROJECT_ID=... PERFORMER_PASSPHRASE=...` | Deploy Cloud Run with Secret Manager-backed runtime secrets, then run the hosted smoke test. | When the GCP project is ready and you are rotating/deploying production secrets. |
+| `make cloudrun-build PROJECT_ID=...` | Build one clean-worktree container image and resolve its immutable digest. | After the release-candidate commit passes locally. |
+| `make cloudrun-provision DEPLOY_ENV=staging PROJECT_ID=...` | Create environment-specific secrets if absent without rotating existing values. | Once per staging environment. |
+| `make cloudrun-deploy DEPLOY_ENV=staging PROJECT_ID=... IMAGE_URI=... RELEASE_SHA=...` | Deploy an immutable image without creating or rotating secrets. | After image build and environment provisioning. |
 | `make cloudrun-preflight PROJECT_ID=...` | Check Cloud Run auth, project, billing, and required services. | Before trying a Cloud Run deploy. |
 | `make smoke-deploy BASE_URL=https://...` | Smoke test a deployed OpenReveal URL (health, HTML fallback, security headers incl. HSTS, `/ws` upgrade). | After Cloud Run, Firebase Hosting, or custom-domain deploys. |
 | `pnpm security:probe [base-url]` | Active abuse probe: WS message-flood limit, per-IP socket cap, login rate limit, HSTS. **Intrusive:** run against local/staging. | After security changes, against a non-production target. |
+| `make verify-hosted LIVE_BASE_URL=... LIVE_PASSPHRASE=...` | Run the hosted iPhone/WebKit trick proof and capture evidence. | After hosted browser flows pass. |
 | `make maintenance-cleanup` | Expire stale live sessions and prune old expired data. | Local/staging maintenance, or before checking retention behavior. |
 
 Equivalent pnpm commands:
@@ -50,6 +54,7 @@ pnpm lint
 pnpm typecheck
 pnpm test
 pnpm test:e2e
+HOSTED_BASE_URL=https://staging.example PERFORMER_PASSPHRASE='from-secret-manager' pnpm test:hosted
 pnpm test:latency
 pnpm build
 pnpm check
@@ -58,9 +63,12 @@ pnpm maintenance:cleanup
 pnpm release:scan
 pnpm record:showcase
 pnpm record:location-celebrity
-PROJECT_ID=your-gcp-project-id PERFORMER_PASSPHRASE='choose-a-private-passphrase' pnpm cloudrun:deploy
+PROJECT_ID=openreveal pnpm cloudrun:build
+DEPLOY_ENV=staging PROJECT_ID=openreveal pnpm cloudrun:provision
+DEPLOY_ENV=staging PROJECT_ID=openreveal IMAGE_URI='asia-southeast1-docker.pkg.dev/...@sha256:...' RELEASE_SHA='<full-commit-sha>' pnpm cloudrun:deploy
 pnpm cloudrun:preflight your-gcp-project-id
 pnpm smoke:deploy https://your-openreveal-url
+LIVE_BASE_URL=https://your-openreveal-url LIVE_PASSPHRASE='from-secret-manager' pnpm verify:hosted
 ```
 
 ## Recommended Verification
@@ -92,6 +100,20 @@ pnpm test:e2e
 pnpm audit
 pnpm release:scan
 pnpm smoke:deploy https://your-openreveal-url
+```
+
+The dependency audit submits dependency names, versions, and graph metadata to
+the configured npm audit service. Run it only when that external security check
+is approved for the repository.
+
+Hosted verification does not start local servers. It requires an isolated
+staging deployment and the staging performer passphrase:
+
+```sh
+HOSTED_BASE_URL=https://staging-service-url \
+HOSTED_API_BASE_URL=https://staging-service-url \
+PERFORMER_PASSPHRASE='from-secret-manager' \
+pnpm test:hosted
 ```
 
 For the full end-to-end deployment testing procedure, including performer-console and audience-phone checks, see [docs/testing-plan.md](docs/testing-plan.md).
