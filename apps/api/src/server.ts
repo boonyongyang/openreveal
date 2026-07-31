@@ -233,7 +233,7 @@ async function fileExists(filePath: string) {
   }
 }
 
-function contentTypeFor(filePath: string) {
+export function contentTypeFor(filePath: string) {
   switch (path.extname(filePath)) {
     case ".css":
       return "text/css; charset=utf-8";
@@ -255,6 +255,8 @@ function contentTypeFor(filePath: string) {
       return "text/plain; charset=utf-8";
     case ".webp":
       return "image/webp";
+    case ".webmanifest":
+      return "application/manifest+json; charset=utf-8";
     default:
       return "application/octet-stream";
   }

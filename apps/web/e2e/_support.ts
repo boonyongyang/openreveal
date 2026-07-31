@@ -27,12 +27,21 @@ export async function waitForApi(page: Page) {
     .toBe(true);
 }
 
-export async function createSession(page: Page): Promise<CreatedSession> {
+export async function loginPerformer(page: Page) {
   await page.goto("/console");
   await waitForApi(page);
-  await page.getByLabel("Passphrase").fill(performerPassphrase);
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByRole("heading", { name: "Performer console" })).toBeVisible();
+  const consoleHeading = page.getByRole("heading", { name: "Performer console" });
+
+  if (!(await consoleHeading.isVisible())) {
+    await page.getByLabel("Passphrase").fill(performerPassphrase);
+    await page.getByRole("button", { name: "Continue" }).click();
+  }
+
+  await expect(consoleHeading).toBeVisible();
+}
+
+export async function createSession(page: Page): Promise<CreatedSession> {
+  await loginPerformer(page);
   await page.getByRole("button", { name: "Create session" }).click();
   await page.getByRole("button", { name: "Advanced" }).click();
   const receiverUrl = await page.getByLabel("Direct receiver URL").inputValue();

@@ -3,6 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 const baseURL = process.env.HOSTED_BASE_URL;
 const apiBaseURL = process.env.HOSTED_API_BASE_URL?.trim() || baseURL;
 const passphrase = process.env.PERFORMER_PASSPHRASE;
+const authStatePath = "test-results/hosted/performer-auth.json";
 
 if (!baseURL || !apiBaseURL) {
   throw new Error("Set HOSTED_BASE_URL (and optionally HOSTED_API_BASE_URL) before running hosted tests.");
@@ -15,6 +16,7 @@ if (!passphrase) {
 process.env.PLAYWRIGHT_API_BASE_URL = apiBaseURL;
 
 export default defineConfig({
+  globalSetup: "./playwright.hosted.setup.ts",
   testDir: "./apps/web/e2e",
   testMatch: "**/*.pw.ts",
   fullyParallel: false,
@@ -24,6 +26,7 @@ export default defineConfig({
   outputDir: process.env.HOSTED_EVIDENCE_DIR ?? "test-results/hosted",
   use: {
     baseURL,
+    storageState: authStatePath,
     trace: "on-first-retry"
   },
   projects: [

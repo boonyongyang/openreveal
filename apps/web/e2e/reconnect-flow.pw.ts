@@ -1,7 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 
-const performerPassphrase = process.env.PERFORMER_PASSPHRASE ?? "openreveal-dev";
-const apiBaseUrl = process.env.PLAYWRIGHT_API_BASE_URL ?? "http://localhost:4000";
+import { loginPerformer } from "./_support";
 
 test("receiver reload restores the latest sent reveal", async ({ browser, page }) => {
   const receiverContext = await browser.newContext();
@@ -66,11 +65,7 @@ test("different receiver device is rejected while the original receiver is activ
 });
 
 async function createSession(page: Page) {
-  await page.goto("/console");
-  await waitForApi(page);
-  await page.getByLabel("Passphrase").fill(performerPassphrase);
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByRole("heading", { name: "Performer console" })).toBeVisible();
+  await loginPerformer(page);
   await page.getByRole("button", { name: "Create session" }).click();
   await page.getByRole("button", { name: "Advanced" }).click();
   const receiverUrl = await page.getByLabel("Direct receiver URL").inputValue();
@@ -89,16 +84,4 @@ async function sendLocationReveal(page: Page, receiverPage: Page, locationName: 
   await page.getByRole("button", { name: "Send", exact: true }).click();
   await expect(page.locator(".status-pill--delivered")).toHaveText("Delivered");
   await expect(receiverPage.getByRole("heading", { name: locationName })).toBeVisible();
-}
-
-async function waitForApi(page: Page) {
-  await expect
-    .poll(
-      async () => {
-        const response = await page.request.get(`${apiBaseUrl}/api/health`).catch(() => null);
-        return response?.ok() ?? false;
-      },
-      { timeout: 30_000 }
-    )
-    .toBe(true);
 }

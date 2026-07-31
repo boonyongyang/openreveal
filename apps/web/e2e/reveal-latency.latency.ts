@@ -1,17 +1,14 @@
-import { expect, type Page, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+
+import { loginPerformer } from "./_support";
 
 const SAMPLE_COUNT = Number(process.env.OPENREVEAL_LATENCY_SAMPLES ?? "20");
 const P95_TARGET_MS = 250;
-const performerPassphrase = process.env.PERFORMER_PASSPHRASE ?? "openreveal-dev";
-const apiBaseUrl = process.env.PLAYWRIGHT_API_BASE_URL ?? "http://localhost:4000";
 
 test("prepared foreground reveal render acknowledgement p95 stays under target", async ({ page }) => {
   test.setTimeout(Math.max(120_000, SAMPLE_COUNT * 10_000));
 
-  await page.goto("/console");
-  await waitForApi(page);
-  await page.getByLabel("Passphrase").fill(performerPassphrase);
-  await page.getByRole("button", { name: "Continue" }).click();
+  await loginPerformer(page);
   await page.getByRole("button", { name: "Create session" }).click();
   await page.getByRole("button", { name: "Advanced" }).click();
   await page.getByRole("button", { name: "Demo mode" }).click();
@@ -59,16 +56,4 @@ function parseLatency(label: string) {
     throw new Error(`Could not parse latency from "${label}"`);
   }
   return value;
-}
-
-async function waitForApi(page: Page) {
-  await expect
-    .poll(
-      async () => {
-        const response = await page.request.get(`${apiBaseUrl}/api/health`).catch(() => null);
-        return response?.ok() ?? false;
-      },
-      { timeout: 30_000 }
-    )
-    .toBe(true);
 }

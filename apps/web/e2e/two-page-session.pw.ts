@@ -1,13 +1,9 @@
-import { expect, type Page, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
-const performerPassphrase = process.env.PERFORMER_PASSPHRASE ?? "openreveal-dev";
-const apiBaseUrl = process.env.PLAYWRIGHT_API_BASE_URL ?? "http://localhost:4000";
+import { loginPerformer } from "./_support";
 
 test("spectator can join from root or /j with a session code", async ({ browser, page }) => {
-  await page.goto("/console");
-  await waitForApi(page);
-  await page.getByLabel("Passphrase").fill(performerPassphrase);
-  await page.getByRole("button", { name: "Continue" }).click();
+  await loginPerformer(page);
 
   for (const joinPath of ["/", "/j"]) {
     const receiverContext = await browser.newContext();
@@ -48,11 +44,7 @@ test("performer controls a real receiver page end to end", async ({ browser, pag
   const receiverPage = await receiverContext.newPage();
 
   try {
-    await page.goto("/console");
-    await waitForApi(page);
-    await page.getByLabel("Passphrase").fill(performerPassphrase);
-    await page.getByRole("button", { name: "Continue" }).click();
-    await expect(page.getByRole("heading", { name: "Performer console" })).toBeVisible();
+    await loginPerformer(page);
 
     await page.getByRole("button", { name: "Create session" }).click();
     await page.getByRole("button", { name: "Advanced" }).click();
@@ -108,10 +100,7 @@ test("location reveal can auto-open Maps on the receiver page", async ({ browser
   const receiverPage = await receiverContext.newPage();
 
   try {
-    await page.goto("/console");
-    await waitForApi(page);
-    await page.getByLabel("Passphrase").fill(performerPassphrase);
-    await page.getByRole("button", { name: "Continue" }).click();
+    await loginPerformer(page);
     await page.getByRole("button", { name: "Create session" }).click();
     await page.getByRole("button", { name: "Advanced" }).click();
     const receiverUrl = await page.getByLabel("Direct receiver URL").inputValue();
@@ -146,10 +135,7 @@ test("celebrity reveal can auto-open Google Search on the receiver page", async 
   const receiverPage = await receiverContext.newPage();
 
   try {
-    await page.goto("/console");
-    await waitForApi(page);
-    await page.getByLabel("Passphrase").fill(performerPassphrase);
-    await page.getByRole("button", { name: "Continue" }).click();
+    await loginPerformer(page);
     await page.getByRole("button", { name: "Create session" }).click();
     await page.getByRole("button", { name: "Advanced" }).click();
     const receiverUrl = await page.getByLabel("Direct receiver URL").inputValue();
@@ -177,10 +163,7 @@ test("custom text reveal uses centered receiver mode", async ({ browser, page })
   const receiverPage = await receiverContext.newPage();
 
   try {
-    await page.goto("/console");
-    await waitForApi(page);
-    await page.getByLabel("Passphrase").fill(performerPassphrase);
-    await page.getByRole("button", { name: "Continue" }).click();
+    await loginPerformer(page);
     await page.getByRole("button", { name: "Create session" }).click();
     await page.getByRole("button", { name: "Advanced" }).click();
     const receiverUrl = await page.getByLabel("Direct receiver URL").inputValue();
@@ -203,15 +186,3 @@ test("custom text reveal uses centered receiver mode", async ({ browser, page })
     await receiverContext.close();
   }
 });
-
-async function waitForApi(page: Page) {
-  await expect
-    .poll(
-      async () => {
-        const response = await page.request.get(`${apiBaseUrl}/api/health`).catch(() => null);
-        return response?.ok() ?? false;
-      },
-      { timeout: 30_000 }
-    )
-    .toBe(true);
-}

@@ -1,9 +1,8 @@
 import { readFile, writeFile } from "node:fs/promises";
 
-import { expect, type Page, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
-const performerPassphrase = process.env.PERFORMER_PASSPHRASE ?? "openreveal-dev";
-const apiBaseUrl = process.env.PLAYWRIGHT_API_BASE_URL ?? "http://localhost:4000";
+import { loginPerformer } from "./_support";
 
 test("privacy page is reachable with anti-framing headers", async ({ page }) => {
   const response = await page.goto("/privacy");
@@ -68,10 +67,7 @@ test("about page presents the public project overview", async ({ page }) => {
 });
 
 test("performer can log in and create a session", async ({ page }) => {
-  await page.goto("/console");
-  await waitForApi(page);
-  await page.getByLabel("Passphrase").fill(performerPassphrase);
-  await page.getByRole("button", { name: "Continue" }).click();
+  await loginPerformer(page);
 
   await expect(page.getByRole("heading", { name: "Performer console" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Quick session" })).toHaveAttribute(
@@ -100,10 +96,7 @@ test("performer can log in and create a session", async ({ page }) => {
 });
 
 test("performer can arm and send a location reveal in demo mode", async ({ page }) => {
-  await page.goto("/console");
-  await waitForApi(page);
-  await page.getByLabel("Passphrase").fill(performerPassphrase);
-  await page.getByRole("button", { name: "Continue" }).click();
+  await loginPerformer(page);
   await page.getByRole("button", { name: "Create session" }).click();
   await page.getByRole("button", { name: "Advanced" }).click();
   await page.getByRole("button", { name: "Demo mode" }).click();
@@ -128,10 +121,7 @@ test("performer can arm and send a location reveal in demo mode", async ({ page 
 });
 
 test("location form stays in manual mode when Places is not configured", async ({ page }) => {
-  await page.goto("/console");
-  await waitForApi(page);
-  await page.getByLabel("Passphrase").fill(performerPassphrase);
-  await page.getByRole("button", { name: "Continue" }).click();
+  await loginPerformer(page);
 
   await expect(page.getByLabel("Place search")).toBeDisabled();
   await expect(page.getByText("Manual fallback available")).toBeVisible();
@@ -177,10 +167,7 @@ test("performer can select a Places prediction to prefill location fields", asyn
     });
   });
 
-  await page.goto("/console");
-  await waitForApi(page);
-  await page.getByLabel("Passphrase").fill(performerPassphrase);
-  await page.getByRole("button", { name: "Continue" }).click();
+  await loginPerformer(page);
 
   await page.getByLabel("Place search").fill("petronas");
   await page.getByRole("button", { name: /Petronas Twin Towers/ }).click();
@@ -194,10 +181,7 @@ test("performer can select a Places prediction to prefill location fields", asyn
 });
 
 test("performer can arm and send a celebrity reveal in demo mode", async ({ page }) => {
-  await page.goto("/console");
-  await waitForApi(page);
-  await page.getByLabel("Passphrase").fill(performerPassphrase);
-  await page.getByRole("button", { name: "Continue" }).click();
+  await loginPerformer(page);
   await page.getByRole("button", { name: "Create session" }).click();
   await page.getByRole("button", { name: "Advanced" }).click();
   await page.getByRole("button", { name: "Demo mode" }).click();
@@ -221,10 +205,7 @@ test("performer can arm and send a celebrity reveal in demo mode", async ({ page
 });
 
 test("performer can arm and send a custom text reveal in demo mode", async ({ page }) => {
-  await page.goto("/console");
-  await waitForApi(page);
-  await page.getByLabel("Passphrase").fill(performerPassphrase);
-  await page.getByRole("button", { name: "Continue" }).click();
+  await loginPerformer(page);
   await page.getByRole("button", { name: "Create session" }).click();
   await page.getByRole("button", { name: "Advanced" }).click();
   await page.getByRole("button", { name: "Demo mode" }).click();
@@ -247,10 +228,7 @@ test("performer can arm and send a custom text reveal in demo mode", async ({ pa
 });
 
 test("performer can export and import local JSON presets", async ({ page }, testInfo) => {
-  await page.goto("/console");
-  await waitForApi(page);
-  await page.getByLabel("Passphrase").fill(performerPassphrase);
-  await page.getByRole("button", { name: "Continue" }).click();
+  await loginPerformer(page);
   await page.getByRole("button", { name: "Create session" }).click();
   await page.getByRole("button", { name: "Advanced" }).click();
   await page.getByRole("button", { name: "Demo mode" }).click();
@@ -298,10 +276,7 @@ test("performer can export and import local JSON presets", async ({ page }, test
 });
 
 test("ending a session makes performer mutation controls read-only", async ({ page }) => {
-  await page.goto("/console");
-  await waitForApi(page);
-  await page.getByLabel("Passphrase").fill(performerPassphrase);
-  await page.getByRole("button", { name: "Continue" }).click();
+  await loginPerformer(page);
   await page.getByRole("button", { name: "Create session" }).click();
   await expect(page.getByText("in the phone browser")).toBeVisible();
 
@@ -314,15 +289,3 @@ test("ending a session makes performer mutation controls read-only", async ({ pa
   await expect(page.getByRole("button", { name: "Reset", exact: true })).toBeDisabled();
   await expect(page.getByRole("button", { name: "End", exact: true })).toBeDisabled();
 });
-
-async function waitForApi(page: Page) {
-  await expect
-    .poll(
-      async () => {
-        const response = await page.request.get(`${apiBaseUrl}/api/health`).catch(() => null);
-        return response?.ok() ?? false;
-      },
-      { timeout: 30_000 }
-    )
-    .toBe(true);
-}

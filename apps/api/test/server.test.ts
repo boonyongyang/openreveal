@@ -20,6 +20,14 @@ afterEach(() => {
 });
 
 describe("OpenReveal API", () => {
+  it("serves web manifests with the installable-app content type", async () => {
+    const { contentTypeFor } = await import("../src/server.js");
+
+    expect(contentTypeFor("manifest.webmanifest")).toBe(
+      "application/manifest+json; charset=utf-8"
+    );
+  });
+
   it("sets baseline security headers on API responses", async () => {
     const { buildServer } = await import("../src/server.js");
     const app = await buildServer();
