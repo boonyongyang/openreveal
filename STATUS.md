@@ -212,7 +212,7 @@ Latest mobile and under-the-hood walkthrough pass on 2026-07-15:
 - `pnpm release:scan`: passed.
 - `git diff --check`: passed. Touched source and copy contain no em or en dashes.
 
-Latest release-validation preparation on 2026-08-01:
+Latest release validation on 2026-08-01:
 
 - Preserved the mobile and under-the-hood redesign on the isolated
   `codex/openreveal-release-validation` branch and regenerated its committed
@@ -225,11 +225,23 @@ Latest release-validation preparation on 2026-08-01:
 - `CI=true pnpm check`: passed.
 - `CI=true pnpm test:e2e`: passed, 26/26 across Chromium and the mobile Safari profile.
 - `CI=true pnpm test:latency`: passed, 20 samples, p95 10ms, max 10ms.
-- `CI=true pnpm release:scan`: passed, 159 tracked/unignored files checked.
-- The current npm audit is intentionally pending explicit approval because it
-  submits dependency graph metadata to an external audit service.
-- The local Docker daemon was unavailable; Cloud Build and isolated staging
-  remain the current container and hosted-runtime proof gates.
+- `CI=true pnpm release:scan`: passed, 160 tracked/unignored files checked.
+- Cloud Build passed for a clean commit and produced an immutable Artifact
+  Registry digest.
+- Isolated `openreveal-staging` validation passed: deployment smoke, 26/26
+  hosted Chromium/WebKit flows without retries, the dedicated iPhone/WebKit
+  Maps and back-trap proof, and the 5/5 intrusive security probe.
+- Hosted testing found and closed two release issues before acceptance: the
+  production static server now emits the correct web-manifest MIME type, and
+  hosted authentication plus session-switch timing no longer create false
+  rate-limit or stale-link failures.
+- Production remained on `openreveal-00014-g5n`, serving 100 percent of traffic
+  from its existing image, and passed a read-only smoke after staging.
+- `CI=true pnpm audit --audit-level moderate` passed with no known
+  vulnerabilities after updating Fastify to 5.11.0 and refreshing the patched
+  `fast-uri`, `find-my-way`, and `postcss` transitive releases.
+- The local Docker daemon was unavailable; the successful Cloud Build provides
+  the current container proof.
 
 Historical automated verification baseline from 2026-06-20:
 
@@ -273,8 +285,9 @@ Latest Android emulator verification on 2026-06-06:
 ## Next Steps
 
 The currently deployed production remains ready for portfolio/demo use. The
-new release-validation candidate is locally green but must pass its isolated
-staging gates before it is eligible for production promotion.
+new release-validation candidate has passed its isolated staging gates and is
+eligible for review. Production promotion still requires reviewed `main`, the
+exact staging-tested image digest, physical-device QA, and explicit approval.
 
 1. Complete Phase 7 deployment closure:
    - [x] Choose target GCP project ID and region: `openreveal`, `asia-southeast1`
@@ -299,8 +312,8 @@ staging gates before it is eligible for production promotion.
 
 - Ready now: local desktop testing, LAN/tunnel rehearsal, automated browser coverage, Docker production smoke, Cloud Run preflight checks, hosted Cloud Run smoke, Firebase front door, GitHub release, and generated QA video/screenshots.
 - Current candidate: local check, 26 browser flows, latency, release scan, and
-  refreshed visual evidence are green; immutable staging build and hosted
-  verification are next.
+  refreshed visual evidence are green; immutable staging build, hosted browser
+  verification, WebKit proof, and staging security probe are also green.
 - GitHub status: v0.1.0 release baseline exists.
 - Waiting on owner input: optional custom domain, optional owner-managed passphrase rotation, optional Google Places API key, and whether to upgrade storage beyond demo-grade SQLite.
 - Waiting on real devices: iPhone Safari and Android Chrome runs from `requirements/mobile-qa.md`.

@@ -10,10 +10,12 @@ Current release-validation candidate on 2026-08-01:
 - [x] `CI=true pnpm check` passed.
 - [x] `CI=true pnpm test:e2e` passed, 26/26 across Chromium and the mobile Safari profile.
 - [x] `CI=true pnpm test:latency` passed, 20 samples, p95 10ms, max 10ms.
-- [x] `CI=true pnpm release:scan` passed, 159 tracked/unignored files checked.
+- [x] `CI=true pnpm release:scan` passed, 160 tracked/unignored files checked.
 - [x] Committed screenshots regenerated from the real local flow.
-- [ ] Current dependency audit awaits explicit approval for npm audit-service metadata disclosure.
-- [ ] Current container build and isolated staging validation remain to be completed.
+- [x] `CI=true pnpm audit --audit-level moderate` passed with no known vulnerabilities after refreshing the patched Fastify/Vite transitive dependency graph.
+- [x] Cloud Build produced the clean candidate image and resolved its immutable digest.
+- [x] Isolated `openreveal-staging` smoke, 26/26 hosted browser flows, iPhone/WebKit proof, and 5/5 security probe passed.
+- [x] Production remained on revision `openreveal-00014-g5n` and passed a read-only smoke after staging validation.
 
 - [x] `pnpm install --frozen-lockfile` (passed 2026-07-04)
 - [x] `pnpm check` (passed 2026-07-09)
@@ -80,5 +82,5 @@ Current release-validation candidate on 2026-08-01:
 - [x] Production environment variables set from `.env.example`.
 - [x] `pnpm release:scan` added to the release command surface.
 - [ ] Re-run `pnpm release:scan` before each public push or release tag.
-- [ ] Verify the current candidate on `openreveal-staging` before production promotion.
+- [x] Verify the current candidate on `openreveal-staging` before production promotion.
 - [ ] Promote only the staging-tested image digest from reviewed `main` with the explicit production acknowledgement.
