@@ -16,7 +16,7 @@
     "@fastify/cookie": "^11.1.2",
     "@fastify/rate-limit": "^10.0.0",
     "@fastify/websocket": "^11.3.0",
-    "@libsql/client": "^0.17.4",
+    "@libsql/client": "^0.18.0",
     "@openreveal/shared": "workspace:*",
     "@sinclair/typebox": "^0.34.52",
     "dotenv": "^16.4.7",
